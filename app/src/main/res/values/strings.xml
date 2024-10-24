@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">DayPlanner</string>
+    <string name="add_button_description">Add new Task</string>
+    <string name="main_activity_label_name">DayPlanner</string>
 </resources>
