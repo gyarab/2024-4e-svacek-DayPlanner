@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -25,7 +23,6 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView timeLine;
     FloatingActionButton addTask;
     RecyclerView weeklyRecyclerView;
-
     TasksDBHelper timelineDbHelper;
     ArrayList<String> task_id, task_title, task_description, task_length;
     TimelineAdapter customAdapter;
@@ -60,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         task_description = new ArrayList<>();
         task_length = new ArrayList<>();
 
-        storeData();
+        fetchTaskData();
 
         customAdapter = new TimelineAdapter(MainActivity.this, task_id, task_title, task_description, task_length);
         timeLine.setAdapter(customAdapter);
@@ -78,8 +75,8 @@ public class MainActivity extends AppCompatActivity {
         weeklyRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this, LinearLayoutManager.HORIZONTAL, false));
     }
 
-    void storeData() {
-        Cursor cursor = timelineDbHelper.readAllData(); //Object used to retrieve data from db
+    void fetchTaskData() {
+        Cursor cursor = timelineDbHelper.readAllDataWithDate("13122024"); //Object used to retrieve data from db
         if (cursor.getCount() == 0) {
             //get count gets the number of rows
             //if no rows then display a message
@@ -91,8 +88,9 @@ public class MainActivity extends AppCompatActivity {
                 task_id.add(cursor.getString(0)); //adds to array the first column of the row
                 task_title.add(cursor.getString(1)); //adds to array the second column of the row and so on
                 task_description.add(cursor.getString(2));
-                task_length.add(cursor.getString(3));
+                task_length.add(cursor.getString(5));
             }
         }
+        cursor.close();
     }
 }

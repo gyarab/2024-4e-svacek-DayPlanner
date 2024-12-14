@@ -45,6 +45,8 @@ public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayViewHolder> {
                 Log.d("CLICKED", "id: " + dayModel.getDate() + "" + dayModel.getMonth() + "" + dayModel.getYear());
                 TextView textView = ((Activity) context).findViewById(R.id.monthYearTextView); //I need the context for using the method
                 textView.setText(monthName  + " " + dayModel.getYear());
+
+                //GET THE ROWS CORRESPONDING TO THE ID AND SEND THE ARRAYS TO MAIN FUNCTION AND DISPLAY THEM
             }
         });
     }

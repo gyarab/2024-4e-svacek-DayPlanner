@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -34,24 +35,6 @@ public class AddTaskActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_add_task);
-
-        title_input = findViewById(R.id.title_input);
-        description_input = findViewById(R.id.description_input);
-        length_input = findViewById(R.id.length_input);
-        add_button = findViewById(R.id.add_button);
-        add_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                TasksDBHelper timelineDbHelper = new TasksDBHelper(AddTaskActivity.this);
-                timelineDbHelper.addTask(
-                        title_input.getText().toString().trim(),
-                        description_input.getText().toString().trim(),
-                        Integer.parseInt(length_input.getText().toString().trim())
-                );
-                Intent intent = new Intent(AddTaskActivity.this, MainActivity.class);
-                startActivity(intent);
-            }
-        });
 
         //date picker
         dateTextView = findViewById(R.id.dateTextView);
@@ -99,6 +82,30 @@ public class AddTaskActivity extends AppCompatActivity {
             }
         });
 
+        //Input fields in adding new task
+        title_input = findViewById(R.id.title_input);
+        description_input = findViewById(R.id.description_input);
+        length_input = findViewById(R.id.length_input);
+
+        add_button = findViewById(R.id.add_button);
+        add_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("DB", "clicked");
+                TasksDBHelper timelineDbHelper = new TasksDBHelper(AddTaskActivity.this);
+                timelineDbHelper.addTask(
+                        title_input.getText().toString().trim(),
+                        description_input.getText().toString().trim(),
+                        formatDate(dateTextView.getText().toString().trim()),
+                        timeTextView.getText().toString().trim(),
+                        Integer.parseInt(length_input.getText().toString().trim())
+                );
+                Log.d("CLICKED", formatDate(String.valueOf(dateTextView.getText())));
+                Intent intent = new Intent(AddTaskActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
+
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -120,5 +127,20 @@ public class AddTaskActivity extends AppCompatActivity {
             return insets;
         });
 
+    }
+
+    public static String formatDate(String date) {
+        String formattedDate = "";
+
+        if (date != null && !date.isEmpty()) {
+            // Split the input date by space
+            String[] parts = date.split(" ");
+            if (parts.length == 2) {
+                // Remove the dots and concatenate the parts
+                formattedDate = parts[0].replace(".", "") + parts[1];
+            }
+        }
+
+        return formattedDate;
     }
 }
