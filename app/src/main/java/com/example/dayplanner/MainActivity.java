@@ -3,7 +3,9 @@ package com.example.dayplanner;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -16,7 +18,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.text.DateFormatSymbols;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,8 +28,8 @@ public class MainActivity extends AppCompatActivity {
     FloatingActionButton addTask;
     RecyclerView weeklyRecyclerView;
     TasksDBHelper timelineDbHelper;
-    ArrayList<String> task_id, task_title, task_description, task_length;
-    TimelineAdapter customAdapter;
+    ArrayList<String> task_start_time, task_title, task_description, task_length;
+    TimelineAdapter timelineAdapter;
     DayAdapter dayAdapter;
 
     @Override
@@ -38,10 +42,15 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        Calendar calendar = Calendar.getInstance();
+        int currentYear = calendar.get(Calendar.YEAR);
+        int currentMonth = calendar.get(Calendar.MONTH);
+        String currentMonthName = new DateFormatSymbols().getMonths()[currentMonth]; //convert month number to name
+        ((TextView)findViewById(R.id.monthYearTextView)).setText(currentMonthName + " " + currentYear); //set the month year view to current month and year as default
 
         //Creating timeline recyclerview
         timeLine = findViewById(R.id.timeLine);
-        addTask = findViewById(R.id.floatingActionButton);
+        addTask = findViewById(R.id.AddTaskButton);
         addTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -52,31 +61,44 @@ public class MainActivity extends AppCompatActivity {
         });
 
         timelineDbHelper = new TasksDBHelper(MainActivity.this);
-        task_id = new ArrayList<>();
+        task_start_time = new ArrayList<>();
         task_title = new ArrayList<>();
         task_description = new ArrayList<>();
         task_length = new ArrayList<>();
 
-        fetchTaskData();
-
-        customAdapter = new TimelineAdapter(MainActivity.this, task_id, task_title, task_description, task_length);
-        timeLine.setAdapter(customAdapter);
+        timelineAdapter = new TimelineAdapter(MainActivity.this, task_start_time, task_title, task_description, task_length);
+        timeLine.setAdapter(timelineAdapter);
         //This line assigns your custom RecyclerView.Adapter (customAdapter) to the RecyclerView (timeLine).
         //The adapter (customAdapter) is responsible for creating and binding the individual list items that the RecyclerView will display.
         //In this case, customAdapter contains task data, which it will provide to each RecyclerView item through methods like onBindViewHolder
         timeLine.setLayoutManager(new LinearLayoutManager(MainActivity.this)); //organizes the items in a vertical or horizontal scrolling list (vertical by default)
 
+        fetchTaskData("13122024");
+
         //Creating dayRecyclerView - week displayed as a header
         DaysList daysList = new DaysList();
 
-        dayAdapter = new DayAdapter(MainActivity.this, daysList);
+        dayAdapter = new DayAdapter(MainActivity.this, daysList, new DayAdapter.OnDayClickListener() {
+            @Override
+            public void onDayClick(String dateId) {
+                fetchTaskData(dateId);
+            }
+        });
         weeklyRecyclerView = findViewById(R.id.weeklyRecyclerView);
         weeklyRecyclerView.setAdapter(dayAdapter);
         weeklyRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this, LinearLayoutManager.HORIZONTAL, false));
     }
 
-    void fetchTaskData() {
-        Cursor cursor = timelineDbHelper.readAllDataWithDate("13122024"); //Object used to retrieve data from db
+    void fetchTaskData(String dateId) {
+        Cursor cursor = timelineDbHelper.readAllDataWithDate(dateId); //Object used to retrieve data from db
+        Log.d("FETCH", "fetchTaskData: " + dateId);
+
+        //clear the arrays
+        task_start_time.clear();
+        task_title.clear();
+        task_description.clear();
+        task_length.clear();
+
         if (cursor.getCount() == 0) {
             //get count gets the number of rows
             //if no rows then display a message
@@ -85,12 +107,16 @@ public class MainActivity extends AppCompatActivity {
             //User has saved some tasks in database
             while(cursor.moveToNext()) {
                 //moveToNext() takes next row of the retrieved db data
-                task_id.add(cursor.getString(0)); //adds to array the first column of the row
+                task_start_time.add(cursor.getString(4)); //adds to array the first column of the row
                 task_title.add(cursor.getString(1)); //adds to array the second column of the row and so on
                 task_description.add(cursor.getString(2));
                 task_length.add(cursor.getString(5));
             }
+            Log.d("FETCH", task_title.toString());
         }
         cursor.close();
+
+        //notify the timelineAdapter that the data has changed
+        timelineAdapter.notifyDataSetChanged();
     }
 }

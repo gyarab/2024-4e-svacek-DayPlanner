@@ -19,4 +19,12 @@
         android:layout_height="wrap_content"
         android:text="17"
         android:textSize="16sp" />
+    <!-- Small pink dot -->
+    <View
+        android:id="@+id/activeDot"
+        android:layout_width="8dp"
+        android:layout_height="8dp"
+        android:background="@drawable/circle_pink"
+        android:visibility="invisible"
+        android:layout_marginTop="4dp" />
 </LinearLayout>

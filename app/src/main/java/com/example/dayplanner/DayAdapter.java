@@ -18,10 +18,15 @@ import java.util.Calendar;
 public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayViewHolder> {
     private Context context;
     private ArrayList<DayModel> days;
-
-    DayAdapter(Context context, ArrayList<DayModel> days) {
+    private int selectedPosition = -1; //serve to track the previous active position to later hide the active dot
+    private OnDayClickListener onDayClickListener;
+    public interface OnDayClickListener {
+        void onDayClick(String dateID);
+    }
+    DayAdapter(Context context, ArrayList<DayModel> days, OnDayClickListener onDayClickListener) {
         this.context = context;
         this.days = days;
+        this.onDayClickListener = onDayClickListener;
     }
 
     @NonNull
@@ -42,11 +47,17 @@ public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayViewHolder> {
         holder.dateTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //configure active dot
+                setActiveDot(holder.getAdapterPosition());
+
+                //configure MonthYearTextView
                 Log.d("CLICKED", "id: " + dayModel.getDate() + "" + dayModel.getMonth() + "" + dayModel.getYear());
                 TextView textView = ((Activity) context).findViewById(R.id.monthYearTextView); //I need the context for using the method
                 textView.setText(monthName  + " " + dayModel.getYear());
 
                 //GET THE ROWS CORRESPONDING TO THE ID AND SEND THE ARRAYS TO MAIN FUNCTION AND DISPLAY THEM
+                String dateId = dayModel.getDate() + "" + dayModel.getMonth() + "" + dayModel.getYear();
+                onDayClickListener.onDayClick(dateId);
             }
         });
     }
@@ -56,15 +67,53 @@ public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayViewHolder> {
         return days.size();
     }
 
+    public void setActiveDot(int position) {
+        Log.d("SetDot", "Clicked position: " + position);
+
+        // Get the RecyclerView instance
+        RecyclerView weeklyRecyclerView = ((Activity) context).findViewById(R.id.weeklyRecyclerView);
+
+        // Ensure the adapter is not null
+        RecyclerView.Adapter adapter = weeklyRecyclerView.getAdapter();
+        if (adapter == null) return;
+
+        // If a position is already selected, reset the active dot for that position
+        if (selectedPosition != -1 && selectedPosition != position) {
+            // Ensure you're properly getting the ViewHolder for the previous selected position
+            RecyclerView.ViewHolder previousViewHolder = weeklyRecyclerView.findViewHolderForAdapterPosition(selectedPosition);
+            if (previousViewHolder instanceof DayViewHolder) {
+                DayViewHolder previousDayViewHolder = (DayViewHolder) previousViewHolder;
+                // Reset the active dot visibility for the previous item
+                previousDayViewHolder.activeDot.setVisibility(View.GONE); // Hide the active dot
+            }
+        }
+
+        // Set the active dot visibility to VISIBLE for the clicked item
+        RecyclerView.ViewHolder currentViewHolder = weeklyRecyclerView.findViewHolderForAdapterPosition(position);
+        if (currentViewHolder instanceof DayViewHolder) {
+            DayViewHolder currentDayViewHolder = (DayViewHolder) currentViewHolder;
+            // Set the active dot visibility to VISIBLE for the clicked item
+            currentDayViewHolder.activeDot.setVisibility(View.VISIBLE);
+        }
+
+        // Update the selected position to the new position
+        selectedPosition = position;
+
+        Log.d("SetDot", "selectedPosition updated: " + selectedPosition);
+    }
+
     public class DayViewHolder extends RecyclerView.ViewHolder {
 
         TextView dayTextView;
         TextView dateTextView;
+        View activeDot;
 
         public DayViewHolder(@NonNull View itemView) {
             super(itemView);
             dayTextView = itemView.findViewById(R.id.dayTextView);
             dateTextView = itemView.findViewById(R.id.dateTextView);
+
+            activeDot = itemView.findViewById(R.id.activeDot); // Pink dot in the layout
         }
     }
 }
