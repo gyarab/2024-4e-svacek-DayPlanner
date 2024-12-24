@@ -2,14 +2,19 @@ package com.example.dayplanner;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -42,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        popupMenu(); //function that sets the popupmenu to work
+
         Calendar calendar = Calendar.getInstance();
         int currentYear = calendar.get(Calendar.YEAR);
         int currentMonth = calendar.get(Calendar.MONTH);
@@ -119,4 +127,43 @@ public class MainActivity extends AppCompatActivity {
         //notify the timelineAdapter that the data has changed
         timelineAdapter.notifyDataSetChanged();
     }
+
+    void popupMenu() {
+        FloatingActionButton profileButton = findViewById(R.id.ProfileButton);
+
+        profileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PopupMenu popupMenu = new PopupMenu(MainActivity.this, v);
+                popupMenu.getMenuInflater().inflate(R.menu.popup_menu, popupMenu.getMenu());
+
+                // Force icons to be shown in the PopupMenu
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    //by default the are for some reason hidden :)
+                    popupMenu.setForceShowIcon(true);
+                }
+
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        int id = item.getItemId();
+                        if (id == R.id.settings) {
+                            Toast.makeText(MainActivity.this, "Settings clicked", Toast.LENGTH_SHORT).show();
+                            return true;
+                        } else if (id == R.id.statistics) {
+                            Toast.makeText(MainActivity.this, "Statistics clicked", Toast.LENGTH_SHORT).show();
+                            return true;
+                        } else if (id == R.id.archive) {
+                            Toast.makeText(MainActivity.this, "Archive clicked", Toast.LENGTH_SHORT).show();
+                            return true;
+                        }
+                        return false;
+                    }
+                });
+                popupMenu.show();
+            }
+        });
+    }
+
+
 }
