@@ -149,9 +149,13 @@ public class MainActivity extends AppCompatActivity {
                         int id = item.getItemId();
                         if (id == R.id.settings) {
                             Toast.makeText(MainActivity.this, "Settings clicked", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                            startActivity(intent);
                             return true;
                         } else if (id == R.id.statistics) {
                             Toast.makeText(MainActivity.this, "Statistics clicked", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(MainActivity.this, StatisticsActivity.class);
+                            startActivity(intent);
                             return true;
                         } else if (id == R.id.archive) {
                             Toast.makeText(MainActivity.this, "Archive clicked", Toast.LENGTH_SHORT).show();
