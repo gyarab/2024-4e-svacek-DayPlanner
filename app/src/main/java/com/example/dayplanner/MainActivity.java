@@ -1,134 +1,94 @@
 package com.example.dayplanner;
 
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.DateFormatSymbols;
-import java.util.ArrayList;
 import java.util.Calendar;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragment.OnDaySelectedListener {
 
-    RecyclerView timeLine;
+
     FloatingActionButton addTask;
-    RecyclerView weeklyRecyclerView;
-    TasksDBHelper timelineDbHelper;
-    ArrayList<String> task_start_time, task_title, task_description, task_length;
-    TimelineAdapter timelineAdapter;
-    DayAdapter dayAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+
+        if (savedInstanceState == null) {
+            // Add TimelineFragment to the activity
+            FragmentTransaction timelineTransaction = getSupportFragmentManager().beginTransaction();
+            timelineTransaction.replace(R.id.fragment_container_timeline, new TimelineFragment());
+            timelineTransaction.commit();
+
+            // Adding a Tag to the Timeline fragment so that I can access its methods later
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container_timeline, new TimelineFragment(), "TIMELINE_FRAGMENT_TAG")
+                    .commit();
+
+            // Add WeeklyHeaderFragment to the activity
+            FragmentTransaction transaction2 = getSupportFragmentManager().beginTransaction();
+            transaction2.replace(R.id.fragment_container_header, new WeeklyHeaderFragment());
+            transaction2.commit();
+        }
+
+        // Set up system UI insets
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+         Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
-        });
+         });
 
-        popupMenu(); //function that sets the popupmenu to work
+        popupMenu(); // function that sets the popup menu to work
 
+        // Get current date and set month/year in the UI
         Calendar calendar = Calendar.getInstance();
         int currentYear = calendar.get(Calendar.YEAR);
         int currentMonth = calendar.get(Calendar.MONTH);
-        String currentMonthName = new DateFormatSymbols().getMonths()[currentMonth]; //convert month number to name
-        ((TextView)findViewById(R.id.monthYearTextView)).setText(currentMonthName + " " + currentYear); //set the month year view to current month and year as default
+        String currentMonthName = new DateFormatSymbols().getMonths()[currentMonth]; // convert month number to name
+        ((TextView) findViewById(R.id.monthYearTextView)).setText(currentMonthName + " " + currentYear); // set the month year view to current month and year as default
 
-        //Creating timeline recyclerview
-        timeLine = findViewById(R.id.timeLine);
         addTask = findViewById(R.id.AddTaskButton);
         addTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //User wants too add new task -> new activity starts
+                // User wants to add a new task -> new activity starts
                 Intent intent = new Intent(MainActivity.this, AddTaskActivity.class);
                 startActivity(intent);
             }
         });
-
-        timelineDbHelper = new TasksDBHelper(MainActivity.this);
-        task_start_time = new ArrayList<>();
-        task_title = new ArrayList<>();
-        task_description = new ArrayList<>();
-        task_length = new ArrayList<>();
-
-        timelineAdapter = new TimelineAdapter(MainActivity.this, task_start_time, task_title, task_description, task_length);
-        timeLine.setAdapter(timelineAdapter);
-        //This line assigns your custom RecyclerView.Adapter (customAdapter) to the RecyclerView (timeLine).
-        //The adapter (customAdapter) is responsible for creating and binding the individual list items that the RecyclerView will display.
-        //In this case, customAdapter contains task data, which it will provide to each RecyclerView item through methods like onBindViewHolder
-        timeLine.setLayoutManager(new LinearLayoutManager(MainActivity.this)); //organizes the items in a vertical or horizontal scrolling list (vertical by default)
-
-        fetchTaskData("13122024");
-
-        //Creating dayRecyclerView - week displayed as a header
-        DaysList daysList = new DaysList();
-
-        dayAdapter = new DayAdapter(MainActivity.this, daysList, new DayAdapter.OnDayClickListener() {
-            @Override
-            public void onDayClick(String dateId) {
-                fetchTaskData(dateId);
-            }
-        });
-        weeklyRecyclerView = findViewById(R.id.weeklyRecyclerView);
-        weeklyRecyclerView.setAdapter(dayAdapter);
-        weeklyRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this, LinearLayoutManager.HORIZONTAL, false));
     }
 
-    void fetchTaskData(String dateId) {
-        Cursor cursor = timelineDbHelper.readAllDataWithDate(dateId); //Object used to retrieve data from db
-        Log.d("FETCH", "fetchTaskData: " + dateId);
-
-        //clear the arrays
-        task_start_time.clear();
-        task_title.clear();
-        task_description.clear();
-        task_length.clear();
-
-        if (cursor.getCount() == 0) {
-            //get count gets the number of rows
-            //if no rows then display a message
-            Toast.makeText(this, "Add Tasks and tackle your day!", Toast.LENGTH_SHORT).show();
+    public void onDaySelected(String dateId) {
+        // Pass the dateId to TimelineFragment
+        TimelineFragment timelineFragment = (TimelineFragment) getSupportFragmentManager().findFragmentByTag("TIMELINE_FRAGMENT_TAG");
+        if (timelineFragment != null) {
+            timelineFragment.fetchTaskData(dateId); // Call the method in the fragment
         } else {
-            //User has saved some tasks in database
-            while(cursor.moveToNext()) {
-                //moveToNext() takes next row of the retrieved db data
-                task_start_time.add(cursor.getString(4)); //adds to array the first column of the row
-                task_title.add(cursor.getString(1)); //adds to array the second column of the row and so on
-                task_description.add(cursor.getString(2));
-                task_length.add(cursor.getString(5));
-            }
-            Log.d("FETCH", task_title.toString());
+            Log.e("MainActivity", "TimelineFragment not found");
         }
-        cursor.close();
-
-        //notify the timelineAdapter that the data has changed
-        timelineAdapter.notifyDataSetChanged();
     }
-
     void popupMenu() {
+        // Function for showing a popup menu when the profile button is clicked
         FloatingActionButton profileButton = findViewById(R.id.ProfileButton);
 
         profileButton.setOnClickListener(new View.OnClickListener() {
@@ -139,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // Force icons to be shown in the PopupMenu
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    //by default the are for some reason hidden :)
+                    // by default the icons are hidden, but force them to be shown
                     popupMenu.setForceShowIcon(true);
                 }
 
@@ -168,6 +128,4 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
-
 }

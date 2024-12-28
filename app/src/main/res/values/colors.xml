@@ -4,6 +4,31 @@
     <color name="white">#FFFFFFFF</color>
     <color name="dark_gray">#616161</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="colorPrimary">#6200EE</color>
-    <color name="colorPrimaryDark">#3700B3</color>
+    <color name="primaryLightColor">#9E66F4</color>
+    <color name="primaryDarkColor">#2F0385</color>
+
+    <color name="colorPrimaryLight">#FF9E66F4</color>
+    <color name="colorOnPrimaryLight">#FF000000</color>
+    <color name="colorPrimaryVariantLight">#FF9E66F4</color>
+    <color name="colorSecondaryLight">#FF000000</color>
+    <color name="colorOnSecondaryLight">#FF000000</color>
+    <color name="colorSecondaryVariantLight">#FF000000</color>
+    <color name="colorSurfaceLight">#FF000000</color>
+    <color name="colorOnSurfaceLight">#FF000000</color>
+    <color name="colorBackgroundLight">#FF000000</color>
+    <color name="colorOnBackgroundLight">#FF000000</color>
+    <color name="colorErrorLight">#FF000000</color>
+
+    <color name="colorPrimaryDark">#FF000000</color>
+    <color name="colorOnPrimaryDark">#FF000000</color>
+    <color name="colorPrimaryVariantDark">#FF000000</color>
+    <color name="colorSecondaryDark">#FF000000</color>
+    <color name="colorOnSecondaryDark">#FF000000</color>
+    <color name="colorSecondaryVariantDark">#FF000000</color>
+    <color name="colorSurfaceDark">#FF000000</color>
+    <color name="colorOnSurfaceDark">#FF000000</color>
+    <color name="colorBackgroundDark">#FF000000</color>
+    <color name="colorOnBackgroundDark">#FFFFFF</color>
+    <color name="colorErrorDark">#FF000000</color>
+
 </resources>
