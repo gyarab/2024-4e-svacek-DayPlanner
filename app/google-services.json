@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "573780435491",
+    "project_id": "dayplanner-fb37e",
+    "storage_bucket": "dayplanner-fb37e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:573780435491:android:6b8e12dde5405870eb4796",
+        "android_client_info": {
+          "package_name": "com.example.dayplanner"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDxoYuWYf7CMIyLNDPZpiL8MMT6R4IjvME"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
