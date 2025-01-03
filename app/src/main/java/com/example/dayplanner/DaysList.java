@@ -21,12 +21,12 @@ public class DaysList extends ArrayList<DayModel> {
 
         SimpleDateFormat dayFormat = new SimpleDateFormat("EEE");
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd");
-        SimpleDateFormat monthFormat = new SimpleDateFormat("MM"); // Ensures month is zero-padded
+        SimpleDateFormat monthFormat = new SimpleDateFormat("MM");
 
         for (int i = 0; i < 7; i++) {
             String day = dayFormat.format(calendar.getTime());
             String date = dateFormat.format(calendar.getTime());
-            String month = monthFormat.format(calendar.getTime()); // Zero-padded month
+            String month = monthFormat.format(calendar.getTime());
             String year = String.valueOf(calendar.get(Calendar.YEAR));
 
             DayModel dayModel = new DayModel(day, date, month, year);
@@ -35,6 +35,7 @@ public class DaysList extends ArrayList<DayModel> {
             calendar.add(Calendar.DAY_OF_WEEK, 1);
 
             Log.d("WEEK", dayModel.getDayName() + " " + dayModel.getDate());
+            Log.d("FormattedDate", "DayName: " + day + ", Day: " + date + ", Month: " + month);
         }
 
         return daysList;

@@ -41,7 +41,7 @@ public class TimelineFragment extends Fragment {
         timeLine.setLayoutManager(new LinearLayoutManager(getContext()));
 
         // Initialize the timeline with a default date (e.g., "13122024")
-        fetchTaskData("312025");
+        fetchTaskData("03012025");
 
         return view;
     }
@@ -50,6 +50,7 @@ public class TimelineFragment extends Fragment {
     void fetchTaskData(String dateId) {
         // Query the database to retrieve tasks for the specific date
         Cursor cursor = timelineDbHelper.readAllDataWithDate(dateId);
+        Log.d("cursor", dateId);
 
         // Clear existing task data
         task_id.clear();

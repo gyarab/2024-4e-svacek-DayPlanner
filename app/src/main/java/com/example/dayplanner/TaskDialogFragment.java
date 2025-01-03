@@ -1,7 +1,5 @@
 package com.example.dayplanner;
 
-import static com.example.dayplanner.AddTaskActivity.formatDate;
-
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
@@ -51,6 +49,8 @@ public class TaskDialogFragment extends DialogFragment {
 
         // Populate fields only in edit mode
         if (isEditMode) {
+            taskDate = formatDateForUser(taskDate);
+
             editTaskTitle.setText(title);
             editTaskDescription.setText(description);
             editTaskLength.setText(length);
@@ -81,30 +81,31 @@ public class TaskDialogFragment extends DialogFragment {
         // Set up save button
         saveButton.setOnClickListener(v -> {
             // Get input values
-            String newTitle = editTaskTitle.getText().toString();
-            String newDescription = editTaskDescription.getText().toString();
-            String newLength = editTaskLength.getText().toString();
-            String newDate = editTaskDate.getText().toString();
-            newDate = formatDate(newDate);
-            String newTime = editTaskTime.getText().toString();
+            String taskTitle = editTaskTitle.getText().toString();
+            String taskDescription = editTaskDescription.getText().toString();
+            String taskLength = editTaskLength.getText().toString();
+            String taskDate = editTaskDate.getText().toString();
+            taskDate = formatDateforDB(taskDate);
+            String taskStartTime = editTaskTime.getText().toString();
 
             TasksDBHelper dbHelper = new TasksDBHelper(getContext());
             if (isEditMode) {
                 // Update the database
-                Log.d("Task Edited", "ID: " + taskID + ", Start Time: " + newTime + ", Date: " + newDate +
-                        ", Title: " + newTitle + ", Desc: " + newDescription + ", Length: " + newLength);
+                dbHelper.editTask(taskID, taskTitle, taskDescription, taskDate, taskStartTime, Integer.parseInt(taskLength));
+                Log.d("Task Edited", "ID: " + taskID + ", Start Time: " + taskStartTime + ", Date: " + taskDate +
+                        ", Title: " + taskTitle + ", Desc: " + taskDescription + ", Length: " + taskLength);
             } else {
-                        // Insert into the database
-                        dbHelper.addTask(newTitle, newDescription, newDate, newTime, Integer.parseInt(newLength));
-                        Log.d("Task Added", "Start Time: " + newTime + ", Date: " + newDate +
-                                ", Title: " + newTitle + ", Desc: " + newDescription + ", Length: " + newLength);
-                    }
-
-                    dismiss(); // Close the dialog
-                });
-
-                return view;
+                // Insert into the database
+                dbHelper.addTask(taskTitle, taskDescription, taskDate, taskStartTime, Integer.parseInt(taskLength));
+                Log.d("Task Added", "Start Time: " + taskStartTime + ", Date: " + taskDate +
+                        ", Title: " + taskTitle + ", Desc: " + taskDescription + ", Length: " + taskLength);
             }
+
+            dismiss(); // Close the dialog
+        });
+
+        return view;
+    }
 
     @Override
     public void onDismiss(@NonNull DialogInterface dialog) {
@@ -112,7 +113,7 @@ public class TaskDialogFragment extends DialogFragment {
         // Optional: Handle actions when the dialog is dismissed
     }
 
-    public static String formatDate(String date) {
+    public static String formatDateforDB(String date) {
         String formattedDate = "";
         Log.d("formattedDateB", date);
         if (date != null && !date.isEmpty()) {
@@ -129,5 +130,30 @@ public class TaskDialogFragment extends DialogFragment {
         Log.d("formattedDate", formattedDate);
         return formattedDate;
     }
+
+    public static String formatDateForUser(String date) {
+        String formattedDate = "";
+        Log.d("formattedDateB", date);
+
+        if (date != null && date.length() == 8) { // Ensure the date is in the correct format (DDMMYYYY)
+            // Extract day, month, and year using substring
+            String day = date.substring(0, 2); // First two characters for day
+            String month = date.substring(2, 4); // Next two characters for month
+            String year = date.substring(4); // Remaining characters for year
+
+            // Remove leading zeros from day and month for user-friendly format
+            day = day.startsWith("0") ? day.substring(1) : day;
+            month = month.startsWith("0") ? month.substring(1) : month;
+
+            // Combine into user-friendly format
+            formattedDate = day + "." + month + "." + year;
+        } else {
+            Log.d("formattedDateError", "Invalid date format: " + date);
+        }
+
+        Log.d("formattedDate", formattedDate);
+        return formattedDate;
+    }
+
 
 }

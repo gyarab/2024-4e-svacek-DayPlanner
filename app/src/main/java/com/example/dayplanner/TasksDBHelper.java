@@ -14,8 +14,8 @@ public class TasksDBHelper extends SQLiteOpenHelper {
 
     private Context context;
     //DB Variables - constants
-    private static final String DATABASE_NAME = "DayPlannerDB.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final String DATABASE_NAME = "DayPlanner.db";
+    private static final int DATABASE_VERSION = 3;
     private static final String TABLE_NAME = "Tasks";
     private static final String COLUMN_ID = "_id";
     private static final String COLUMN_TITLE = "task_title";
@@ -36,23 +36,42 @@ public class TasksDBHelper extends SQLiteOpenHelper {
                         " (" + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                         COLUMN_TITLE + " TEXT, " +
                         COLUMN_DESCRIPTION + " TEXT, " +
-                        COLUMN_DATE + " STRING, " +
+                        COLUMN_DATE + " TEXT, " +
                         COLUMN_START_TIME + " STRING, " +
                         COLUMN_LENGTH + " INTEGER);";
         db.execSQL(query);
     }
-
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion < 2) {
-            // Drop old table if it exists
-            String query = "DROP TABLE IF EXISTS " + TABLE_NAME;
+        if (oldVersion < 3) {
+            // Step 1: Create a new table with the updated schema (COLUMN_DATE is TEXT here)
+            String query = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "_new (" +
+                    COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    COLUMN_TITLE + " TEXT, " +
+                    COLUMN_DESCRIPTION + " TEXT, " +
+                    COLUMN_DATE + " TEXT, " + // COLUMN_DATE is now TEXT type
+                    COLUMN_START_TIME + " STRING, " +
+                    COLUMN_LENGTH + " INTEGER);";
             db.execSQL(query);
 
-            // Create new table with updated schema
-            onCreate(db);
+            // Step 2: Copy the data from the old table to the new table
+            String copyDataQuery = "INSERT INTO " + TABLE_NAME + "_new (" +
+                    COLUMN_ID + ", " + COLUMN_TITLE + ", " + COLUMN_DESCRIPTION + ", " +
+                    COLUMN_DATE + ", " + COLUMN_START_TIME + ", " + COLUMN_LENGTH + ") " +
+                    "SELECT " + COLUMN_ID + ", " + COLUMN_TITLE + ", " + COLUMN_DESCRIPTION + ", " +
+                    COLUMN_DATE + ", " + COLUMN_START_TIME + ", " + COLUMN_LENGTH + " FROM " + TABLE_NAME;
+            db.execSQL(copyDataQuery);
+
+            // Step 3: Drop the old table
+            String dropOldTableQuery = "DROP TABLE IF EXISTS " + TABLE_NAME;
+            db.execSQL(dropOldTableQuery);
+
+            // Step 4: Rename the new table to the original table name
+            String renameNewTableQuery = "ALTER TABLE " + TABLE_NAME + "_new RENAME TO " + TABLE_NAME;
+            db.execSQL(renameNewTableQuery);
         }
     }
+
 
     void addTask(String title, String description, String date, String startTime, int length) {
         SQLiteDatabase db = this.getWritableDatabase(); //this = SQLiteOpenHelper which has the method that allows me to write in the table
@@ -77,6 +96,34 @@ public class TasksDBHelper extends SQLiteOpenHelper {
         }
     }
 
+    void editTask(String taskID, String newTitle, String newDescription, String newDate, String newTime, int newLength) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+
+        // Add the new values to be updated
+        contentValues.put(COLUMN_TITLE, newTitle);
+        contentValues.put(COLUMN_DESCRIPTION, newDescription);
+        contentValues.put(COLUMN_DATE, newDate);
+        contentValues.put(COLUMN_START_TIME, newTime);
+        contentValues.put(COLUMN_LENGTH, newLength);
+
+        // Define the WHERE clause and arguments
+        String whereClause = COLUMN_ID + " = ?";
+        String[] whereArgs = {taskID};
+
+        // Attempt to update the row
+        int rowsAffected = db.update(TABLE_NAME, contentValues, whereClause, whereArgs);
+
+        if (rowsAffected > 0) {
+            Log.d("DB", "Task updated successfully: ID " + taskID);
+            Toast.makeText(context, "Task updated successfully", Toast.LENGTH_SHORT).show();
+        } else {
+            Log.d("DB", "Task update failed: ID " + taskID);
+            Toast.makeText(context, "Failed to update task", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
     Cursor readAllData() {
         String query = "SELECT * FROM " + TABLE_NAME;
         SQLiteDatabase db = this.getReadableDatabase();
@@ -88,12 +135,14 @@ public class TasksDBHelper extends SQLiteOpenHelper {
     }
 
     Cursor readAllDataWithDate(String date) {
-        String query = "SELECT * FROM " + TABLE_NAME + " WHERE " + COLUMN_DATE + " = '" + date + "'";
         SQLiteDatabase db = this.getReadableDatabase();
+        Log.d("readAllDataWithDate", date);
+        String query = "SELECT * FROM " + TABLE_NAME + " WHERE " + COLUMN_DATE + " = ?";
+        Log.d("Database Query", "Query: " + query + " with date: " + date);
 
         Cursor cursor = null;
         if (db != null) {
-            cursor = db.rawQuery(query, null);
+            cursor = db.rawQuery(query, new String[]{date});
         }
         return cursor;
     }
