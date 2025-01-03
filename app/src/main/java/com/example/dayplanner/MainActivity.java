@@ -72,8 +72,8 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
             @Override
             public void onClick(View view) {
                 // User wants to add a new task -> new activity starts
-                Intent intent = new Intent(MainActivity.this, AddTaskActivity.class);
-                startActivity(intent);
+                TaskDialogFragment fragment = new TaskDialogFragment(false, null, "", "", "", "", "");
+                fragment.show(getSupportFragmentManager(), "AddTaskDialog");
             }
         });
     }

@@ -2,6 +2,7 @@ package com.example.dayplanner;
 
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +17,7 @@ public class TimelineFragment extends Fragment {
 
     RecyclerView timeLine; // RecyclerView to display the task timeline
     TasksDBHelper timelineDbHelper; // Helper class to interact with the database
-    ArrayList<String> task_start_time, task_title, task_description, task_length; // Lists to hold task data
+    ArrayList<String> task_id, task_start_time, task_date, task_title, task_description, task_length; // Lists to hold task data
     TimelineAdapter timelineAdapter; // Adapter to bind task data to RecyclerView
 
     @Override
@@ -27,18 +28,20 @@ public class TimelineFragment extends Fragment {
         // Initialize the RecyclerView for timeline view
         timeLine = view.findViewById(R.id.timeLine);
         timelineDbHelper = new TasksDBHelper(getContext());
+        task_id = new ArrayList<>();
         task_start_time = new ArrayList<>();
+        task_date = new ArrayList<>();
         task_title = new ArrayList<>();
         task_description = new ArrayList<>();
         task_length = new ArrayList<>();
 
         // Set the adapter to the RecyclerView and layout manager
-        timelineAdapter = new TimelineAdapter(getContext(), task_start_time, task_title, task_description, task_length);
+        timelineAdapter = new TimelineAdapter(getContext(),task_id, task_start_time, task_date, task_title, task_description, task_length);
         timeLine.setAdapter(timelineAdapter);
         timeLine.setLayoutManager(new LinearLayoutManager(getContext()));
 
         // Initialize the timeline with a default date (e.g., "13122024")
-        fetchTaskData("13122024");
+        fetchTaskData("312025");
 
         return view;
     }
@@ -49,19 +52,24 @@ public class TimelineFragment extends Fragment {
         Cursor cursor = timelineDbHelper.readAllDataWithDate(dateId);
 
         // Clear existing task data
+        task_id.clear();
         task_start_time.clear();
         task_title.clear();
+        task_date.clear();
         task_description.clear();
         task_length.clear();
 
         if (cursor.getCount() != 0) {
             // If there are tasks for the selected date, add them to the lists
             while (cursor.moveToNext()) {
-                task_start_time.add(cursor.getString(4)); // Task start time
+                task_id.add(cursor.getString(0)); // Task ID
                 task_title.add(cursor.getString(1)); // Task title
                 task_description.add(cursor.getString(2)); // Task description
+                task_date.add(cursor.getString(3)); // Task date
+                task_start_time.add(cursor.getString(4)); // Task start time
                 task_length.add(cursor.getString(5)); // Task length
             }
+            Log.d("cursor", task_date.toString());
         }
         cursor.close();
 

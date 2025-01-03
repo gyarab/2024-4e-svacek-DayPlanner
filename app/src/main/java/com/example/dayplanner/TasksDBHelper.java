@@ -64,6 +64,8 @@ public class TasksDBHelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_START_TIME, startTime);
         contentValues.put(COLUMN_LENGTH, length);
 
+        Log.d("Add Task", "Title: " + title + ", Description: " + description + ", Date: " + date + ", Start Time: " + startTime + ", Length: " + length);
+
         long result = db.insert(TABLE_NAME, null, contentValues);
         if (result == -1) {
             //failed to insert data
