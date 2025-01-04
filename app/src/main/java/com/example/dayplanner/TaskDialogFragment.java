@@ -1,8 +1,10 @@
 package com.example.dayplanner;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,6 +16,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
 import java.util.Calendar;
@@ -31,6 +34,10 @@ public class TaskDialogFragment extends DialogFragment {
         this.title = title;
         this.description = description;
         this.length = length;
+    }
+
+    public interface TaskDialogListener {
+        void onTaskDataChanged(String dateId);
     }
 
     @Nullable
@@ -56,8 +63,15 @@ public class TaskDialogFragment extends DialogFragment {
             editTaskLength.setText(length);
             editTaskDate.setText(taskDate);
             editTaskTime.setText(startTime);
-        }
 
+            Button deleteButton = view.findViewById(R.id.delete_task_button);
+            Drawable icon = ContextCompat.getDrawable(this.getContext(), R.drawable.delete_icon);
+            deleteButton.setCompoundDrawablesRelativeWithIntrinsicBounds(icon, null, null, null);
+            deleteButton.setVisibility(View.VISIBLE); //visible only when edit mode
+            deleteButton.setOnClickListener(v -> {
+                showDeleteConfirmationDialog(taskID, taskDate);
+            });
+        }
         // Date Picker
         pickDateButton.setOnClickListener(v -> {
             Calendar calendar = Calendar.getInstance();
@@ -99,6 +113,10 @@ public class TaskDialogFragment extends DialogFragment {
                 dbHelper.addTask(taskTitle, taskDescription, taskDate, taskStartTime, Integer.parseInt(taskLength));
                 Log.d("Task Added", "Start Time: " + taskStartTime + ", Date: " + taskDate +
                         ", Title: " + taskTitle + ", Desc: " + taskDescription + ", Length: " + taskLength);
+            }
+
+            if (getActivity() instanceof TaskDialogListener) {
+                ((TaskDialogListener) getActivity()).onTaskDataChanged(taskDate);
             }
 
             dismiss(); // Close the dialog
@@ -155,5 +173,27 @@ public class TaskDialogFragment extends DialogFragment {
         return formattedDate;
     }
 
+    public void showDeleteConfirmationDialog(String taskId, String taskDate) {
+        new AlertDialog.Builder(this.getContext())
+                .setTitle("Delete Task")
+                .setMessage("Are you sure you want to delete this task?")
+                .setIcon(R.drawable.delete_icon)
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    TasksDBHelper dbHelper = new TasksDBHelper(getContext());
+                    dbHelper.deleteTask(taskId);
+                    Log.d("Task Deleted", "ID: " + taskId);
 
+                    if (getActivity() instanceof TaskDialogListener) {
+                        ((TaskDialogListener) getActivity()).onTaskDataChanged(taskDate);
+                    }
+
+                    dialog.dismiss(); //dismiss the alert dialog
+                    dismiss(); //dismiss the whole fragment dialog
+                })
+                .setNegativeButton("No", (dialog, which) -> {
+                    dialog.dismiss(); // Simply dismiss the dialog
+                    Log.d("Task Not Deleted", "ID: " + taskId);
+                })
+                .show();
+    }
 }

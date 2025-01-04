@@ -123,7 +123,19 @@ public class TasksDBHelper extends SQLiteOpenHelper {
         }
     }
 
-
+    public void deleteTask(String taskId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String whereClause = COLUMN_ID + " = ?";
+        String[] whereArgs = {taskId};
+        int rowsAffected = db.delete(TABLE_NAME, whereClause, whereArgs);
+        if (rowsAffected > 0) {
+            Log.d("DB", "Task deleted successfully: ID " + taskId);
+            Toast.makeText(context, "Task deleted successfully", Toast.LENGTH_SHORT).show();
+        } else {
+            Log.d("DB", "Task deletion failed: ID " + taskId);
+            Toast.makeText(context, "Failed to delete task", Toast.LENGTH_SHORT).show();
+        }
+    }
     Cursor readAllData() {
         String query = "SELECT * FROM " + TABLE_NAME;
         SQLiteDatabase db = this.getReadableDatabase();

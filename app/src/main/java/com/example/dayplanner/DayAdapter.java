@@ -14,20 +14,50 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 
 public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayViewHolder> {
     private Context context;
     private ArrayList<DayModel> days;
     private int selectedPosition = -1; //serve to track the previous active position to later hide the active dot
+    private HashMap<String, Integer> dateIdToPositionMap; // Map for fast lookups
     private OnDayClickListener onDayClickListener;
     public interface OnDayClickListener {
         void onDayClick(String dateID);
     }
-    DayAdapter(Context context, ArrayList<DayModel> days, OnDayClickListener onDayClickListener) {
+    public DayAdapter(Context context, ArrayList<DayModel> days, OnDayClickListener onDayClickListener) {
         this.context = context;
         this.days = days;
         this.onDayClickListener = onDayClickListener;
+        buildDateIdToPositionMap(); // Initialize the map
     }
+
+    // Build the map for fast lookups
+    private void buildDateIdToPositionMap() {
+        dateIdToPositionMap = new HashMap<>();
+        for (int i = 0; i < days.size(); i++) {
+            DayModel dayModel = days.get(i);
+            String dateId = dayModel.getDate() + dayModel.getMonth() + dayModel.getYear();
+            dateIdToPositionMap.put(dateId, i);
+        }
+    }
+
+    // Update the map if the dataset changes
+    public void updateDays(ArrayList<DayModel> newDays) {
+        this.days = newDays;
+        buildDateIdToPositionMap();
+        notifyDataSetChanged();
+    }
+
+    public void setActiveDotByDateId(String dateID) {
+        Integer position = dateIdToPositionMap.get(dateID); // Fast lookup
+        if (position != null) {
+            setActiveDot(position); // Update the active dot
+        } else {
+            Log.d("SetDotByDateId", "No matching dateID found: " + dateID);
+        }
+    }
+
 
     @NonNull
     @Override

@@ -16,16 +16,19 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.text.DateFormatSymbols;
 import java.util.Calendar;
 
-public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragment.OnDaySelectedListener {
+public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragment.OnDaySelectedListener, TaskDialogFragment.TaskDialogListener {
 
 
     FloatingActionButton addTask;
+    private TaskDialogFragment.TaskDialogListener listener;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +86,22 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
         TimelineFragment timelineFragment = (TimelineFragment) getSupportFragmentManager().findFragmentByTag("TIMELINE_FRAGMENT_TAG");
         if (timelineFragment != null) {
             timelineFragment.fetchTaskData(dateId); // Call the method in the fragment
+        } else {
+            Log.e("MainActivity", "TimelineFragment not found");
+        }
+    }
+
+    public void onTaskDataChanged(String dateId) {
+        // Notify the TimelineFragment to reload tasks
+        TimelineFragment timelineFragment = (TimelineFragment) getSupportFragmentManager().findFragmentByTag("TIMELINE_FRAGMENT_TAG");
+        if (timelineFragment != null) {
+            timelineFragment.fetchTaskData(dateId); // Call the method in the fragment
+
+            RecyclerView weeklyRecyclerView = findViewById(R.id.weeklyRecyclerView);
+            DayAdapter adapter = (DayAdapter) weeklyRecyclerView.getAdapter();
+            if (adapter != null) {
+                adapter.setActiveDotByDateId(dateId);
+            }
         } else {
             Log.e("MainActivity", "TimelineFragment not found");
         }
