@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.google.gms.google.services)
+    //alias(libs.plugins.google.gms.google.services)
+    /** Firebase */
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -39,9 +41,16 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.preference)
-    implementation(libs.firebase.database)
-    implementation(libs.firebase.firestore)
+    //implementation(libs.firebase.database)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+    /** Firebase */
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
+
+    /** Dependencies for Firebase products */
+    /** When using bom I do not need to specify versions*/
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-database")
 }

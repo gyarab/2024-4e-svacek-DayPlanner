@@ -19,6 +19,10 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+//import com.google.firebase.database.DatabaseReference;
+//import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.DateFormatSymbols;
 import java.util.Calendar;
@@ -35,6 +39,13 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+
+        // Write a message to the database
+        /** For databases outside of use I need an url as an argument for getInstance*/
+        FirebaseDatabase database = FirebaseDatabase.getInstance("https://dayplanner-18a02-default-rtdb.europe-west1.firebasedatabase.app");
+        DatabaseReference myRef = database.getReference("message");
+
+        myRef.setValue("Hello, World!");
 
         if (savedInstanceState == null) {
             // Add TimelineFragment to the activity
