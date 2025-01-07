@@ -11,6 +11,7 @@ preference = "1.2.0"
 googleGmsGoogleServices = "4.4.2"
 firebaseDatabase = "21.0.0"
 firebaseFirestore = "25.1.1"
+firebaseAuth = "23.1.0"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -23,6 +24,7 @@ constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayo
 preference = { group = "androidx.preference", name = "preference", version.ref = "preference" }
 firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebaseAuth" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
