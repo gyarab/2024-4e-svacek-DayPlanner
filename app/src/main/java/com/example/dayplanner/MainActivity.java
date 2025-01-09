@@ -41,11 +41,11 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
         setContentView(R.layout.activity_main);
 
         // Write a message to the database
-        /** For databases outside of use I need an url as an argument for getInstance*/
+        /** For databases outside of USA I need an url as an argument for getInstance*/
         FirebaseDatabase database = FirebaseDatabase.getInstance("https://dayplanner-18a02-default-rtdb.europe-west1.firebasedatabase.app");
-        DatabaseReference myRef = database.getReference("message");
+        DatabaseReference myRef = database.getReference("MSG");
 
-        myRef.setValue("Hello, World!");
+        myRef.setValue("HELLO MY FB!");
 
         if (savedInstanceState == null) {
             // Add TimelineFragment to the activity
