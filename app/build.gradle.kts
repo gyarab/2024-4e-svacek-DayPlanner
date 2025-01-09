@@ -52,4 +52,8 @@ dependencies {
     /** When using bom I do not need to specify versions*/
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-database")
+
+    /**Auth */
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.android.gms:play-services-auth:21.3.0")
 }
