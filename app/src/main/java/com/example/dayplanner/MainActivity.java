@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
         FirebaseDatabase database = FirebaseDatabase.getInstance("https://dayplanner-18a02-default-rtdb.europe-west1.firebasedatabase.app");
         DatabaseReference myRef = database.getReference("MSG");
 
-        myRef.setValue("HELLO MY FB!");
+        myRef.setValue("HELLO MY FBI FUCK!");
 
         if (savedInstanceState == null) {
             // Add TimelineFragment to the activity
