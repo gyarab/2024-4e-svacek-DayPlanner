@@ -64,4 +64,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <Button
+        android:id="@+id/RegisterPage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="register"
+        app:layout_constraintEnd_toStartOf="@+id/ProfileButton"
+        app:layout_constraintStart_toEndOf="@+id/monthYearTextView"
+        app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

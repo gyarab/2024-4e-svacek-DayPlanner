@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "501814482041",
+    "firebase_url": "https://dayplanner-18a02-default-rtdb.europe-west1.firebasedatabase.app",
     "project_id": "dayplanner-18a02",
     "storage_bucket": "dayplanner-18a02.firebasestorage.app"
   },
@@ -12,7 +13,28 @@
           "package_name": "com.example.dayplanner"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "501814482041-1jd15gv9ena41m6kfo45qe1fqh7su98a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.dayplanner",
+            "certificate_hash": "9237735cb5c9204e8f01644c7a7c5fffd9477de3"
+          }
+        },
+        {
+          "client_id": "501814482041-4f57n4gmte9e7tm376fst8uljipd1vhf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.dayplanner",
+            "certificate_hash": "f935bc1f1efae9e8030dcb6328167527910c44ba"
+          }
+        },
+        {
+          "client_id": "501814482041-2ti4f3411odrliiaa3cjv8ki241bfe6p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDs2W76mcEbwk1nNZL5bGaa83w9C1TiJqo"
@@ -20,7 +42,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "501814482041-2ti4f3411odrliiaa3cjv8ki241bfe6p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

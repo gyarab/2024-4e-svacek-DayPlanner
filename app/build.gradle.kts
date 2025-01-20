@@ -40,13 +40,14 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.preference)
+    implementation(libs.navigation.fragment)
     //implementation(libs.firebase.database)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 
     /** Firebase */
-    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.8.0"))
 
     /** Dependencies for Firebase products */
     /** When using bom I do not need to specify versions*/
@@ -54,6 +55,10 @@ dependencies {
     implementation("com.google.firebase:firebase-database")
 
     /**Auth */
-    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-auth:23.1.0")
+    implementation("com.google.firebase:firebase-core:21.1.1")
+
+    implementation("com.firebaseui:firebase-ui-auth:7.2.0")
+
     implementation("com.google.android.gms:play-services-auth:21.3.0")
 }

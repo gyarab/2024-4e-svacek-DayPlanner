@@ -1,11 +1,13 @@
 package com.example.dayplanner;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,6 +21,8 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 //import com.google.firebase.database.DatabaseReference;
@@ -31,12 +35,31 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
 
 
     FloatingActionButton addTask;
+    Button register;
+    private FirebaseAuth mAuth;
+    /** Useless import */
     private TaskDialogFragment.TaskDialogListener listener;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        /** logs user out**/
+        //logout();
+
+        /** Check if user is signed in **/
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Log.d("USR", "Not signed in");
+            // User is not signed in, redirect to EmailSignInActivity
+            /** He should be transfered to a UI where he can pick from multiple logins or click register using email or phone nuber**/
+            Intent intent = new Intent(MainActivity.this, EmailSignInActivity.class);
+            startActivity(intent);
+            finish(); // Prevent the user from returning to MainActivity
+            return;
+        }
+        Log.d("USR", currentUser.toString());
+
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
@@ -45,7 +68,17 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
         FirebaseDatabase database = FirebaseDatabase.getInstance("https://dayplanner-18a02-default-rtdb.europe-west1.firebasedatabase.app");
         DatabaseReference myRef = database.getReference("MSG");
 
-        myRef.setValue("HELLO MY FBI FUCK!");
+        myRef.setValue("HELLO WORd!");
+
+        /** Register Button Temporary Design**/
+        register = findViewById(R.id.RegisterPage);
+        register.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, EmailSignInActivity.class);
+                startActivity(intent);
+            }
+        });
 
         if (savedInstanceState == null) {
             // Add TimelineFragment to the activity
@@ -117,6 +150,14 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
             Log.e("MainActivity", "TimelineFragment not found");
         }
     }
+
+    private void logout() {
+        FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(MainActivity.this, EmailSignInActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
     void popupMenu() {
         // Function for showing a popup menu when the profile button is clicked
         FloatingActionButton profileButton = findViewById(R.id.ProfileButton);
