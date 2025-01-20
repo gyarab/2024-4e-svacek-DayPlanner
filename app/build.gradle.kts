@@ -40,6 +40,7 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.preference)
+    implementation(libs.firebase.auth)
     //implementation(libs.firebase.database)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
@@ -52,4 +53,7 @@ dependencies {
     /** When using bom I do not need to specify versions*/
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-database")
+
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.android.gms:play-services-auth:21.3.0")
 }
