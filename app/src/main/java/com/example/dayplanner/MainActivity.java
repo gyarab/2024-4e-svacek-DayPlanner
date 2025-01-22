@@ -47,19 +47,6 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
         /** logs user out**/
         //logout();
 
-        /** Check if user is signed in **/
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser == null) {
-            Log.d("USR", "Not signed in");
-            // User is not signed in, redirect to EmailSignInActivity
-            /** He should be transfered to a UI where he can pick from multiple logins or click register using email or phone nuber**/
-            Intent intent = new Intent(MainActivity.this, EmailSignInActivity.class);
-            startActivity(intent);
-            finish(); // Prevent the user from returning to MainActivity
-            return;
-        }
-        Log.d("USR", currentUser.toString());
-
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
@@ -68,6 +55,18 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
         FirebaseDatabase database = FirebaseDatabase.getInstance("https://dayplanner-18a02-default-rtdb.europe-west1.firebasedatabase.app");
         DatabaseReference myRef = database.getReference("MSG");
 
+        /** Check if user is signed in **/
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Log.d("USR", "Not signed in");
+            /** He should be transfered to a UI where he can pick from multiple logins or click register using email or phone nuber**/
+            Intent intent = new Intent(MainActivity.this, AuthenticationActivity.class);
+            startActivity(intent);
+            finish(); // Prevent the user from returning to MainActivity
+            return;
+        }
+        Log.d("USR", currentUser.toString());
+
         myRef.setValue("HELLO WORd!");
 
         /** Register Button Temporary Design**/
@@ -75,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
         register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, EmailSignInActivity.class);
+                Intent intent = new Intent(MainActivity.this, AuthenticationActivity.class);
                 startActivity(intent);
             }
         });

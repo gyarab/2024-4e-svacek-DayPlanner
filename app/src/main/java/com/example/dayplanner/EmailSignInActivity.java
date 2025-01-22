@@ -3,6 +3,7 @@ package com.example.dayplanner;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,6 +34,8 @@ public class EmailSignInActivity extends AppCompatActivity {
 
         editEmail = findViewById(R.id.edit_email);
         editPassword = findViewById(R.id.edit_password);
+
+        Log.d("USR", editEmail.getText().toString().trim() + " " + editPassword.getText().toString().trim());
         btnRegister = findViewById(R.id.btn_register);
 
         firebaseAuth = FirebaseAuth.getInstance();
@@ -57,6 +60,7 @@ public class EmailSignInActivity extends AppCompatActivity {
                             Toast.makeText(EmailSignInActivity.this, "User registered successfully", Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(EmailSignInActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+                            Log.d("USR", "EXCEPTION: " + task.getException().toString());
                         }
                         Intent intent = new Intent(EmailSignInActivity.this, MainActivity.class);
                         startActivity(intent);
