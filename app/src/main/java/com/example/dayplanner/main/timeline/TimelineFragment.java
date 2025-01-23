@@ -1,4 +1,4 @@
-package com.example.dayplanner;
+package com.example.dayplanner.main.timeline;
 
 import android.database.Cursor;
 import android.os.Bundle;
@@ -10,13 +10,16 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.dayplanner.R;
+import com.example.dayplanner.main.tasks.TasksDBHelper;
+
 import java.util.ArrayList;
 
 // Fragment responsible for displaying tasks for a specific day
 public class TimelineFragment extends Fragment {
 
     RecyclerView timeLine; // RecyclerView to display the task timeline
-    TasksDBHelper timelineDbHelper; // Helper class to interact with the database
+    TasksDBHelper tasksDBHelper; // Helper class to interact with the database
     ArrayList<String> task_id, task_start_time, task_date, task_title, task_description, task_length; // Lists to hold task data
     TimelineAdapter timelineAdapter; // Adapter to bind task data to RecyclerView
 
@@ -27,7 +30,7 @@ public class TimelineFragment extends Fragment {
 
         // Initialize the RecyclerView for timeline view
         timeLine = view.findViewById(R.id.timeLine);
-        timelineDbHelper = new TasksDBHelper(getContext());
+        tasksDBHelper = new TasksDBHelper(getContext());
         task_id = new ArrayList<>();
         task_start_time = new ArrayList<>();
         task_date = new ArrayList<>();
@@ -47,9 +50,9 @@ public class TimelineFragment extends Fragment {
     }
 
     // Method to fetch task data from the database for a specific date
-    void fetchTaskData(String dateId) {
+    public void fetchTaskData(String dateId) {
         // Query the database to retrieve tasks for the specific date
-        Cursor cursor = timelineDbHelper.readAllDataWithDate(dateId);
+        Cursor cursor = tasksDBHelper.readAllDataWithDate(dateId);
         Log.d("cursor", dateId);
 
         // Clear existing task data

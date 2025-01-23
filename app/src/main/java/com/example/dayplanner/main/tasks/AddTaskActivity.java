@@ -1,4 +1,4 @@
-package com.example.dayplanner;
+package com.example.dayplanner.main.tasks;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -17,6 +17,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import com.example.dayplanner.R;
+import com.example.dayplanner.main.MainActivity;
 
 import java.util.Calendar;
 

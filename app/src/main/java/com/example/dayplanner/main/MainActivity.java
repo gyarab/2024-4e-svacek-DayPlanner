@@ -1,6 +1,5 @@
-package com.example.dayplanner;
+package com.example.dayplanner.main;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,6 +19,15 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.dayplanner.R;
+import com.example.dayplanner.auth.AuthenticationActivity;
+import com.example.dayplanner.auth.signin.EmailSignInActivity;
+import com.example.dayplanner.main.dayslist.DayAdapter;
+import com.example.dayplanner.main.dayslist.WeeklyHeaderFragment;
+import com.example.dayplanner.main.tasks.TaskDialogFragment;
+import com.example.dayplanner.main.timeline.TimelineFragment;
+import com.example.dayplanner.settings.SettingsActivity;
+import com.example.dayplanner.statistics.StatisticsActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;

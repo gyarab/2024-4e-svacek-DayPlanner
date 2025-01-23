@@ -1,4 +1,4 @@
-package com.example.dayplanner;
+package com.example.dayplanner.main.tasks;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -73,7 +73,7 @@ public class TasksDBHelper extends SQLiteOpenHelper {
     }
 
 
-    void addTask(String title, String description, String date, String startTime, int length) {
+    public void addTask(String title, String description, String date, String startTime, int length) {
         SQLiteDatabase db = this.getWritableDatabase(); //this = SQLiteOpenHelper which has the method that allows me to write in the table
         ContentValues contentValues = new ContentValues();
 
@@ -96,7 +96,7 @@ public class TasksDBHelper extends SQLiteOpenHelper {
         }
     }
 
-    void editTask(String taskID, String newTitle, String newDescription, String newDate, String newTime, int newLength) {
+    public void editTask(String taskID, String newTitle, String newDescription, String newDate, String newTime, int newLength) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
 
@@ -136,7 +136,7 @@ public class TasksDBHelper extends SQLiteOpenHelper {
             Toast.makeText(context, "Failed to delete task", Toast.LENGTH_SHORT).show();
         }
     }
-    Cursor readAllData() {
+    public Cursor readAllData() {
         String query = "SELECT * FROM " + TABLE_NAME;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = null;
@@ -146,7 +146,7 @@ public class TasksDBHelper extends SQLiteOpenHelper {
         return cursor;
     }
 
-    Cursor readAllDataWithDate(String date) {
+    public Cursor readAllDataWithDate(String date) {
         SQLiteDatabase db = this.getReadableDatabase();
         Log.d("readAllDataWithDate", date);
         String query = "SELECT * FROM " + TABLE_NAME + " WHERE " + COLUMN_DATE + " = ?";

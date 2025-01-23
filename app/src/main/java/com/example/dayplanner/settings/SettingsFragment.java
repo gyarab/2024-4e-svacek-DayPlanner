@@ -1,4 +1,4 @@
-package com.example.dayplanner;
+package com.example.dayplanner.settings;
 
 import android.os.Bundle;
 import android.widget.Toast;
@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.EditTextPreference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.SwitchPreferenceCompat;
+
+import com.example.dayplanner.R;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
 

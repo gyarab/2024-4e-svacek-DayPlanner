@@ -1,4 +1,4 @@
-package com.example.dayplanner;
+package com.example.dayplanner.main.dayslist;
 
 import android.util.Log;
 

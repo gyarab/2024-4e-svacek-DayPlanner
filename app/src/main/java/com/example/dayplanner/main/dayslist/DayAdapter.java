@@ -1,4 +1,4 @@
-package com.example.dayplanner;
+package com.example.dayplanner.main.dayslist;
 
 import android.app.Activity;
 import android.content.Context;
@@ -11,9 +11,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.dayplanner.R;
+
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 
 public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayViewHolder> {

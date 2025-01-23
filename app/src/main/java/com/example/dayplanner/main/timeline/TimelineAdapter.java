@@ -1,4 +1,4 @@
-package com.example.dayplanner;
+package com.example.dayplanner.main.timeline;
 
 import android.content.Context;
 import android.util.Log;
@@ -10,6 +10,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.dayplanner.R;
+import com.example.dayplanner.main.tasks.TaskDialogFragment;
 
 import java.util.ArrayList;
 

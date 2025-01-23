@@ -1,9 +1,8 @@
-package com.example.dayplanner;
+package com.example.dayplanner.auth.login;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,6 +15,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.dayplanner.auth.AuthenticationActivity;
+import com.example.dayplanner.main.MainActivity;
+import com.example.dayplanner.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -66,8 +68,12 @@ public class EmailLoginActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         progressDialog.hide();
                         if(task.isSuccessful()) {
-                            Intent intent = new Intent(EmailLoginActivity.this, MainActivity.class);
-                            startActivity(intent);
+                            if(mAuth.getCurrentUser().isEmailVerified()) {
+                                Intent intent = new Intent(EmailLoginActivity.this, MainActivity.class);
+                                startActivity(intent);
+                            } else {
+                                Toast.makeText(EmailLoginActivity.this, "Please verify your email address", Toast.LENGTH_SHORT).show();
+                            }
                         } else {
                             Toast.makeText(EmailLoginActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }

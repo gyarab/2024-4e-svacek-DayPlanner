@@ -16,7 +16,7 @@
         android:theme="@style/Theme.DayPlanner"
         tools:targetApi="31">
         <activity
-            android:name=".EmailLoginActivity"
+            android:name=".auth.login.EmailLoginActivity"
             android:exported="false" />
         <activity
             android:name=".LoginActivity"
@@ -25,26 +25,26 @@
             android:name=".SignupActivity"
             android:exported="false" />
         <activity
-            android:name=".AuthenticationActivity"
+            android:name=".auth.AuthenticationActivity"
             android:exported="false" />
         <activity
-            android:name=".EmailSignInActivity"
+            android:name=".auth.signin.EmailSignInActivity"
             android:exported="false" />
         <activity
             android:name=".FireBaseUIActivity"
             android:exported="false" />
         <activity
-            android:name=".SettingsActivity"
+            android:name=".settings.SettingsActivity"
             android:exported="false"
             android:label="@string/title_activity_settings" />
         <activity
-            android:name=".StatisticsActivity"
+            android:name=".statistics.StatisticsActivity"
             android:exported="false" />
         <activity
-            android:name=".AddTaskActivity"
+            android:name=".main.tasks.AddTaskActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".main.MainActivity"
             android:exported="true"
             android:label="@string/main_activity_label_name">
             <intent-filter>

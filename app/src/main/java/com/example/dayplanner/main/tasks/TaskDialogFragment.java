@@ -1,4 +1,4 @@
-package com.example.dayplanner;
+package com.example.dayplanner.main.tasks;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -18,6 +18,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
+
+import com.example.dayplanner.R;
 
 import java.util.Calendar;
 

@@ -1,4 +1,4 @@
-package com.example.dayplanner;
+package com.example.dayplanner.main.dayslist;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.dayplanner.R;
 
 public class WeeklyHeaderFragment extends Fragment {
 

@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="35dp"
-    tools:context=".AuthenticationActivity">
+    tools:context=".auth.AuthenticationActivity">
 
     <Button
         android:id="@+id/google_button"

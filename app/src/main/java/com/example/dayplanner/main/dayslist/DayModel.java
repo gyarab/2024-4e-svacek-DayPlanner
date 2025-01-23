@@ -1,8 +1,4 @@
-package com.example.dayplanner;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
+package com.example.dayplanner.main.dayslist;
 
 public class DayModel {
     private String dayName;

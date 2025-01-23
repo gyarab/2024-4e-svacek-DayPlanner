@@ -1,4 +1,4 @@
-package com.example.dayplanner;
+package com.example.dayplanner.auth.signin;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -12,6 +12,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.dayplanner.auth.login.EmailLoginActivity;
+import com.example.dayplanner.main.MainActivity;
+import com.example.dayplanner.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -57,12 +60,26 @@ public class EmailSignInActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         progressDialog.hide();
                         if (task.isSuccessful()) {
+
+                            firebaseAuth.getCurrentUser().sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if(task.isSuccessful()) {
+                                        Toast.makeText(EmailSignInActivity.this, "User registered successfully, Please verify your email address", Toast.LENGTH_SHORT).show();
+                                        editEmail.setText("");
+                                        editPassword.setText("");
+                                    } else {
+                                        Toast.makeText(EmailSignInActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+
                             Toast.makeText(EmailSignInActivity.this, "User registered successfully", Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(EmailSignInActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
                             Log.d("USR", "EXCEPTION: " + task.getException().toString());
                         }
-                        Intent intent = new Intent(EmailSignInActivity.this, MainActivity.class);
+                        Intent intent = new Intent(EmailSignInActivity.this, EmailLoginActivity.class);
                         startActivity(intent);
                     }
                 });
