@@ -1,5 +1,6 @@
 package com.example.dayplanner;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -38,6 +39,10 @@ public class EmailLoginActivity extends AppCompatActivity {
             return insets;
         });
 
+        ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("Loading");
+        progressDialog.setMessage("Please wait...");
+
         emailEditText = findViewById(R.id.edit_email);
         passwordEditText = findViewById(R.id.edit_password);
         loginButton = findViewById(R.id.btn_login);
@@ -46,6 +51,7 @@ public class EmailLoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                progressDialog.show();
                 mAuth = FirebaseAuth.getInstance();
 
                 String email = emailEditText.getText().toString();
@@ -58,6 +64,7 @@ public class EmailLoginActivity extends AppCompatActivity {
                 mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+                        progressDialog.hide();
                         if(task.isSuccessful()) {
                             Intent intent = new Intent(EmailLoginActivity.this, MainActivity.class);
                             startActivity(intent);
