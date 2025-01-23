@@ -52,6 +52,7 @@ public class EmailSignInActivity extends AppCompatActivity {
 
                 if (email.isEmpty() || password.isEmpty()) {
                     Toast.makeText(EmailSignInActivity.this, "Email or Password cannot be empty", Toast.LENGTH_SHORT).show();
+                    progressDialog.hide();
                     return;
                 }
 
@@ -60,20 +61,12 @@ public class EmailSignInActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         progressDialog.hide();
                         if (task.isSuccessful()) {
-
-                            firebaseAuth.getCurrentUser().sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if(task.isSuccessful()) {
-                                        Toast.makeText(EmailSignInActivity.this, "User registered successfully, Please verify your email address", Toast.LENGTH_SHORT).show();
-                                        editEmail.setText("");
-                                        editPassword.setText("");
-                                    } else {
-                                        Toast.makeText(EmailSignInActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            });
-
+                            //** When registering succesfully -> verify email
+                            handleEmailVerification(
+                                    firebaseAuth,
+                                    "User registered successfully, Please verify your email address",
+                                    "Something went wrong"
+                            );
                             Toast.makeText(EmailSignInActivity.this, "User registered successfully", Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(EmailSignInActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
@@ -85,5 +78,21 @@ public class EmailSignInActivity extends AppCompatActivity {
                 });
             }
         });
+    }
+
+    public void handleEmailVerification(FirebaseAuth firebaseAuth, String message_on_successful, String message_on_not_successful) {
+        firebaseAuth.getCurrentUser().sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()) {
+                    Toast.makeText(EmailSignInActivity.this, message_on_successful, Toast.LENGTH_SHORT).show();
+                    editEmail.setText("");
+                    editPassword.setText("");
+                } else {
+                    Toast.makeText(EmailSignInActivity.this, message_on_not_successful, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
     }
 }

@@ -3,6 +3,8 @@
     <string name="add_button_description">Add new Task</string>
     <string name="main_activity_label_name">DayPlanner</string>
     <string name="title_activity_settings">SettingsActivity</string>
+    <!-- For google auth -->
+    <string name="client_id">501814482041-2ti4f3411odrliiaa3cjv8ki241bfe6p.apps.googleusercontent.com</string>
 
     <!-- Preference Titles -->
     <string name="messages_header">Messages</string>

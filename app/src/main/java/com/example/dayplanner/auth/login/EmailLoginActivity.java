@@ -1,8 +1,10 @@
 package com.example.dayplanner.auth.login;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -23,13 +25,16 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
+import com.example.dayplanner.auth.signin.EmailSignInActivity;
+
 public class EmailLoginActivity extends AppCompatActivity {
 
     EditText emailEditText, passwordEditText;
-    Button loginButton, signInButton;
-
+    Button loginButton, signInButton, sendVerificationLink;
     FirebaseAuth mAuth;
+    EmailSignInActivity emailSignInActivity;
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +45,23 @@ public class EmailLoginActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        mAuth = FirebaseAuth.getInstance();
+
+        /**Button for resending verification for user**/
+        sendVerificationLink = findViewById(R.id.btn_send_verification);
+        sendVerificationLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.d("LINK", "sended");
+                emailSignInActivity = new EmailSignInActivity();
+                emailSignInActivity.handleEmailVerification(
+                        mAuth,
+                        "",
+                        "");
+            }
+        });
+
 
         ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("Loading");
@@ -54,7 +76,6 @@ public class EmailLoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 progressDialog.show();
-                mAuth = FirebaseAuth.getInstance();
 
                 String email = emailEditText.getText().toString();
                 String password = passwordEditText.getText().toString();

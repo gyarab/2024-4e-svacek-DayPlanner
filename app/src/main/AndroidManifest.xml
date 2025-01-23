@@ -16,6 +16,9 @@
         android:theme="@style/Theme.DayPlanner"
         tools:targetApi="31">
         <activity
+            android:name=".auth.google.GoogleLoginActivity"
+            android:exported="false" />
+        <activity
             android:name=".auth.login.EmailLoginActivity"
             android:exported="false" />
         <activity
