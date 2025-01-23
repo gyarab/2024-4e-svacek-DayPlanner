@@ -3,8 +3,10 @@ package com.example.dayplanner;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class AuthenticationActivity extends AppCompatActivity {
 
     Button googleButton, facebookButton, emailButton;
+    TextView textViewLogin;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -52,5 +55,15 @@ public class AuthenticationActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        textViewLogin = findViewById(R.id.textview_login);
+        textViewLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(AuthenticationActivity.this, EmailLoginActivity.class);
+                startActivity(intent);
+            }
+        });
+
     }
 }
