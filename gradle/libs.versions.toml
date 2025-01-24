@@ -1,5 +1,6 @@
 [versions]
 agp = "8.7.3"
+facebookAndroidSdk = "latest.release"
 firebaseBom = "33.7.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
@@ -16,6 +17,7 @@ firebaseAuth = "23.1.0"
 navigationFragment = "2.8.5"
 
 [libraries]
+facebook-android-sdk = { module = "com.facebook.android:facebook-android-sdk", version.ref = "facebookAndroidSdk" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 google-firebase-database = { module = "com.google.firebase:firebase-database" }
