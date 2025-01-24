@@ -12,6 +12,7 @@
         <item name="colorOnSurface">@color/colorOnSurfaceLight</item>
         <item name="colorOnBackground">@color/colorOnBackgroundLight</item>
         <item name="colorError">@color/colorErrorLight</item>
+        <item name="buttonStyle">@style/CustomButtonStyle</item>
     </style>
 
     <style name="Theme.DayPlanner" parent="Base.Theme.DayPlanner" />

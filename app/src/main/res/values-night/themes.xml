@@ -12,5 +12,6 @@
         <item name="colorOnSurface">@color/colorOnSurfaceDark</item>
         <item name="colorOnBackground">@color/colorOnBackgroundDark</item>
         <item name="colorError">@color/colorErrorDark</item>
+        <item name="buttonStyle">@style/CustomButtonStyle</item>
     </style>
 </resources>

@@ -7,12 +7,12 @@
     <color name="primaryLightColor">#9E66F4</color>
     <color name="primaryDarkColor">#2F0385</color>
 
-    <color name="colorPrimaryLight">#FF9E66F4</color>
-    <color name="colorOnPrimaryLight">#FF000000</color>
+    <color name="colorPrimaryLight">#CE9932</color>
+    <color name="colorOnPrimaryLight">#000000</color>
     <color name="colorPrimaryVariantLight">#FF9E66F4</color>
-    <color name="colorSecondaryLight">#FF000000</color>
-    <color name="colorOnSecondaryLight">#FF000000</color>
-    <color name="colorSecondaryVariantLight">#FF000000</color>
+    <color name="colorSecondaryLight">#00BCD4</color>
+    <color name="colorOnSecondaryLight">#2196F3</color>
+    <color name="colorSecondaryVariantLight">#FFEB3B</color>
     <color name="colorSurfaceLight">#FF000000</color>
     <color name="colorOnSurfaceLight">#FF000000</color>
     <color name="colorBackgroundLight">#FF000000</color>

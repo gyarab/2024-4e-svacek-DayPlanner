@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.dayplanner.R;
 import com.example.dayplanner.auth.google.GoogleLoginActivity;
+import com.example.dayplanner.auth.google.GoogleLoginFragment;
 import com.example.dayplanner.auth.login.EmailLoginActivity;
 import com.example.dayplanner.auth.signin.EmailSignInActivity;
 
@@ -32,21 +33,19 @@ public class AuthenticationActivity extends AppCompatActivity {
             return insets;
         });*/
 
-        googleButton = findViewById(R.id.google_button);
+        if (savedInstanceState == null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, new GoogleLoginFragment())
+                    .commit();
+        }
+
         facebookButton = findViewById(R.id.facebook_button);
         emailButton = findViewById(R.id.email_button);
 
         //Login not done
 
         GoogleLoginActivity googleLoginActivity = new GoogleLoginActivity();
-
-        googleButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(AuthenticationActivity.this, GoogleLoginActivity.class);
-                startActivity(intent);
-            }
-        });
 
         facebookButton.setOnClickListener(new View.OnClickListener() {
             @Override
