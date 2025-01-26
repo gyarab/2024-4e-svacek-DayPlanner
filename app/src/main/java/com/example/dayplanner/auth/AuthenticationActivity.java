@@ -50,7 +50,8 @@ public class AuthenticationActivity extends AppCompatActivity {
         facebookButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent = new Intent(AuthenticationActivity.this, GoogleLoginActivity.class);
+                startActivity(intent);
             }
         });
 

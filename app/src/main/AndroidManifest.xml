@@ -22,19 +22,10 @@
             android:name=".auth.login.EmailLoginActivity"
             android:exported="false" />
         <activity
-            android:name=".LoginActivity"
-            android:exported="false" />
-        <activity
-            android:name=".SignupActivity"
-            android:exported="false" />
-        <activity
             android:name=".auth.AuthenticationActivity"
             android:exported="false" />
         <activity
             android:name=".auth.signin.EmailSignInActivity"
-            android:exported="false" />
-        <activity
-            android:name=".FireBaseUIActivity"
             android:exported="false" />
         <activity
             android:name=".settings.SettingsActivity"
