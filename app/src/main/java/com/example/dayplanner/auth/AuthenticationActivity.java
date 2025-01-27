@@ -16,6 +16,11 @@ import com.example.dayplanner.auth.google.GoogleLoginFragment;
 import com.example.dayplanner.auth.login.EmailLoginActivity;
 import com.example.dayplanner.auth.signin.EmailSignInActivity;
 
+import com.facebook.FacebookActivity;
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
+
+
 public class AuthenticationActivity extends AppCompatActivity {
 
     Button googleButton, facebookButton, emailButton;
@@ -33,6 +38,9 @@ public class AuthenticationActivity extends AppCompatActivity {
             return insets;
         });*/
 
+        /*FacebookSdk.sdkInitialize(getApplicationContext());
+        AppEventsLogger.activateApp(this.getApplication());*/
+
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
@@ -42,6 +50,15 @@ public class AuthenticationActivity extends AppCompatActivity {
 
         facebookButton = findViewById(R.id.facebook_button);
         emailButton = findViewById(R.id.email_button);
+        Button facebookButton2 = findViewById(R.id.login_button);
+
+        facebookButton2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(AuthenticationActivity.this, FacebookActivity.class);
+                startActivity(intent);
+            }
+        });
 
         //Login not done
 

@@ -39,6 +39,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.text.DateFormatSymbols;
 import java.util.Calendar;
 
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
+
+
 public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragment.OnDaySelectedListener, TaskDialogFragment.TaskDialogListener {
 
 
@@ -51,6 +55,9 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        /*FacebookSdk.sdkInitialize(getApplicationContext());
+        AppEventsLogger.activateApp(this.getApplication());*/
 
         /** logs user out**/
         //logout();
