@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -44,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
 
 
     FloatingActionButton addButton, addTaskFab, addHabitFab;
+    TextView addTaskText, addHabitText;
+    LinearLayoutCompat addTaskContainer, addHabitContainer;
     View blurOverlay;
     boolean isOptionsVisible = false;
     Button register;
@@ -128,8 +131,12 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
         ((TextView) findViewById(R.id.monthYearTextView)).setText(currentMonthName + " " + currentYear); // set the month year view to current month and year as default
 
         addButton = findViewById(R.id.AddTaskButton);
+        //addTaskContainer = findViewById(R.id.addTaskContainer);
         addTaskFab = findViewById(R.id.addTaskFab);
+        //addTaskText = findViewById(R.id.addTaskText);
+        //addHabitContainer = findViewById(R.id.addHabitContainer);
         addHabitFab = findViewById(R.id.addHabitFab);
+        //addHabitText = findViewById(R.id.addHabitText);
         blurOverlay = findViewById(R.id.blurOverlay);
 
         addButton.setOnClickListener(new View.OnClickListener() {
@@ -183,9 +190,13 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
             // Show options
             blurOverlay.setVisibility(View.VISIBLE);
             blurOverlay.animate().alpha(1f).setDuration(300);
+            //addTaskContainer.setVisibility(View.VISIBLE);
             addTaskFab.setVisibility(View.VISIBLE);
+            //addTaskText.setVisibility(View.VISIBLE);
             addTaskFab.animate().translationY(-100).alpha(1f).setDuration(300);
+            //addHabitContainer.setVisibility(View.VISIBLE);
             addHabitFab.setVisibility(View.VISIBLE);
+            //addHabitText.setVisibility(View.VISIBLE);
             addHabitFab.animate().translationY(-160).alpha(1f).setDuration(300);
         }
         isOptionsVisible = !isOptionsVisible;

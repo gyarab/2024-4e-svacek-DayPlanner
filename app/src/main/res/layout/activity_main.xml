@@ -83,7 +83,6 @@
         android:clickable="true"
         android:focusable="true"/>
 
-    <!-- Add Task Button -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addTaskFab"
         android:layout_width="wrap_content"
@@ -91,11 +90,14 @@
         android:layout_marginBottom="100dp"
         android:layout_marginEnd="20dp"
         android:visibility="gone"
+        app:srcCompat="@drawable/ic_add_task"
+        android:text="Add Task"
+        android:textSize="16sp"
+        android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_add_task" />
+        android:layout_gravity="center_vertical" />
 
-    <!-- Add Habit Button -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addHabitFab"
         android:layout_width="wrap_content"
@@ -103,8 +105,44 @@
         android:layout_marginBottom="160dp"
         android:layout_marginEnd="20dp"
         android:visibility="gone"
+        app:srcCompat="@drawable/ic_add_habit"
+        android:text="Add Habit"
+        android:textSize="16sp"
+        android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_add_habit" />
+        android:layout_gravity="center_vertical" />
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        tools:ignore="MissingConstraints">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_habit_action"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:src="@drawable/ic_add_habit"
+            android:contentDescription="s"
+            android:layout_gravity="center"
+            android:tint="@android:color/white"
+            android:backgroundTint="@color/colorAccent" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="HELLO"
+            android:elevation="16dp"
+            android:textColor="@android:color/white"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+    </FrameLayout>
+
+
+
+
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
