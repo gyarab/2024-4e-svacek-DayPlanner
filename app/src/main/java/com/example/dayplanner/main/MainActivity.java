@@ -84,6 +84,9 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
 
         myRef.setValue("HELLO WORd!");
 
+        DatabaseReference userReference = database.getReference("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("info");
+        userReference.setValue(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+
         /** Register Button Temporary Design**/
         register = findViewById(R.id.RegisterPage);
         register.setOnClickListener(new View.OnClickListener() {
