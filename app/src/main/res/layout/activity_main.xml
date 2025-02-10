@@ -83,66 +83,34 @@
         android:clickable="true"
         android:focusable="true"/>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <Button
         android:id="@+id/addTaskFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="100dp"
+        android:layout_gravity="center_vertical"
         android:layout_marginEnd="20dp"
-        android:visibility="gone"
-        app:srcCompat="@drawable/ic_add_task"
+        android:layout_marginBottom="60dp"
+        android:drawableRight="@drawable/ic_add_task"
         android:text="Add Task"
-        android:textSize="16sp"
         android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_gravity="center_vertical" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <Button
         android:id="@+id/addHabitFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="160dp"
+        android:layout_gravity="center_vertical"
         android:layout_marginEnd="20dp"
-        android:visibility="gone"
-        app:srcCompat="@drawable/ic_add_habit"
+        android:drawableRight="@drawable/ic_add_habit"
         android:text="Add Habit"
-        android:textSize="16sp"
         android:textColor="@android:color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:textSize="16sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/addTaskFab"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_gravity="center_vertical" />
-
-    <FrameLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|right"
-        tools:ignore="MissingConstraints">
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_habit_action"
-            android:layout_width="72dp"
-            android:layout_height="72dp"
-            android:src="@drawable/ic_add_habit"
-            android:contentDescription="s"
-            android:layout_gravity="center"
-            android:tint="@android:color/white"
-            android:backgroundTint="@color/colorAccent" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="HELLO"
-            android:elevation="16dp"
-            android:textColor="@android:color/white"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-    </FrameLayout>
-
-
-
-
-
-
+        tools:visibility="invisible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

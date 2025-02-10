@@ -71,56 +71,39 @@ public class HabitDialogFragment extends DialogFragment {
     private void saveHabitToFirebase() {
         String habitName = editHabitName.getText().toString();
         String habitDescription = editHabitDescription.getText().toString();
-        String habitLength = editHabitLength.getText().toString();
+        String habitLengthStr = editHabitLength.getText().toString();
         String startTime = editStartTime.getText().toString();
         String frequency = frequencySpinner.getSelectedItem().toString();
         String metric = metricSpinner.getSelectedItem().toString();
-        String goalValue = editGoalValue.getText().toString();
+        String goalValueStr = editGoalValue.getText().toString();
 
         if (metric.equals("Custom")) {
             metric = editCustomMetric.getText().toString();
         }
 
-        if (habitName.isEmpty() || startTime.isEmpty() || habitLength.isEmpty() || goalValue.isEmpty()) {
+        if (habitName.isEmpty() || startTime.isEmpty() || habitLengthStr.isEmpty() || goalValueStr.isEmpty()) {
             Log.e("HabitDialog", "Fields cannot be empty");
             return;
         }
+
+        int habitLength = Integer.parseInt(habitLengthStr);
+        int goalValue = Integer.parseInt(goalValueStr);
 
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference habitsRef = FirebaseDatabase.getInstance().getReference("users").child(userId).child("habits");
 
         String habitId = habitsRef.push().getKey();
+        Habit habit = new Habit(habitId, habitName, habitDescription, frequency, startTime, habitLength, metric, goalValue);
 
-        // Get today's date as an identifier for daily tracking
-        String todayDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Calendar.getInstance().getTime());
-
-        // Create habit data
-        Map<String, Object> habitData = new HashMap<>();
-        habitData.put("name", habitName);
-        habitData.put("description", habitDescription);
-        habitData.put("frequency", frequency);
-        habitData.put("startTime", startTime);
-        habitData.put("length", habitLength);
-        habitData.put("metric", metric);
-        habitData.put("goalValue", goalValue);
-        habitData.put("currentStreak", 0);
-        habitData.put("longestStreak", 0);
-
-        // Create a daily tracking child
-        Map<String, Object> dailyEntries = new HashMap<>();
-        Map<String, Object> todayEntry = new HashMap<>();
-        todayEntry.put("completed", false);
-        todayEntry.put("progress", 0);  // Initialize with 0 progress
-
-        dailyEntries.put(todayDate, todayEntry);
-        habitData.put("dailyEntries", dailyEntries);
-
-        habitsRef.child(habitId).setValue(habitData)
-                .addOnSuccessListener(aVoid -> Log.d("HabitDialog", "Habit saved"))
-                .addOnFailureListener(e -> Log.e("HabitDialog", "Failed to save", e));
-
-        dismiss();
+        habitsRef.child(habitId).setValue(habit)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("HabitDialog", "Habit saved successfully");
+                    dismiss(); // Dismiss dialog only after the habit is successfully stored
+                })
+                .addOnFailureListener(e -> Log.e("HabitDialog", "Failed to save habit", e));
     }
+
+
 
     @Override
     public void onDismiss(@NonNull DialogInterface dialog) {

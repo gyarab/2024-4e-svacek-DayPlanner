@@ -44,7 +44,8 @@ import java.util.Calendar;
 public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragment.OnDaySelectedListener, TaskDialogFragment.TaskDialogListener {
 
 
-    FloatingActionButton addButton, addTaskFab, addHabitFab;
+    FloatingActionButton addButton, profileButton;
+    Button addTaskFab, addHabitFab;
     TextView addTaskText, addHabitText;
     LinearLayoutCompat addTaskContainer, addHabitContainer;
     View blurOverlay;
@@ -187,49 +188,47 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
         if (isOptionsVisible) {
             // Hide options
             blurOverlay.animate().alpha(0f).setDuration(300).withEndAction(() -> blurOverlay.setVisibility(View.GONE));
+            profileButton.animate().alpha(1f).setDuration(300); // Restore profile button visibility
             addTaskFab.animate().translationY(0).alpha(0f).setDuration(300).withEndAction(() -> addTaskFab.setVisibility(View.GONE));
             addHabitFab.animate().translationY(0).alpha(0f).setDuration(300).withEndAction(() -> addHabitFab.setVisibility(View.GONE));
         } else {
             // Show options
             blurOverlay.setVisibility(View.VISIBLE);
             blurOverlay.animate().alpha(1f).setDuration(300);
-            //addTaskContainer.setVisibility(View.VISIBLE);
+            profileButton.animate().alpha(0.3f).setDuration(300); // Dim the profile button
             addTaskFab.setVisibility(View.VISIBLE);
-            //addTaskText.setVisibility(View.VISIBLE);
             addTaskFab.animate().translationY(-100).alpha(1f).setDuration(300);
-            //addHabitContainer.setVisibility(View.VISIBLE);
             addHabitFab.setVisibility(View.VISIBLE);
-            //addHabitText.setVisibility(View.VISIBLE);
             addHabitFab.animate().translationY(-160).alpha(1f).setDuration(300);
         }
         isOptionsVisible = !isOptionsVisible;
     }
 
+
     public void onDaySelected(String dateId) {
-        // Pass the dateId to TimelineFragment
         TimelineFragment timelineFragment = (TimelineFragment) getSupportFragmentManager().findFragmentByTag("TIMELINE_FRAGMENT_TAG");
         if (timelineFragment != null) {
-            timelineFragment.fetchTaskData(dateId); // Call the method in the fragment
+            timelineFragment.fetchTasksAndHabits(dateId); // Fetch both tasks and habits
         } else {
             Log.e("MainActivity", "TimelineFragment not found");
         }
     }
 
     public void onTaskDataChanged(String dateId) {
-        // Notify the TimelineFragment to reload tasks
         TimelineFragment timelineFragment = (TimelineFragment) getSupportFragmentManager().findFragmentByTag("TIMELINE_FRAGMENT_TAG");
         if (timelineFragment != null) {
-            timelineFragment.fetchTaskData(dateId); // Call the method in the fragment
+            timelineFragment.fetchTasksAndHabits(dateId); // Refresh timeline with tasks and habits
 
             RecyclerView weeklyRecyclerView = findViewById(R.id.weeklyRecyclerView);
             DayAdapter adapter = (DayAdapter) weeklyRecyclerView.getAdapter();
             if (adapter != null) {
-                adapter.setActiveDotByDateId(dateId);
+                adapter.setActiveDotByDateId(dateId); // Update the dot in the weekly view
             }
         } else {
             Log.e("MainActivity", "TimelineFragment not found");
         }
     }
+
 
     private void logout() {
         FirebaseAuth.getInstance().signOut();
@@ -240,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
 
     void popupMenu() {
         // Function for showing a popup menu when the profile button is clicked
-        FloatingActionButton profileButton = findViewById(R.id.ProfileButton);
+        profileButton = findViewById(R.id.ProfileButton);
 
         profileButton.setOnClickListener(new View.OnClickListener() {
             @Override

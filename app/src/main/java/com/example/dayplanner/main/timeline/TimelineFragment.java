@@ -6,78 +6,92 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dayplanner.R;
+import com.example.dayplanner.main.habits.Habit;
 import com.example.dayplanner.main.tasks.TasksDBHelper;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.List;
 
-// Fragment responsible for displaying tasks for a specific day
 public class TimelineFragment extends Fragment {
-
-    RecyclerView timeLine; // RecyclerView to display the task timeline
-    TasksDBHelper tasksDBHelper; // Helper class to interact with the database
-    ArrayList<String> task_id, task_start_time, task_date, task_title, task_description, task_length; // Lists to hold task data
-    TimelineAdapter timelineAdapter; // Adapter to bind task data to RecyclerView
+    RecyclerView timeLine;
+    TasksDBHelper tasksDBHelper;
+    List<TimelineItem> timelineItems;
+    TimelineAdapter timelineAdapter;
+    DatabaseReference habitsRef;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Inflate the layout for the fragment
         View view = inflater.inflate(R.layout.fragment_timeline, container, false);
 
-        // Initialize the RecyclerView for timeline view
         timeLine = view.findViewById(R.id.timeLine);
-        tasksDBHelper = new TasksDBHelper(getContext());
-        task_id = new ArrayList<>();
-        task_start_time = new ArrayList<>();
-        task_date = new ArrayList<>();
-        task_title = new ArrayList<>();
-        task_description = new ArrayList<>();
-        task_length = new ArrayList<>();
-
-        // Set the adapter to the RecyclerView and layout manager
-        timelineAdapter = new TimelineAdapter(getContext(),task_id, task_start_time, task_date, task_title, task_description, task_length);
-        timeLine.setAdapter(timelineAdapter);
         timeLine.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        // Initialize the timeline with a default date (e.g., "13122024")
-        fetchTaskData("03012025");
+        timelineItems = new ArrayList<>();
+        tasksDBHelper = new TasksDBHelper(getContext());
+        timelineAdapter = new TimelineAdapter(getContext(), timelineItems);
+        timeLine.setAdapter(timelineAdapter);
+
+        fetchTasksAndHabits("03012025");
 
         return view;
     }
 
-    // Method to fetch task data from the database for a specific date
-    public void fetchTaskData(String dateId) {
-        // Query the database to retrieve tasks for the specific date
-        Cursor cursor = tasksDBHelper.readAllDataWithDate(dateId);
-        Log.d("cursor", dateId);
+    public void fetchTasksAndHabits(String dateId) {
+        timelineItems.clear();
+        fetchTasks(dateId);
+        fetchHabits();
+    }
 
-        // Clear existing task data
-        task_id.clear();
-        task_start_time.clear();
-        task_title.clear();
-        task_date.clear();
-        task_description.clear();
-        task_length.clear();
+    private void fetchTasks(String dateId) {
+        Cursor cursor = tasksDBHelper.readAllDataWithDate(dateId);
 
         if (cursor.getCount() != 0) {
-            // If there are tasks for the selected date, add them to the lists
             while (cursor.moveToNext()) {
-                task_id.add(cursor.getString(0)); // Task ID
-                task_title.add(cursor.getString(1)); // Task title
-                task_description.add(cursor.getString(2)); // Task description
-                task_date.add(cursor.getString(3)); // Task date
-                task_start_time.add(cursor.getString(4)); // Task start time
-                task_length.add(cursor.getString(5)); // Task length
+                timelineItems.add(new TimelineItem(
+                        cursor.getString(0),  // Task ID
+                        cursor.getString(1),  // Task Title
+                        cursor.getString(4)   // Task Start Time
+                ));
             }
-            Log.d("cursor", task_date.toString());
         }
         cursor.close();
-
-        // Notify the adapter that the data has changed, so the RecyclerView is updated
         timelineAdapter.notifyDataSetChanged();
+    }
+
+    private void fetchHabits() {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        habitsRef = FirebaseDatabase.getInstance().getReference("users").child(userId).child("habits");
+
+        habitsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot habitSnapshot : snapshot.getChildren()) {
+                    Habit habit = habitSnapshot.getValue(Habit.class);
+                    if (habit != null) {
+                        timelineItems.add(new TimelineItem(habit));
+                    }
+                }
+                timelineAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("Firebase", "Failed to load habits", error.toException());
+            }
+        });
     }
 }

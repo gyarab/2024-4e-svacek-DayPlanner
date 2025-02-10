@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/task_title_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Task or Habit Title"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/task_start_time_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start Time or Frequency"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/task_description_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Task Description"
+        android:textSize="14sp"
+        android:visibility="gone" />
+</LinearLayout>
