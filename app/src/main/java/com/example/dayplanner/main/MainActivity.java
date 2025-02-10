@@ -33,20 +33,19 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.example.dayplanner.main.habits.HabitDialogFragment;
 //import com.google.firebase.database.DatabaseReference;
 //import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.DateFormatSymbols;
 import java.util.Calendar;
 
-import com.facebook.FacebookSdk;
-import com.facebook.appevents.AppEventsLogger;
-
-
 public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragment.OnDaySelectedListener, TaskDialogFragment.TaskDialogListener {
 
 
-    FloatingActionButton addTask;
+    FloatingActionButton addButton, addTaskFab, addHabitFab;
+    View blurOverlay;
+    boolean isOptionsVisible = false;
     Button register;
     private FirebaseAuth mAuth;
     /** Useless import */
@@ -128,15 +127,68 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
         String currentMonthName = new DateFormatSymbols().getMonths()[currentMonth]; // convert month number to name
         ((TextView) findViewById(R.id.monthYearTextView)).setText(currentMonthName + " " + currentYear); // set the month year view to current month and year as default
 
-        addTask = findViewById(R.id.AddTaskButton);
-        addTask.setOnClickListener(new View.OnClickListener() {
+        addButton = findViewById(R.id.AddTaskButton);
+        addTaskFab = findViewById(R.id.addTaskFab);
+        addHabitFab = findViewById(R.id.addHabitFab);
+        blurOverlay = findViewById(R.id.blurOverlay);
+
+        addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // User wants to add a new task -> new activity starts
-                TaskDialogFragment fragment = new TaskDialogFragment(false, null, "", "", "", "", "");
-                fragment.show(getSupportFragmentManager(), "AddTaskDialog");
+                toggleAddOptions();
             }
         });
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toggleAddOptions();
+            }
+        });
+
+        blurOverlay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toggleAddOptions(); // Hide options if clicked outside
+            }
+        });
+
+        addTaskFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Open Add Task Dialog
+                TaskDialogFragment fragment = new TaskDialogFragment(false, null, "", "", "", "", "");
+                fragment.show(getSupportFragmentManager(), "AddTaskDialog");
+                toggleAddOptions(); // Hide options after selection
+            }
+        });
+
+        addHabitFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Open Add Habit Dialog
+                HabitDialogFragment fragment = new HabitDialogFragment();
+                fragment.show(getSupportFragmentManager(), "AddHabitDialog");
+                toggleAddOptions(); // Hide options after selection
+            }
+        });
+    }
+
+    private void toggleAddOptions() {
+        if (isOptionsVisible) {
+            // Hide options
+            blurOverlay.animate().alpha(0f).setDuration(300).withEndAction(() -> blurOverlay.setVisibility(View.GONE));
+            addTaskFab.animate().translationY(0).alpha(0f).setDuration(300).withEndAction(() -> addTaskFab.setVisibility(View.GONE));
+            addHabitFab.animate().translationY(0).alpha(0f).setDuration(300).withEndAction(() -> addHabitFab.setVisibility(View.GONE));
+        } else {
+            // Show options
+            blurOverlay.setVisibility(View.VISIBLE);
+            blurOverlay.animate().alpha(1f).setDuration(300);
+            addTaskFab.setVisibility(View.VISIBLE);
+            addTaskFab.animate().translationY(-100).alpha(1f).setDuration(300);
+            addHabitFab.setVisibility(View.VISIBLE);
+            addHabitFab.animate().translationY(-160).alpha(1f).setDuration(300);
+        }
+        isOptionsVisible = !isOptionsVisible;
     }
 
     public void onDaySelected(String dateId) {
