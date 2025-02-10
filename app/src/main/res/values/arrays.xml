@@ -9,4 +9,20 @@
         <item>reply</item>
         <item>reply_all</item>
     </string-array>
+
+    <string-array name="habit_frequencies">
+        <item>Daily</item>
+        <item>Weekly</item>
+        <item>Monthly</item>
+        <item>Custom</item>
+    </string-array>
+
+    <string-array name="habit_metrics">
+        <item>Minutes</item>
+        <item>Hours</item>
+        <item>Days</item>
+        <item>Km</item>
+        <item>Kcal</item>
+        <item>Custom</item>
+    </string-array>
 </resources>

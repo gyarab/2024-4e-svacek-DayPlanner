@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/edit_habit_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Habit Name" />
+
+        <EditText
+            android:id="@+id/edit_habit_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Description" />
+
+        <Spinner
+            android:id="@+id/spinner_habit_frequency"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/habit_frequencies" />
+
+        <TextView
+            android:id="@+id/edit_habit_start_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Select Start Time"
+            android:textSize="16sp"
+            android:paddingTop="8dp" />
+
+        <Button
+            android:id="@+id/pick_habit_time_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pick Time" />
+
+        <EditText
+            android:id="@+id/edit_habit_length"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Duration (e.g., 30 min)" />
+
+        <Spinner
+            android:id="@+id/spinner_habit_metric"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/habit_metrics" />
+
+        <EditText
+            android:id="@+id/edit_custom_metric"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Custom Metric"
+            android:visibility="gone" />
+
+        <!-- Added Goal Value Input -->
+        <EditText
+            android:id="@+id/edit_goal_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Goal Value (e.g., 10km, 15 min)" />
+
+        <!-- Streak Tracking Section -->
+        <TextView
+            android:id="@+id/text_current_streak"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Current Streak: 0"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:paddingTop="8dp" />
+
+        <TextView
+            android:id="@+id/text_longest_streak"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Longest Streak: 0"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:paddingBottom="8dp" />
+
+        <!-- Placeholder for Daily Entries (Can be dynamically updated in RecyclerView) -->
+        <TextView
+            android:id="@+id/text_daily_entries"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Daily Progress:"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:paddingTop="8dp" />
+
+        <LinearLayout
+            android:id="@+id/daily_entries_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <!-- Entries will be dynamically added here -->
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/save_habit_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Save Habit"
+            android:layout_marginTop="16dp" />
+
+    </LinearLayout>
+</ScrollView>
