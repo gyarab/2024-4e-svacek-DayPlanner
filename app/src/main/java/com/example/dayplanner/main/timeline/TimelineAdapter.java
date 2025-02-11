@@ -13,7 +13,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dayplanner.R;
 import com.example.dayplanner.main.habits.Habit;
+import com.example.dayplanner.main.tasks.Task;
 import com.example.dayplanner.main.tasks.TaskDialogFragment;
+import com.example.dayplanner.main.tasks.TasksDBHelper;
 
 import java.util.List;
 
@@ -44,11 +46,7 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.MyView
             holder.task_description_txt.setVisibility(View.VISIBLE);
             holder.task_description_txt.setText("Task");
 
-            holder.task_title_txt.setOnClickListener(v -> showTaskDetail(
-                    item.getTaskId(),
-                    item.getTaskStartTime(),
-                    item.getTaskTitle()
-            ));
+            holder.task_title_txt.setOnClickListener(v -> showTaskDetail(item.getTaskId())); // Pass only task ID
         } else {
             holder.task_title_txt.setText(item.getHabitName() + " (Habit)");
             holder.task_start_time_txt.setText("Repeat: " + item.getHabitFrequency());
@@ -56,10 +54,19 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.MyView
         }
     }
 
-    public void showTaskDetail(String id, String startTime, String title) {
-        TaskDialogFragment dialogFragment = new TaskDialogFragment(true, id, startTime, "", title, "", "");
-        dialogFragment.show(((AppCompatActivity) context).getSupportFragmentManager(), "EditTaskDialog");
+
+    public void showTaskDetail(String taskId) {
+        TasksDBHelper dbHelper = new TasksDBHelper(context);
+        Task task = dbHelper.getTaskById(taskId); // Fetch the task from DB
+
+        if (task != null) {
+            TaskDialogFragment dialogFragment = new TaskDialogFragment(true, task);
+            dialogFragment.show(((AppCompatActivity) context).getSupportFragmentManager(), "EditTaskDialog");
+        } else {
+            Log.e("TaskDetail", "Task not found with ID: " + taskId);
+        }
     }
+
 
     @Override
     public int getItemCount() {

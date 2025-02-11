@@ -95,15 +95,24 @@ public class AddTaskActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Log.d("DB", "clicked");
-                TasksDBHelper timelineDbHelper = new TasksDBHelper(AddTaskActivity.this);
-                timelineDbHelper.addTask(
+
+                // Create Task object
+                Task newTask = new Task(
+                        null, // ID is null since it's a new task
                         title_input.getText().toString().trim(),
                         description_input.getText().toString().trim(),
                         formatDate(dateTextView.getText().toString().trim()),
                         timeTextView.getText().toString().trim(),
                         Integer.parseInt(length_input.getText().toString().trim())
                 );
-                Log.d("CLICKED", formatDate(String.valueOf(dateTextView.getText())));
+
+                // Insert task into the database
+                TasksDBHelper timelineDbHelper = new TasksDBHelper(AddTaskActivity.this);
+                timelineDbHelper.addTask(newTask);
+
+                Log.d("CLICKED", newTask.toString());
+
+                // Navigate back to MainActivity
                 Intent intent = new Intent(AddTaskActivity.this, MainActivity.class);
                 startActivity(intent);
             }

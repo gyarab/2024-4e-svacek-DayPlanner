@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dayplanner.R;
 import com.example.dayplanner.main.habits.Habit;
+import com.example.dayplanner.main.tasks.Task;
 import com.example.dayplanner.main.tasks.TasksDBHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -57,20 +58,20 @@ public class TimelineFragment extends Fragment {
     }
 
     private void fetchTasks(String dateId) {
-        Cursor cursor = tasksDBHelper.readAllDataWithDate(dateId);
+        List<Task> tasks = tasksDBHelper.getTasksByDate(dateId);  // Get list of tasks from DB
 
-        if (cursor.getCount() != 0) {
-            while (cursor.moveToNext()) {
+        if (tasks != null && !tasks.isEmpty()) {
+            for (Task task : tasks) {
                 timelineItems.add(new TimelineItem(
-                        cursor.getString(0),  // Task ID
-                        cursor.getString(1),  // Task Title
-                        cursor.getString(4)   // Task Start Time
+                        task.getTaskId(),        // Task ID
+                        task.getTaskTitle(),     // Task Title
+                        task.getTaskStartTime()  // Task Start Time
                 ));
             }
         }
-        cursor.close();
         timelineAdapter.notifyDataSetChanged();
     }
+
 
     private void fetchHabits() {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();

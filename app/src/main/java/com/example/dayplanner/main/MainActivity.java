@@ -41,6 +41,8 @@ import com.example.dayplanner.main.habits.HabitDialogFragment;
 import java.text.DateFormatSymbols;
 import java.util.Calendar;
 
+import com.example.dayplanner.main.tasks.Task;
+
 public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragment.OnDaySelectedListener, TaskDialogFragment.TaskDialogListener {
 
 
@@ -166,9 +168,13 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
         addTaskFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // Create a new empty Task object
+                Task newTask = new Task(null, "", "", "", "", 0);
+
                 // Open Add Task Dialog
-                TaskDialogFragment fragment = new TaskDialogFragment(false, null, "", "", "", "", "");
+                TaskDialogFragment fragment = new TaskDialogFragment(false, newTask);
                 fragment.show(getSupportFragmentManager(), "AddTaskDialog");
+
                 toggleAddOptions(); // Hide options after selection
             }
         });

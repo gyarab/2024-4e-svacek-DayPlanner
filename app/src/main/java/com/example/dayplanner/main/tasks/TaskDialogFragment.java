@@ -26,16 +26,11 @@ import java.util.Calendar;
 public class TaskDialogFragment extends DialogFragment {
 
     private boolean isEditMode;
-    private String taskID, startTime, taskDate, title, description, length;
+    private Task task;  // Use Task model instead of multiple parameters
 
-    public TaskDialogFragment(boolean isEditMode, String taskID, String startTime, String taskDate, String title, String description, String length) {
+    public TaskDialogFragment(boolean isEditMode, Task task) {
         this.isEditMode = isEditMode;
-        this.taskID = taskID;
-        this.startTime = startTime;
-        this.taskDate = taskDate;
-        this.title = title;
-        this.description = description;
-        this.length = length;
+        this.task = task;
     }
 
     public interface TaskDialogListener {
@@ -56,89 +51,127 @@ public class TaskDialogFragment extends DialogFragment {
         Button pickTimeButton = view.findViewById(R.id.pick_time_button);
         Button saveButton = view.findViewById(R.id.save_task_button);
 
-        // Populate fields only in edit mode
-        if (isEditMode) {
-            taskDate = formatDateForUser(taskDate);
-
-            editTaskTitle.setText(title);
-            editTaskDescription.setText(description);
-            editTaskLength.setText(length);
-            editTaskDate.setText(taskDate);
-            editTaskTime.setText(startTime);
+        // Populate fields if in edit mode
+        if (isEditMode && task != null) {
+            editTaskTitle.setText(task.getTaskTitle());
+            editTaskDescription.setText(task.getTaskDescription());
+            editTaskLength.setText(String.valueOf(task.getTaskLength()));
+            editTaskDate.setText(formatTaskDateForUser(task.getTaskDate()));
+            editTaskTime.setText(task.getTaskStartTime());
 
             Button deleteButton = view.findViewById(R.id.delete_task_button);
-            Drawable icon = ContextCompat.getDrawable(this.getContext(), R.drawable.delete_icon);
-            deleteButton.setCompoundDrawablesRelativeWithIntrinsicBounds(icon, null, null, null);
-            deleteButton.setVisibility(View.VISIBLE); //visible only when edit mode
-            deleteButton.setOnClickListener(v -> {
-                showDeleteConfirmationDialog(taskID, taskDate);
-            });
+            deleteButton.setVisibility(View.VISIBLE);
+            deleteButton.setOnClickListener(v -> showDeleteConfirmationDialog(task.getTaskId(), task.getTaskDate()));
         }
+
         // Date Picker
-        pickDateButton.setOnClickListener(v -> {
-            Calendar calendar = Calendar.getInstance();
-            DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(), (view1, year, month, dayOfMonth) -> {
-                String selectedDate = dayOfMonth + "." + (month + 1) + "." + year;
-                editTaskDate.setText(selectedDate);
-            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-            datePickerDialog.show();
-        });
+        pickDateButton.setOnClickListener(v -> showDatePicker(editTaskDate));
 
         // Time Picker
-        pickTimeButton.setOnClickListener(v -> {
-            Calendar calendar = Calendar.getInstance();
-            TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(), (view12, hourOfDay, minute) -> {
-                String selectedTime = String.format("%02d:%02d", hourOfDay, minute);
-                editTaskTime.setText(selectedTime);
-            }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true);
-            timePickerDialog.show();
-        });
+        pickTimeButton.setOnClickListener(v -> showTimePicker(editTaskTime));
 
-        // Set up save button
+        // Save Button Click
         saveButton.setOnClickListener(v -> {
             // Get input values
             String taskTitle = editTaskTitle.getText().toString();
             String taskDescription = editTaskDescription.getText().toString();
             String taskLength = editTaskLength.getText().toString();
-            String taskDate = editTaskDate.getText().toString();
-            taskDate = formatDateforDB(taskDate);
+            String taskDate = formatTaskDateForDB(editTaskDate.getText().toString());
             String taskStartTime = editTaskTime.getText().toString();
+
+            // Create Task object
+            Task newTask = new Task(
+                    isEditMode ? task.getTaskId() : null, // Keep existing ID or generate a new one
+                    taskTitle,
+                    taskDescription,
+                    taskDate,
+                    taskStartTime,
+                    Integer.parseInt(taskLength)
+            );
 
             TasksDBHelper dbHelper = new TasksDBHelper(getContext());
             if (isEditMode) {
-                // Update the database
-                dbHelper.editTask(taskID, taskTitle, taskDescription, taskDate, taskStartTime, Integer.parseInt(taskLength));
-                Log.d("Task Edited", "ID: " + taskID + ", Start Time: " + taskStartTime + ", Date: " + taskDate +
-                        ", Title: " + taskTitle + ", Desc: " + taskDescription + ", Length: " + taskLength);
+                dbHelper.editTask(newTask);
             } else {
-                // Insert into the database
-                dbHelper.addTask(taskTitle, taskDescription, taskDate, taskStartTime, Integer.parseInt(taskLength));
-                Log.d("Task Added", "Start Time: " + taskStartTime + ", Date: " + taskDate +
-                        ", Title: " + taskTitle + ", Desc: " + taskDescription + ", Length: " + taskLength);
+                dbHelper.addTask(newTask);
             }
 
             if (getActivity() instanceof TaskDialogListener) {
                 ((TaskDialogListener) getActivity()).onTaskDataChanged(taskDate);
             }
 
-            dismiss(); // Close the dialog
+            dismiss();
         });
 
         return view;
     }
 
-    @Override
-    public void onDismiss(@NonNull DialogInterface dialog) {
-        super.onDismiss(dialog);
-        // Optional: Handle actions when the dialog is dismissed
+    private void showDatePicker(TextView editTaskDate) {
+        Calendar calendar = Calendar.getInstance();
+        DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(), (view, year, month, dayOfMonth) -> {
+            String selectedDate = dayOfMonth + "." + (month + 1) + "." + year;
+            editTaskDate.setText(selectedDate);
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+        datePickerDialog.show();
     }
 
-    public static String formatDateforDB(String date) {
+    private void showTimePicker(TextView editTaskTime) {
+        Calendar calendar = Calendar.getInstance();
+        TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(), (view, hourOfDay, minute) -> {
+            String selectedTime = String.format("%02d:%02d", hourOfDay, minute);
+            editTaskTime.setText(selectedTime);
+        }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true);
+        timePickerDialog.show();
+    }
+
+    public void showDeleteConfirmationDialog(String taskId, String taskDate) {
+        new AlertDialog.Builder(getContext())
+                .setTitle("Delete Task")
+                .setMessage("Are you sure you want to delete this task?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    TasksDBHelper dbHelper = new TasksDBHelper(getContext());
+                    dbHelper.deleteTask(taskId);
+
+                    if (getActivity() instanceof TaskDialogListener) {
+                        ((TaskDialogListener) getActivity()).onTaskDataChanged(taskDate);
+                    }
+
+                    dismiss();
+                })
+                .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    public static String formatTaskDateForUser(String taskDate) {
         String formattedDate = "";
-        Log.d("formattedDateB", date);
-        if (date != null && !date.isEmpty()) {
+        Log.d("formattedDateB", taskDate);
+
+        if (taskDate != null && taskDate.length() == 8) { // Ensure the date is in the correct format (DDMMYYYY)
+            // Extract day, month, and year using substring
+            String day = taskDate.substring(0, 2); // First two characters for day
+            String month = taskDate.substring(2, 4); // Next two characters for month
+            String year = taskDate.substring(4); // Remaining characters for year
+
+            // Remove leading zeros from day and month for user-friendly format
+            day = day.startsWith("0") ? day.substring(1) : day;
+            month = month.startsWith("0") ? month.substring(1) : month;
+
+            // Combine into user-friendly format
+            formattedDate = day + "." + month + "." + year;
+        } else {
+            Log.d("formattedDateError", "Invalid date format: " + taskDate);
+        }
+
+        Log.d("formattedDate", formattedDate);
+        return formattedDate;
+    }
+
+    public static String formatTaskDateForDB(String taskDate) {
+        String formattedDate = "";
+        Log.d("formattedDateB", taskDate);
+        if (taskDate != null && !taskDate.isEmpty()) {
             // Split the input date by dots
-            String[] parts = date.split("\\."); // Escape the dot since it's a regex special character
+            String[] parts = taskDate.split("\\."); // Escape the dot since it's a regex special character
             if (parts.length == 3) { // Ensure the date is in the format DD.MM.YYYY
                 // Parse and zero-pad day and month
                 String day = parts[0].length() == 1 ? "0" + parts[0] : parts[0];   // Ensure 2-digit day
@@ -151,51 +184,5 @@ public class TaskDialogFragment extends DialogFragment {
         return formattedDate;
     }
 
-    public static String formatDateForUser(String date) {
-        String formattedDate = "";
-        Log.d("formattedDateB", date);
-
-        if (date != null && date.length() == 8) { // Ensure the date is in the correct format (DDMMYYYY)
-            // Extract day, month, and year using substring
-            String day = date.substring(0, 2); // First two characters for day
-            String month = date.substring(2, 4); // Next two characters for month
-            String year = date.substring(4); // Remaining characters for year
-
-            // Remove leading zeros from day and month for user-friendly format
-            day = day.startsWith("0") ? day.substring(1) : day;
-            month = month.startsWith("0") ? month.substring(1) : month;
-
-            // Combine into user-friendly format
-            formattedDate = day + "." + month + "." + year;
-        } else {
-            Log.d("formattedDateError", "Invalid date format: " + date);
-        }
-
-        Log.d("formattedDate", formattedDate);
-        return formattedDate;
-    }
-
-    public void showDeleteConfirmationDialog(String taskId, String taskDate) {
-        new AlertDialog.Builder(this.getContext())
-                .setTitle("Delete Task")
-                .setMessage("Are you sure you want to delete this task?")
-                .setIcon(R.drawable.delete_icon)
-                .setPositiveButton("Yes", (dialog, which) -> {
-                    TasksDBHelper dbHelper = new TasksDBHelper(getContext());
-                    dbHelper.deleteTask(taskId);
-                    Log.d("Task Deleted", "ID: " + taskId);
-
-                    if (getActivity() instanceof TaskDialogListener) {
-                        ((TaskDialogListener) getActivity()).onTaskDataChanged(taskDate);
-                    }
-
-                    dialog.dismiss(); //dismiss the alert dialog
-                    dismiss(); //dismiss the whole fragment dialog
-                })
-                .setNegativeButton("No", (dialog, which) -> {
-                    dialog.dismiss(); // Simply dismiss the dialog
-                    Log.d("Task Not Deleted", "ID: " + taskId);
-                })
-                .show();
-    }
 }
+

@@ -5,157 +5,148 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
-import android.widget.Toast;
 
-import androidx.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TasksDBHelper extends SQLiteOpenHelper {
 
-    private Context context;
-    //DB Variables - constants
-    private static final String DATABASE_NAME = "DayPlanner.db";
-    private static final int DATABASE_VERSION = 3;
-    private static final String TABLE_NAME = "Tasks";
-    private static final String COLUMN_ID = "_id";
-    private static final String COLUMN_TITLE = "task_title";
-    private static final String COLUMN_DESCRIPTION = "task_description";
-    private static final String COLUMN_LENGTH = "task_length";
-    private static final String COLUMN_DATE = "task_date";
-    private static final String COLUMN_START_TIME = "task_start_time";
+    private static final String DATABASE_NAME = "tasks.db";
+    private static final int DATABASE_VERSION = 1;
 
-    public TasksDBHelper(@Nullable Context context) {
+    private static final String TABLE_TASKS = "tasks";
+    private static final String COLUMN_ID = "id";
+    private static final String COLUMN_TITLE = "title";
+    private static final String COLUMN_DESCRIPTION = "description";
+    private static final String COLUMN_DATE = "date";
+    private static final String COLUMN_START_TIME = "start_time";
+    private static final String COLUMN_LENGTH = "length";
+
+    public TasksDBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        this.context = context;
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String query =
-                "CREATE TABLE " + TABLE_NAME +
-                        " (" + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                        COLUMN_TITLE + " TEXT, " +
-                        COLUMN_DESCRIPTION + " TEXT, " +
-                        COLUMN_DATE + " TEXT, " +
-                        COLUMN_START_TIME + " STRING, " +
-                        COLUMN_LENGTH + " INTEGER);";
-        db.execSQL(query);
+        String createTable = "CREATE TABLE " + TABLE_TASKS + " (" +
+                COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_TITLE + " TEXT, " +
+                COLUMN_DESCRIPTION + " TEXT, " +
+                COLUMN_DATE + " TEXT, " +
+                COLUMN_START_TIME + " TEXT, " +
+                COLUMN_LENGTH + " INTEGER)";
+        db.execSQL(createTable);
     }
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion < 3) {
-            // Step 1: Create a new table with the updated schema (COLUMN_DATE is TEXT here)
-            String query = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + "_new (" +
-                    COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    COLUMN_TITLE + " TEXT, " +
-                    COLUMN_DESCRIPTION + " TEXT, " +
-                    COLUMN_DATE + " TEXT, " + // COLUMN_DATE is now TEXT type
-                    COLUMN_START_TIME + " STRING, " +
-                    COLUMN_LENGTH + " INTEGER);";
-            db.execSQL(query);
-
-            // Step 2: Copy the data from the old table to the new table
-            String copyDataQuery = "INSERT INTO " + TABLE_NAME + "_new (" +
-                    COLUMN_ID + ", " + COLUMN_TITLE + ", " + COLUMN_DESCRIPTION + ", " +
-                    COLUMN_DATE + ", " + COLUMN_START_TIME + ", " + COLUMN_LENGTH + ") " +
-                    "SELECT " + COLUMN_ID + ", " + COLUMN_TITLE + ", " + COLUMN_DESCRIPTION + ", " +
-                    COLUMN_DATE + ", " + COLUMN_START_TIME + ", " + COLUMN_LENGTH + " FROM " + TABLE_NAME;
-            db.execSQL(copyDataQuery);
-
-            // Step 3: Drop the old table
-            String dropOldTableQuery = "DROP TABLE IF EXISTS " + TABLE_NAME;
-            db.execSQL(dropOldTableQuery);
-
-            // Step 4: Rename the new table to the original table name
-            String renameNewTableQuery = "ALTER TABLE " + TABLE_NAME + "_new RENAME TO " + TABLE_NAME;
-            db.execSQL(renameNewTableQuery);
-        }
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TASKS);
+        onCreate(db);
     }
 
-
-    public void addTask(String title, String description, String date, String startTime, int length) {
-        SQLiteDatabase db = this.getWritableDatabase(); //this = SQLiteOpenHelper which has the method that allows me to write in the table
-        ContentValues contentValues = new ContentValues();
-
-        contentValues.put(COLUMN_TITLE, title);
-        contentValues.put(COLUMN_DESCRIPTION, description);
-        contentValues.put(COLUMN_DATE, date);
-        contentValues.put(COLUMN_START_TIME, startTime);
-        contentValues.put(COLUMN_LENGTH, length);
-
-        Log.d("Add Task", "Title: " + title + ", Description: " + description + ", Date: " + date + ", Start Time: " + startTime + ", Length: " + length);
-
-        long result = db.insert(TABLE_NAME, null, contentValues);
-        if (result == -1) {
-            //failed to insert data
-            Log.d("DB", "not succesfull");
-            Toast.makeText(context, "Failed to add", Toast.LENGTH_SHORT).show();
-        } else {
-            Log.d("DB", "Succesfull");
-            Toast.makeText(context, "Added successfully", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    public void editTask(String taskID, String newTitle, String newDescription, String newDate, String newTime, int newLength) {
+    // **Add a new task**
+    public void addTask(Task task) {
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_TITLE, task.getTaskTitle());
+        values.put(COLUMN_DESCRIPTION, task.getTaskDescription());
+        values.put(COLUMN_DATE, task.getTaskDate());
+        values.put(COLUMN_START_TIME, task.getTaskStartTime());
+        values.put(COLUMN_LENGTH, task.getTaskLength());
 
-        // Add the new values to be updated
-        contentValues.put(COLUMN_TITLE, newTitle);
-        contentValues.put(COLUMN_DESCRIPTION, newDescription);
-        contentValues.put(COLUMN_DATE, newDate);
-        contentValues.put(COLUMN_START_TIME, newTime);
-        contentValues.put(COLUMN_LENGTH, newLength);
-
-        // Define the WHERE clause and arguments
-        String whereClause = COLUMN_ID + " = ?";
-        String[] whereArgs = {taskID};
-
-        // Attempt to update the row
-        int rowsAffected = db.update(TABLE_NAME, contentValues, whereClause, whereArgs);
-
-        if (rowsAffected > 0) {
-            Log.d("DB", "Task updated successfully: ID " + taskID);
-            Toast.makeText(context, "Task updated successfully", Toast.LENGTH_SHORT).show();
-        } else {
-            Log.d("DB", "Task update failed: ID " + taskID);
-            Toast.makeText(context, "Failed to update task", Toast.LENGTH_SHORT).show();
-        }
+        db.insert(TABLE_TASKS, null, values);
+        db.close();
     }
 
+    // **Edit an existing task**
+    public void editTask(Task task) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_TITLE, task.getTaskTitle());
+        values.put(COLUMN_DESCRIPTION, task.getTaskDescription());
+        values.put(COLUMN_DATE, task.getTaskDate());
+        values.put(COLUMN_START_TIME, task.getTaskStartTime());
+        values.put(COLUMN_LENGTH, task.getTaskLength());
+
+        db.update(TABLE_TASKS, values, COLUMN_ID + " = ?", new String[]{task.getTaskId()});
+        db.close();
+    }
+
+    // **Delete a task**
     public void deleteTask(String taskId) {
         SQLiteDatabase db = this.getWritableDatabase();
-        String whereClause = COLUMN_ID + " = ?";
-        String[] whereArgs = {taskId};
-        int rowsAffected = db.delete(TABLE_NAME, whereClause, whereArgs);
-        if (rowsAffected > 0) {
-            Log.d("DB", "Task deleted successfully: ID " + taskId);
-            Toast.makeText(context, "Task deleted successfully", Toast.LENGTH_SHORT).show();
-        } else {
-            Log.d("DB", "Task deletion failed: ID " + taskId);
-            Toast.makeText(context, "Failed to delete task", Toast.LENGTH_SHORT).show();
-        }
-    }
-    public Cursor readAllData() {
-        String query = "SELECT * FROM " + TABLE_NAME;
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = null;
-        if (db != null) {
-            cursor = db.rawQuery(query, null);
-        }
-        return cursor;
+        db.delete(TABLE_TASKS, COLUMN_ID + " = ?", new String[]{taskId});
+        db.close();
     }
 
-    public Cursor readAllDataWithDate(String date) {
+    // **Retrieve a single task by ID**
+    public Task getTaskById(String taskId) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Log.d("readAllDataWithDate", date);
-        String query = "SELECT * FROM " + TABLE_NAME + " WHERE " + COLUMN_DATE + " = ?";
-        Log.d("Database Query", "Query: " + query + " with date: " + date);
+        Cursor cursor = db.query(TABLE_TASKS, null, COLUMN_ID + " = ?", new String[]{taskId}, null, null, null);
 
-        Cursor cursor = null;
-        if (db != null) {
-            cursor = db.rawQuery(query, new String[]{date});
+        if (cursor != null && cursor.moveToFirst()) {
+            Task task = new Task(
+                    cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ID)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TITLE)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DESCRIPTION)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DATE)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_START_TIME)),
+                    cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_LENGTH))
+            );
+            cursor.close();
+            return task;
         }
-        return cursor;
+        return null;
     }
+
+    // **Retrieve all tasks**
+    public List<Task> getAllTasks() {
+        List<Task> taskList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_TASKS, null, null, null, null, null, COLUMN_DATE + ", " + COLUMN_START_TIME);
+
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                Task task = new Task(
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ID)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TITLE)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DESCRIPTION)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DATE)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_START_TIME)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_LENGTH))
+                );
+                taskList.add(task);
+            }
+            cursor.close();
+        }
+
+        return taskList;
+    }
+
+    // **Retrieve tasks by specific date**
+    public List<Task> getTasksByDate(String date) {
+        List<Task> taskList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Query to fetch tasks where the date column matches the given date
+        Cursor cursor = db.query(TABLE_TASKS, null, COLUMN_DATE + " = ?", new String[]{date}, null, null, COLUMN_START_TIME);
+
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                Task task = new Task(
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ID)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_TITLE)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DESCRIPTION)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_DATE)),
+                        cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_START_TIME)),
+                        cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_LENGTH))
+                );
+                taskList.add(task);
+            }
+            cursor.close();
+        }
+
+        return taskList;
+    }
+
 }
