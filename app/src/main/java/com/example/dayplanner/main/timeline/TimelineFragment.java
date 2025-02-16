@@ -65,7 +65,8 @@ public class TimelineFragment extends Fragment {
                 timelineItems.add(new TimelineItem(
                         task.getTaskId(),        // Task ID
                         task.getTaskTitle(),     // Task Title
-                        task.getTaskStartTime()  // Task Start Time
+                        task.getTaskStartTime(), // Task Start Time
+                        task.getTaskLength()       // Task Duration in minutes
                 ));
             }
         }

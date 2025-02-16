@@ -2,29 +2,78 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="8dp">
+    android:orientation="horizontal"
+    android:padding="8dp"
+    android:gravity="center_vertical">
 
-    <TextView
-        android:id="@+id/task_title_txt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Task or Habit Title"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+    <!-- Timeline Line -->
+    <View
+        android:id="@+id/timeline_line"
+        android:layout_width="4dp"
+        android:layout_height="match_parent"
+        android:background="@color/gray"
+        android:layout_marginEnd="8dp" />
 
-    <TextView
-        android:id="@+id/task_start_time_txt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Start Time or Frequency"
-        android:textSize="14sp" />
+    <!-- Icon representing the task/habit -->
+    <ImageView
+        android:id="@+id/iconView"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/ic_task"
+        android:background="@drawable/circle_background"
+        android:layout_marginEnd="8dp" />
 
-    <TextView
-        android:id="@+id/task_description_txt"
-        android:layout_width="wrap_content"
+    <!-- Task details -->
+    <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Task Description"
-        android:textSize="14sp"
+        android:orientation="vertical"
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/task_title_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Task or Habit Title"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/task_start_time_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start Time or Frequency"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/task_description_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Task Description"
+            android:textSize="14sp"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <!-- Completion Status -->
+    <ImageView
+        android:id="@+id/statusIcon"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:src="@drawable/ic_circle"
+        android:layout_marginStart="8dp"/>
+
+    <!-- Timeline Top & Bottom for connecting lines -->
+    <View
+        android:id="@+id/timelineTop"
+        android:layout_width="4dp"
+        android:layout_height="match_parent"
+        android:background="@color/gray"
+        android:visibility="gone" />
+
+    <View
+        android:id="@+id/timelineBottom"
+        android:layout_width="4dp"
+        android:layout_height="match_parent"
+        android:background="@color/gray"
         android:visibility="gone" />
 </LinearLayout>

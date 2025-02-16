@@ -25,7 +25,6 @@ public class TimelineLayoutManager extends RecyclerView.LayoutManager {
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
         detachAndScrapAttachedViews(recycler);
 
-        int topOffset = 0;
         List<View> overlappingViews = new ArrayList<>();
 
         for (int i = 0; i < getItemCount(); i++) {
@@ -33,10 +32,10 @@ public class TimelineLayoutManager extends RecyclerView.LayoutManager {
             addView(view);
             measureChildWithMargins(view, 0, 0);
 
-            // Retrieve item start time and durationA
+            // Retrieve item start time and duration
             TimelineItem item = (TimelineItem) view.getTag();
-            int startMinute = convertTimeToMinutes(item.getStartTime());
-            int duration = item.getDuration();
+            int startMinute = item.getStartTimeInMinutes(); // Use directly
+            int duration = item.getDurationInMinutes();
             int height = (duration * HOUR_HEIGHT) / 60;
 
             int top = (startMinute * HOUR_HEIGHT) / 60;
@@ -53,6 +52,7 @@ public class TimelineLayoutManager extends RecyclerView.LayoutManager {
             overlappingViews.add(view);
         }
     }
+
 
     private int convertTimeToMinutes(String time) {
         String[] parts = time.split(":");

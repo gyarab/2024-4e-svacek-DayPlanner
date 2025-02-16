@@ -2,6 +2,8 @@ package com.example.dayplanner.main.habits;
 
 import com.google.firebase.database.IgnoreExtraProperties;
 
+import java.util.List;
+
 @IgnoreExtraProperties //Prevents Firebase from failing on unknown fields.
 public class Habit {
     private String id;
@@ -14,6 +16,7 @@ public class Habit {
     private int goalValue;
     private int currentStreak;
     private int longestStreak;
+    private List<HabitEntry> entries;
 
     // ✅ Required **no-argument** constructor for Firebase
     public Habit() { }
@@ -61,4 +64,6 @@ public class Habit {
 
     public int getLongestStreak() { return longestStreak; }
     public void setLongestStreak(int longestStreak) { this.longestStreak = longestStreak; }
+    public List<HabitEntry> getEntries() { return entries; }
+    public void setEntries(List<HabitEntry> entries) { this.entries = entries; }
 }

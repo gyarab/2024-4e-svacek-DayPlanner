@@ -6,6 +6,9 @@
     <color name="colorAccent">#FF4081</color>
     <color name="primaryLightColor">#9E66F4</color>
     <color name="primaryDarkColor">#2F0385</color>
+    <color name="gray">#BDBDBD</color>
+    <color name="green">#4CAF50</color> <!-- For the checkmark -->
+
 
     <color name="colorPrimaryLight">#CE9932</color>
     <color name="colorOnPrimaryLight">#000000</color>
