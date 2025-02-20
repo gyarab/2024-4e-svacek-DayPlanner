@@ -1,21 +1,17 @@
 package com.example.dayplanner.main.timeline;
 
 import com.example.dayplanner.main.habits.Habit;
+import com.example.dayplanner.main.tasks.Task;
 
 public class TimelineItem {
-
     private boolean isTask;
-    private String taskId, taskTitle, taskStartTime;
-    private int durationMinutes;
+    private Task task;
     private Habit habit;
 
     // Constructor for tasks
-    public TimelineItem(String taskId, String taskTitle, String taskStartTime, int durationMinutes) {
+    public TimelineItem(Task task) {
         this.isTask = true;
-        this.taskId = taskId;
-        this.taskTitle = taskTitle;
-        this.taskStartTime = taskStartTime;
-        this.durationMinutes = durationMinutes;
+        this.task = task;
     }
 
     // Constructor for habits
@@ -28,30 +24,60 @@ public class TimelineItem {
         return isTask;
     }
 
+    public Task getTask() {
+        return task;
+    }
+
+    public Habit getHabit() {
+        return habit;
+    }
+
+    // Retrieves task properties safely
     public String getTaskId() {
-        return taskId;
+        return isTask && task != null ? task.getTaskId() : null;
     }
 
     public String getTaskTitle() {
-        return taskTitle;
+        return isTask && task != null ? task.getTaskTitle() : null;
     }
 
     public String getTaskStartTime() {
-        return taskStartTime;
+        return isTask && task != null ? task.getTaskStartTime() : null;
     }
 
+    public int getTaskDuration() {
+        return isTask && task != null ? task.getTaskLength() : 0;
+    }
+
+    public String getTaskDescription() {
+        return isTask && task != null ? task.getTaskDescription() : null;
+    }
+
+    // Retrieves habit properties safely
     public String getHabitName() {
-        return habit.getName();
+        return !isTask && habit != null ? habit.getName() : null;
     }
 
     public String getHabitFrequency() {
-        return habit.getFrequency();
+        return !isTask && habit != null ? habit.getFrequency() : null;
+    }
+
+    public String toString() {
+        if (isTask) {
+            return "Task: " + task.getTaskId() + " | " + task.getTaskTitle() +
+                    " | Start: " + task.getTaskStartTime() + " | Duration: " + task.getTaskLength() + " min";
+        } else if (habit != null) {
+            return "Habit: " + habit.getId() + " | " + habit.getName() +
+                    " | Frequency: " + habit.getFrequency() + " | Start: " + habit.getStartTime();
+        }
+        return "Unknown Timeline Item";
     }
 
     // Converts start time (e.g., "14:30") to total minutes from midnight
     public int getStartTimeInMinutes() {
-        if (taskStartTime == null || !taskStartTime.contains(":")) return 0;
-        String[] parts = taskStartTime.split(":");
+        String time = isTask ? getTaskStartTime() : (habit != null ? habit.getStartTime() : null);
+        if (time == null || !time.contains(":")) return 0;
+        String[] parts = time.split(":");
         try {
             return Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1]);
         } catch (NumberFormatException e) {
@@ -59,9 +85,8 @@ public class TimelineItem {
         }
     }
 
-
     // Returns duration in minutes
     public int getDurationInMinutes() {
-        return durationMinutes;
+        return isTask ? getTaskDuration() : (habit != null ? habit.getLength() : 0);
     }
 }

@@ -151,13 +151,6 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
                 toggleAddOptions();
             }
         });
-        addButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                toggleAddOptions();
-            }
-        });
-
         blurOverlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

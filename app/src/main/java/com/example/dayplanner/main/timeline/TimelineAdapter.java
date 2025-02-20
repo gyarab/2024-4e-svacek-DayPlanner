@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -57,9 +58,12 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
 
         // Set the time text based on task or habit
         if (item.isTask()) {
+            holder.taskTitleTextView.setText(item.getTaskTitle());
             holder.taskStartTimeTextView.setText(getTimeRangeForTask(item)); // Set time range for tasks
-            holder.taskDescriptionTextView.setText(item.getTaskTitle());  // Set task title as description
+            holder.taskDescriptionTextView.setText(item.getTaskDescription());  // Set task title as description
             holder.taskDescriptionTextView.setVisibility(View.VISIBLE);  // Show for tasks
+            holder.seekBar.setVisibility(View.GONE);
+            Log.d("isTask", "HABIT: " + item.isTask());
 
             holder.iconView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -72,6 +76,8 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
             holder.taskStartTimeTextView.setText(getTimeRangeForHabit(item));  // Set time range for habits
             holder.taskDescriptionTextView.setVisibility(View.GONE);  // Hide description for habits
             holder.taskDescriptionTextView.setText("");  // Clear text when hidden
+            holder.seekBar.setVisibility(View.VISIBLE);
+            Log.d("isTask", "HABIT: " + item.isTask());
         }
 
         // Dynamic Height for Duration (based on task or habit duration)
@@ -128,12 +134,14 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
+        TextView taskTitleTextView;
         TextView taskStartTimeTextView;
         TextView taskDescriptionTextView;
         ImageView iconView;
         ImageView statusIcon;
         View timelineTop;
         View timelineBottom;
+        SeekBar seekBar;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -143,6 +151,9 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
             statusIcon = itemView.findViewById(R.id.statusIcon);
             timelineTop = itemView.findViewById(R.id.timelineTop);
             timelineBottom = itemView.findViewById(R.id.timelineBottom);
+            seekBar = itemView.findViewById(R.id.progress_bar);
+            taskTitleTextView = itemView.findViewById(R.id.task_title_txt);
+
         }
     }
 

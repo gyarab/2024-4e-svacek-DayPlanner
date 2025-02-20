@@ -58,20 +58,20 @@ public class TimelineFragment extends Fragment {
     }
 
     private void fetchTasks(String dateId) {
+        Log.d("FetchTasks", "Fetching tasks for date: " + dateId);
+
         List<Task> tasks = tasksDBHelper.getTasksByDate(dateId);  // Get list of tasks from DB
+        timelineItems.clear();  // 🚨 Clear the list before adding new tasks
 
         if (tasks != null && !tasks.isEmpty()) {
             for (Task task : tasks) {
-                timelineItems.add(new TimelineItem(
-                        task.getTaskId(),        // Task ID
-                        task.getTaskTitle(),     // Task Title
-                        task.getTaskStartTime(), // Task Start Time
-                        task.getTaskLength()       // Task Duration in minutes
-                ));
+                timelineItems.add(new TimelineItem(task));
+                Log.d("FetchTasks", "Added task: " + task.getTaskId());
             }
         }
         timelineAdapter.notifyDataSetChanged();
     }
+
 
 
     private void fetchHabits() {
