@@ -72,12 +72,22 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
                 }
             });
 
+            holder.statusIcon.setImageResource(R.drawable.ic_circle);
+
+            holder.statusIcon.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    holder.statusIcon.setImageResource(R.drawable.ic_chceck);
+                    Log.d("Task is completed", item.toString());
+                }
+            });
+
         } else {
             holder.taskStartTimeTextView.setText(getTimeRangeForHabit(item));  // Set time range for habits
             holder.taskDescriptionTextView.setVisibility(View.GONE);  // Hide description for habits
             holder.taskDescriptionTextView.setText("");  // Clear text when hidden
             holder.seekBar.setVisibility(View.VISIBLE);
-            Log.d("isTask", "HABIT: " + item.isTask());
+            Log.d("isTask", "isTask: " + item.isTask());
         }
 
         // Dynamic Height for Duration (based on task or habit duration)
@@ -85,12 +95,12 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
         int height = Math.max(minHeight, item.getDurationInMinutes() * 10);
         holder.iconView.setLayoutParams(new LinearLayout.LayoutParams(100, height));  // Adjust icon height based on duration
 
-        // Handle completion status for tasks
+        /*// Handle completion status for tasks
         if (item.isTask() && item.getTaskId() != null) {
             holder.statusIcon.setImageResource(R.drawable.ic_chceck);  // Set completed icon for tasks
         } else {
             holder.statusIcon.setImageResource(R.drawable.ic_circle);  // Set incomplete status
-        }
+        }*/
 
         // Set timeline line visibility (showing top and bottom connectors for each task or habit)
         if (position == 0) {

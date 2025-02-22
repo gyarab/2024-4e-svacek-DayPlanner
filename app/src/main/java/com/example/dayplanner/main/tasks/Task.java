@@ -7,6 +7,7 @@ public class Task {
     private String taskDate;
     private String taskStartTime;
     private int taskLength;
+    private boolean isCompleted;
 
     // Constructor
     public Task(String taskId, String taskTitle, String taskDescription, String taskDate, String taskStartTime, int taskLength) {

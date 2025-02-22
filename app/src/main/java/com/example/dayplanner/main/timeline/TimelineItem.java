@@ -64,7 +64,8 @@ public class TimelineItem {
 
     public String toString() {
         if (isTask) {
-            return "Task: " + task.getTaskId() + " | " + task.getTaskTitle() +
+            return "Task: " + task.getTaskId() + " | " + task.getTaskTitle() + " | Description: " + task.getTaskDescription() +
+                    " | Date: " + task.getTaskDate() +
                     " | Start: " + task.getTaskStartTime() + " | Duration: " + task.getTaskLength() + " min";
         } else if (habit != null) {
             return "Habit: " + habit.getId() + " | " + habit.getName() +
