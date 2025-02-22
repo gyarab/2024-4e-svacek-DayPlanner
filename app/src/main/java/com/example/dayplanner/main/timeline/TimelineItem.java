@@ -53,6 +53,15 @@ public class TimelineItem {
         return isTask && task != null ? task.getTaskDescription() : null;
     }
 
+    public boolean isTaskCompleted() {
+        return isTask && task != null ? task.isTaskCompleted() : null;
+    }
+
+    public void setTaskCompleted(boolean isCompleted) {
+        if (isTask && task != null) {
+            task.setTaskCompleted(isCompleted);
+        }
+    }
     // Retrieves habit properties safely
     public String getHabitName() {
         return !isTask && habit != null ? habit.getName() : null;

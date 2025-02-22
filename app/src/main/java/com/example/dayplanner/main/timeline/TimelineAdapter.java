@@ -77,8 +77,13 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
             holder.statusIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    holder.statusIcon.setImageResource(R.drawable.ic_chceck);
-                    Log.d("Task is completed", item.toString());
+                    if (!item.isTaskCompleted()) {
+                        holder.statusIcon.setImageResource(R.drawable.ic_chceck);
+                        item.setTaskCompleted(true);
+                        Log.d("Task is completed", item.toString());
+                    } else {
+                        Log.d("Task is completed", "already completed: " + item.toString());
+                    }
                 }
             });
 
@@ -166,5 +171,7 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
 
         }
     }
+
+    /* Undo Dialog Fragment */
 
 }
