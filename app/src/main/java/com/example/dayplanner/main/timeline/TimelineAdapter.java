@@ -74,6 +74,8 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
 
             holder.statusIcon.setImageResource(R.drawable.ic_circle);
 
+            holder.progressTextView.setVisibility(View.GONE);
+
             holder.statusIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -157,6 +159,7 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
         View timelineTop;
         View timelineBottom;
         SeekBar seekBar;
+        TextView progressTextView;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -168,6 +171,7 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
             timelineBottom = itemView.findViewById(R.id.timelineBottom);
             seekBar = itemView.findViewById(R.id.progress_bar);
             taskTitleTextView = itemView.findViewById(R.id.task_title_txt);
+            progressTextView = itemView.findViewById(R.id.progress_txt);
 
         }
     }

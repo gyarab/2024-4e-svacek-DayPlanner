@@ -33,6 +33,7 @@ public class TimelineFragment extends Fragment {
     List<TimelineItem> timelineItems;
     TimelineAdapter timelineAdapter;
     DatabaseReference habitsRef;
+    int pendingFetches = 0; // Tracks unfinished fetch operations
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -53,26 +54,24 @@ public class TimelineFragment extends Fragment {
 
     public void fetchTasksAndHabits(String dateId) {
         timelineItems.clear();
+        pendingFetches = 2; // We are fetching both tasks and habits
+
         fetchTasks(dateId);
         fetchHabits();
     }
 
     private void fetchTasks(String dateId) {
         Log.d("FetchTasks", "Fetching tasks for date: " + dateId);
-
-        List<Task> tasks = tasksDBHelper.getTasksByDate(dateId);  // Get list of tasks from DB
-        timelineItems.clear();  // 🚨 Clear the list before adding new tasks
+        List<Task> tasks = tasksDBHelper.getTasksByDate(dateId);
 
         if (tasks != null && !tasks.isEmpty()) {
             for (Task task : tasks) {
                 timelineItems.add(new TimelineItem(task));
-                Log.d("FetchTasks", "Added task: " + task.getTaskId());
+                Log.d("Timeline tasks", "Added task: " + task.toString());
             }
         }
-        timelineAdapter.notifyDataSetChanged();
+        fetchComplete();
     }
-
-
 
     private void fetchHabits() {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -85,15 +84,25 @@ public class TimelineFragment extends Fragment {
                     Habit habit = habitSnapshot.getValue(Habit.class);
                     if (habit != null) {
                         timelineItems.add(new TimelineItem(habit));
+                        Log.d("Timeline Habits", "Added habit: " + habit.toString());
                     }
                 }
-                timelineAdapter.notifyDataSetChanged();
+                fetchComplete();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.e("Firebase", "Failed to load habits", error.toException());
+                fetchComplete(); // Even if an error occurs, mark the fetch as complete
             }
         });
+    }
+
+    private void fetchComplete() {
+        pendingFetches--;
+        if (pendingFetches == 0) {
+            timelineAdapter.notifyDataSetChanged();
+            Log.d("Timeline", "Final list: " + timelineItems);
+        }
     }
 }

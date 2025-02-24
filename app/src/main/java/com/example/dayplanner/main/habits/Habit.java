@@ -66,4 +66,8 @@ public class Habit {
     public void setLongestStreak(int longestStreak) { this.longestStreak = longestStreak; }
     public List<HabitEntry> getEntries() { return entries; }
     public void setEntries(List<HabitEntry> entries) { this.entries = entries; }
+
+    public String toString() {
+        return "Habit{" + "id='" + id + '\'' + ", name='" + name + '\'' + ", description='" + description + '\'' + ", frequency='" + frequency + '\'' + ", startTime='" + startTime + '\'' + ", length=" + length + '}';
+    }
 }

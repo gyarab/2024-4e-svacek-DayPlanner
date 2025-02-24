@@ -86,7 +86,8 @@ public class Task {
                 ", taskDescription='" + taskDescription + '\'' +
                 ", taskDate='" + taskDate + '\'' +
                 ", taskStartTime='" + taskStartTime + '\'' +
-                ", taskLength=" + taskLength +
+                ", taskLength=" + taskLength + '\'' +
+                ", isCompleted=" + isCompleted +
                 '}';
     }
 

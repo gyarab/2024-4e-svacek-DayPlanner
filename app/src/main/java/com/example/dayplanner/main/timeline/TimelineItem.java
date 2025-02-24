@@ -75,7 +75,7 @@ public class TimelineItem {
         if (isTask) {
             return "Task: " + task.getTaskId() + " | " + task.getTaskTitle() + " | Description: " + task.getTaskDescription() +
                     " | Date: " + task.getTaskDate() +
-                    " | Start: " + task.getTaskStartTime() + " | Duration: " + task.getTaskLength() + " min";
+                    " | Start: " + task.getTaskStartTime() + " | Duration: " + task.getTaskLength() + " min" + " | Completed: " + task.isTaskCompleted();
         } else if (habit != null) {
             return "Habit: " + habit.getId() + " | " + habit.getName() +
                     " | Frequency: " + habit.getFrequency() + " | Start: " + habit.getStartTime();
