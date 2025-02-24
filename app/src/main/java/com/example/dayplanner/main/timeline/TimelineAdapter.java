@@ -15,20 +15,33 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dayplanner.R;
-
-import java.util.List;
-
+import com.example.dayplanner.main.habits.Habit;
+import com.example.dayplanner.main.habits.HabitEntry;
 import com.example.dayplanner.main.tasks.Task;
 import com.example.dayplanner.main.tasks.TaskDialogFragment;
 import com.example.dayplanner.main.tasks.TasksDBHelper;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHolder> {
     private List<TimelineItem> items;
     private Context context;
+    // Store the currently selected date (e.g., passed from WeeklyHeaderFragment)
+    private String currentDate;
 
     public TimelineAdapter(Context context, List<TimelineItem> items) {
         this.context = context;
         this.items = items;
+    }
+
+    // Setter so the hosting fragment/activity can update the current date.
+    public void setCurrentDate(String date) {
+        this.currentDate = date;
     }
 
     @NonNull
@@ -40,8 +53,7 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
 
     public void showTaskDetail(String taskId) {
         TasksDBHelper dbHelper = new TasksDBHelper(context);
-        Task task = dbHelper.getTaskById(taskId); // Fetch the task from DB
-
+        Task task = dbHelper.getTaskById(taskId);
         if (task != null) {
             TaskDialogFragment dialogFragment = new TaskDialogFragment(true, task);
             dialogFragment.show(((AppCompatActivity) context).getSupportFragmentManager(), "EditTaskDialog");
@@ -50,104 +62,120 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
         }
     }
 
-
-
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         TimelineItem item = items.get(position);
 
-        // Set the time text based on task or habit
         if (item.isTask()) {
             holder.taskTitleTextView.setText(item.getTaskTitle());
-            holder.taskStartTimeTextView.setText(getTimeRangeForTask(item)); // Set time range for tasks
-            holder.taskDescriptionTextView.setText(item.getTaskDescription());  // Set task title as description
-            holder.taskDescriptionTextView.setVisibility(View.VISIBLE);  // Show for tasks
+            holder.taskStartTimeTextView.setText(getTimeRangeForTask(item));
+            holder.taskDescriptionTextView.setText(item.getTaskDescription());
+            holder.taskDescriptionTextView.setVisibility(View.VISIBLE);
             holder.seekBar.setVisibility(View.GONE);
             Log.d("isTask", "HABIT: " + item.isTask());
 
-            holder.iconView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    showTaskDetail(item.getTaskId());
+            holder.iconView.setOnClickListener(v -> showTaskDetail(item.getTaskId()));
+            holder.statusIcon.setImageResource(R.drawable.ic_circle);
+            holder.progressTextView.setVisibility(View.GONE);
+            holder.statusIcon.setOnClickListener(v -> {
+                if (!item.isTaskCompleted()) {
+                    holder.statusIcon.setImageResource(R.drawable.ic_chceck);
+                    item.setTaskCompleted(true);
+                    Log.d("Task is completed", item.toString());
+                } else {
+                    Log.d("Task is completed", "already completed: " + item.toString());
                 }
             });
+        } else { // Habit
+            holder.taskStartTimeTextView.setText(getTimeRangeForHabit(item));
+            holder.taskDescriptionTextView.setVisibility(View.GONE);
+            holder.taskDescriptionTextView.setText("");
+            holder.seekBar.setVisibility(View.VISIBLE);
+            holder.taskTitleTextView.setText(item.getHabitName());
+            Log.d("isTask", "isTask: " + item.isTask());
 
-            holder.statusIcon.setImageResource(R.drawable.ic_circle);
-
-            holder.progressTextView.setVisibility(View.GONE);
-
-            holder.statusIcon.setOnClickListener(new View.OnClickListener() {
+            holder.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
-                public void onClick(View v) {
-                    if (!item.isTaskCompleted()) {
-                        holder.statusIcon.setImageResource(R.drawable.ic_chceck);
-                        item.setTaskCompleted(true);
-                        Log.d("Task is completed", item.toString());
-                    } else {
-                        Log.d("Task is completed", "already completed: " + item.toString());
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    if (fromUser) {
+                        // Use the selected date from WeeklyHeaderFragment.
+                        String habitDate = (currentDate != null) ? currentDate : item.getHabitDate();
+                        // Update the local habit object
+                        item.getHabit().setProgressForDate(habitDate, progress);
+                        // Update only the specific habit entry in Firebase
+                        updateHabitEntryInFirebase(item.getHabit(), habitDate, progress);
                     }
                 }
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) { }
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) { }
             });
-
-        } else {
-            holder.taskStartTimeTextView.setText(getTimeRangeForHabit(item));  // Set time range for habits
-            holder.taskDescriptionTextView.setVisibility(View.GONE);  // Hide description for habits
-            holder.taskDescriptionTextView.setText("");  // Clear text when hidden
-            holder.seekBar.setVisibility(View.VISIBLE);
-            Log.d("isTask", "isTask: " + item.isTask());
         }
 
-        // Dynamic Height for Duration (based on task or habit duration)
+        // Dynamic height based on duration
         int minHeight = 100;
         int height = Math.max(minHeight, item.getDurationInMinutes() * 10);
-        holder.iconView.setLayoutParams(new LinearLayout.LayoutParams(100, height));  // Adjust icon height based on duration
+        holder.iconView.setLayoutParams(new LinearLayout.LayoutParams(100, height));
 
-        /*// Handle completion status for tasks
-        if (item.isTask() && item.getTaskId() != null) {
-            holder.statusIcon.setImageResource(R.drawable.ic_chceck);  // Set completed icon for tasks
-        } else {
-            holder.statusIcon.setImageResource(R.drawable.ic_circle);  // Set incomplete status
-        }*/
-
-        // Set timeline line visibility (showing top and bottom connectors for each task or habit)
-        if (position == 0) {
-            holder.timelineTop.setVisibility(View.INVISIBLE);  // No top line for the first item
-        } else {
-            holder.timelineTop.setVisibility(View.VISIBLE);  // Show top line for other items
-        }
-
-        if (position == items.size() - 1) {
-            holder.timelineBottom.setVisibility(View.INVISIBLE);  // No bottom line for the last item
-        } else {
-            holder.timelineBottom.setVisibility(View.VISIBLE);  // Show bottom line for other items
-        }
+        // Timeline connector lines
+        holder.timelineTop.setVisibility(position == 0 ? View.INVISIBLE : View.VISIBLE);
+        holder.timelineBottom.setVisibility(position == items.size() - 1 ? View.INVISIBLE : View.VISIBLE);
     }
-
-
 
     @Override
     public int getItemCount() {
         return items.size();
     }
 
-    // Helper method to return time range for tasks
+    // Helper method for tasks
     private String getTimeRangeForTask(TimelineItem item) {
         int startTimeInMinutes = item.getStartTimeInMinutes();
         int endTimeInMinutes = startTimeInMinutes + item.getDurationInMinutes();
         return formatTimeInMinutes(startTimeInMinutes) + " - " + formatTimeInMinutes(endTimeInMinutes);
     }
 
-    // Helper method to return time range for habits (assuming habits have a fixed duration or time)
+    // Helper method for habits
     private String getTimeRangeForHabit(TimelineItem item) {
-        // Assuming habits have a fixed start time and no duration for simplicity
-        return item.getHabitFrequency();  // For example, "Daily", "Weekly", etc.
+        return item.getHabitFrequency();
     }
 
-    // Helper method to format minutes into time string
+    // Format minutes to HH:mm string
     private String formatTimeInMinutes(int minutes) {
         int hours = minutes / 60;
         int mins = minutes % 60;
         return String.format("%02d:%02d", hours, mins);
+    }
+
+    /**
+     * Update only the specific habit entry in Firebase for a given date.
+     * Assumes that the habit's entries are stored in Firebase as a map keyed by date.
+     */
+    private void updateHabitEntryInFirebase(Habit habit, String date, int progress) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        // Build a reference to the specific habit entry based on date.
+        DatabaseReference entryRef = FirebaseDatabase.getInstance()
+                .getReference("users")
+                .child(userId)
+                .child("habits")
+                .child(habit.getId())
+                .child("entries")
+                .child(date);
+
+        // Prepare the update. You can add additional fields as needed.
+        Map<String, Object> update = new HashMap<>();
+        update.put("date", date);
+        update.put("progress", progress);
+        update.put("goal", habit.getGoalValue());
+        update.put("completed", false); // Adjust as needed.
+
+        entryRef.updateChildren(update)
+                .addOnSuccessListener(aVoid ->
+                        Log.d("TimelineAdapter", "Habit entry for date " + date + " updated in Firebase")
+                )
+                .addOnFailureListener(e ->
+                        Log.e("TimelineAdapter", "Failed to update habit entry progress in Firebase", e)
+                );
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -172,10 +200,6 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
             seekBar = itemView.findViewById(R.id.progress_bar);
             taskTitleTextView = itemView.findViewById(R.id.task_title_txt);
             progressTextView = itemView.findViewById(R.id.progress_txt);
-
         }
     }
-
-    /* Undo Dialog Fragment */
-
 }

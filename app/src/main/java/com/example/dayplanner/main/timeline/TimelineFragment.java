@@ -1,6 +1,5 @@
 package com.example.dayplanner.main.timeline;
 
-import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -8,15 +7,16 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dayplanner.R;
 import com.example.dayplanner.main.habits.Habit;
+import com.example.dayplanner.main.habits.HabitEntry;
 import com.example.dayplanner.main.tasks.Task;
 import com.example.dayplanner.main.tasks.TasksDBHelper;
+import com.example.dayplanner.main.dayslist.WeeklyHeaderFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -25,15 +25,19 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class TimelineFragment extends Fragment {
-    RecyclerView timeLine;
-    TasksDBHelper tasksDBHelper;
-    List<TimelineItem> timelineItems;
-    TimelineAdapter timelineAdapter;
-    DatabaseReference habitsRef;
-    int pendingFetches = 0; // Tracks unfinished fetch operations
+public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.OnDaySelectedListener {
+    private RecyclerView timeLine;
+    private TasksDBHelper tasksDBHelper;
+    private List<TimelineItem> timelineItems;
+    private TimelineAdapter timelineAdapter;
+    private DatabaseReference habitsRef;
+    private int pendingFetches = 0; // Tracks unfinished fetch operations
+    // Store the currently selected date
+    private String selectedDate = "03012025"; // default value; update as needed
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -45,35 +49,49 @@ public class TimelineFragment extends Fragment {
         timelineItems = new ArrayList<>();
         tasksDBHelper = new TasksDBHelper(getContext());
         timelineAdapter = new TimelineAdapter(getContext(), timelineItems);
+        // Set the default date into the adapter
+        timelineAdapter.setCurrentDate(selectedDate);
         timeLine.setAdapter(timelineAdapter);
 
-        fetchTasksAndHabits("03012025");
+        // Initially fetch tasks and habits for the default date.
+        fetchTasksAndHabits(selectedDate);
 
         return view;
     }
 
+    @Override
+    public void onDaySelected(String dateId) {
+        // Update the selected date
+        selectedDate = dateId;
+        // Update the adapter with the new current date
+        timelineAdapter.setCurrentDate(dateId);
+        // Re-fetch tasks and habits for the selected day.
+        fetchTasksAndHabits(dateId);
+        Log.d("TimelineFragment", "Day selected: " + dateId);
+    }
+
     public void fetchTasksAndHabits(String dateId) {
+        Log.d("FetchTasksAndHabits", "Fetching tasks and habits for date: " + dateId);
         timelineItems.clear();
         pendingFetches = 2; // We are fetching both tasks and habits
 
         fetchTasks(dateId);
-        fetchHabits();
+        fetchHabits(dateId);
     }
 
     private void fetchTasks(String dateId) {
         Log.d("FetchTasks", "Fetching tasks for date: " + dateId);
         List<Task> tasks = tasksDBHelper.getTasksByDate(dateId);
-
         if (tasks != null && !tasks.isEmpty()) {
             for (Task task : tasks) {
                 timelineItems.add(new TimelineItem(task));
-                Log.d("Timeline tasks", "Added task: " + task.toString());
+                Log.d("TimelineTasks", "Added task: " + task.toString());
             }
         }
         fetchComplete();
     }
 
-    private void fetchHabits() {
+    private void fetchHabits(String dateId) {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         habitsRef = FirebaseDatabase.getInstance().getReference("users").child(userId).child("habits");
 
@@ -83,8 +101,22 @@ public class TimelineFragment extends Fragment {
                 for (DataSnapshot habitSnapshot : snapshot.getChildren()) {
                     Habit habit = habitSnapshot.getValue(Habit.class);
                     if (habit != null) {
+                        // Ensure the habit's entries map is initialized
+                        Map<String, HabitEntry> entries = habit.getEntries();
+                        if (entries == null) {
+                            entries = new HashMap<>();
+                            habit.setEntries(entries);
+                        }
+
+                        // If no entry exists for the given dateId, add one with progress = 0
+                        if (!entries.containsKey(dateId)) {
+                            HabitEntry defaultEntry = new HabitEntry(dateId, false, 0, habit.getGoalValue());
+                            entries.put(dateId, defaultEntry);
+                        }
+
+                        // Add the habit (with the correct entries) to the timeline items list
                         timelineItems.add(new TimelineItem(habit));
-                        Log.d("Timeline Habits", "Added habit: " + habit.toString());
+                        Log.d("TimelineHabits", "Added habit: " + habit.toString());
                     }
                 }
                 fetchComplete();
@@ -93,16 +125,18 @@ public class TimelineFragment extends Fragment {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.e("Firebase", "Failed to load habits", error.toException());
-                fetchComplete(); // Even if an error occurs, mark the fetch as complete
+                fetchComplete();
             }
         });
     }
+
+
 
     private void fetchComplete() {
         pendingFetches--;
         if (pendingFetches == 0) {
             timelineAdapter.notifyDataSetChanged();
-            Log.d("Timeline", "Final list: " + timelineItems);
+            Log.d("TimelineFragment", "Final timeline list: " + timelineItems);
         }
     }
 }

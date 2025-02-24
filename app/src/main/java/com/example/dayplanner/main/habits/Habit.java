@@ -1,10 +1,10 @@
 package com.example.dayplanner.main.habits;
 
 import com.google.firebase.database.IgnoreExtraProperties;
+import java.util.HashMap;
+import java.util.Map;
 
-import java.util.List;
-
-@IgnoreExtraProperties //Prevents Firebase from failing on unknown fields.
+@IgnoreExtraProperties
 public class Habit {
     private String id;
     private String name;
@@ -16,10 +16,13 @@ public class Habit {
     private int goalValue;
     private int currentStreak;
     private int longestStreak;
-    private List<HabitEntry> entries;
+    // Use a Map where the key is the date (e.g. "2025-02-28") and the value is the HabitEntry
+    private Map<String, HabitEntry> entries;
 
-    // ✅ Required **no-argument** constructor for Firebase
-    public Habit() { }
+    // Required no-argument constructor for Firebase
+    public Habit() {
+        this.entries = new HashMap<>();
+    }
 
     public Habit(String id, String name, String description, String frequency, String startTime, int length, String metric, int goalValue) {
         this.id = id;
@@ -32,9 +35,10 @@ public class Habit {
         this.goalValue = goalValue;
         this.currentStreak = 0;
         this.longestStreak = 0;
+        this.entries = new HashMap<>();
     }
 
-    // ✅ Getters and Setters (needed for Firebase)
+    // Getters and Setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
@@ -64,10 +68,29 @@ public class Habit {
 
     public int getLongestStreak() { return longestStreak; }
     public void setLongestStreak(int longestStreak) { this.longestStreak = longestStreak; }
-    public List<HabitEntry> getEntries() { return entries; }
-    public void setEntries(List<HabitEntry> entries) { this.entries = entries; }
+
+    public Map<String, HabitEntry> getEntries() { return entries; }
+    public void setEntries(Map<String, HabitEntry> entries) { this.entries = entries; }
+
+    /**
+     * Update or create a habit entry for a given date.
+     */
+    public void setProgressForDate(String date, int progress) {
+        if (entries == null) {
+            entries = new HashMap<>();
+        }
+        HabitEntry entry = entries.get(date);
+        if (entry != null) {
+            entry.setProgress(progress);
+        } else {
+            entry = new HabitEntry(date, false, progress, goalValue);
+            entries.put(date, entry);
+        }
+    }
 
     public String toString() {
-        return "Habit{" + "id='" + id + '\'' + ", name='" + name + '\'' + ", description='" + description + '\'' + ", frequency='" + frequency + '\'' + ", startTime='" + startTime + '\'' + ", length=" + length + '}';
+        return "Habit{" + "id='" + id + '\'' + ", name='" + name + '\'' +
+                ", description='" + description + '\'' + ", frequency='" + frequency + '\'' +
+                ", startTime='" + startTime + '\'' + ", length=" + length + '}';
     }
 }

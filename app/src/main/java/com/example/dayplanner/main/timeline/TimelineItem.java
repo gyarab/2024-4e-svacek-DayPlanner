@@ -71,6 +71,15 @@ public class TimelineItem {
         return !isTask && habit != null ? habit.getFrequency() : null;
     }
 
+    public String getHabitDate() {
+        if (habit != null && habit.getEntries() != null && !habit.getEntries().isEmpty()) {
+            // Return the first entry's date.
+            // Alternatively, you can look up the entry for the current date.
+            return habit.getEntries().values().iterator().next().getDate();
+        }
+        return "";
+    }
+
     public String toString() {
         if (isTask) {
             return "Task: " + task.getTaskId() + " | " + task.getTaskTitle() + " | Description: " + task.getTaskDescription() +
