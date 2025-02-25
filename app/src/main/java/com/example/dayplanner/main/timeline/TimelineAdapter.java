@@ -42,8 +42,10 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
 
     public void setCurrentDate(String date) {
         this.currentDate = date;
-        notifyDataSetChanged();
+        Log.d("TimelineAdapter", "Date set to: " + currentDate);  // Debugging log
+        notifyDataSetChanged();  // Refresh the adapter
     }
+
 
     public void showTaskDetail(String taskId) {
         TasksDBHelper dbHelper = new TasksDBHelper(context);
@@ -65,6 +67,7 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        Log.d("TimelineAdapter", "Binding item for date: " + currentDate);
         TimelineItem item = items.get(position);
         Log.d("TimelineAdapter", "onBindViewHolder: Position " + position + ", Item: " + item.toString());
 
@@ -87,6 +90,7 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                     if (fromUser) {
+                        Log.d("SEEKBAR", currentDate);
                         Log.d("TimelineAdapter", "Updating habit entry: " + item.getHabitName() + ", Progress: " + progress);
                         updateHabitEntryInFirebase(item.getHabit(), currentDate, progress);
                     }
