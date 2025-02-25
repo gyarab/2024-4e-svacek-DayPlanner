@@ -209,7 +209,7 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
     public void onDaySelected(String dateId) {
         TimelineFragment timelineFragment = (TimelineFragment) getSupportFragmentManager().findFragmentByTag("TIMELINE_FRAGMENT_TAG");
         if (timelineFragment != null) {
-            timelineFragment.fetchTasksAndHabits(dateId); // Fetch both tasks and habits
+            //timelineFragment.fetchTasksAndHabits(dateId); // Fetch both tasks and habits
             timelineFragment.onDaySelected(dateId);
         } else {
             Log.e("MainActivity", "TimelineFragment not found");
