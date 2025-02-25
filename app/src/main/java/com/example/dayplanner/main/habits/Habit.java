@@ -1,8 +1,17 @@
 package com.example.dayplanner.main.habits;
 
+import android.util.Log;
+
 import com.google.firebase.database.IgnoreExtraProperties;
+
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
 
 @IgnoreExtraProperties
 public class Habit {
@@ -10,6 +19,7 @@ public class Habit {
     private String name;
     private String description;
     private String frequency;
+    private String startDate;
     private String startTime;
     private int length;
     private String metric;
@@ -24,11 +34,12 @@ public class Habit {
         this.entries = new HashMap<>();
     }
 
-    public Habit(String id, String name, String description, String frequency, String startTime, int length, String metric, int goalValue) {
+    public Habit(String id, String name, String description, String frequency, String startDate, String startTime, int length, String metric, int goalValue) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.frequency = frequency;
+        this.startDate = startDate;
         this.startTime = startTime;
         this.length = length;
         this.metric = metric;
@@ -50,6 +61,9 @@ public class Habit {
 
     public String getFrequency() { return frequency; }
     public void setFrequency(String frequency) { this.frequency = frequency; }
+
+    public String getStartDate() { return startDate; }
+    public void setStartDate(String startDate) { this.startDate = startDate; }
 
     public String getStartTime() { return startTime; }
     public void setStartTime(String startTime) { this.startTime = startTime; }
@@ -83,10 +97,71 @@ public class Habit {
         if (entry != null) {
             entry.setProgress(progress);
         } else {
+            /** check false or true not done**/
             entry = new HabitEntry(date, false, progress, goalValue);
             entries.put(date, entry);
         }
     }
+
+    /**
+     * Checks if the habit should be visible on the given date.
+     * @param dateToCheck The date to check (format: ddMMyyyy)
+     * @return true if the habit should be shown, false otherwise
+     */
+    public boolean isHabitVisible(String dateToCheck) {
+        Log.d("Habit", "Checking visibility");
+        // Date format to match your ddMMyyyy pattern
+        SimpleDateFormat dateFormat = new SimpleDateFormat("ddMMyyyy", Locale.getDefault());
+
+        try {
+            // Convert startDate and dateToCheck to Calendar instances
+            Calendar start = Calendar.getInstance();
+            start.setTime(dateFormat.parse(startDate));
+
+            Calendar checkDate = Calendar.getInstance();
+            checkDate.setTime(dateFormat.parse(dateToCheck));
+
+            // Debug logs to see parsed dates and comparison result
+            Log.d("Habit", "Start Date: " + start.getTime() + " Check Date: " + checkDate.getTime());
+
+            // If check date is before the habit start date, return false
+            if (checkDate.compareTo(start) < 0) {
+                Log.d("Habit", "Habit start date is after the check date: " + dateToCheck + " > " + start.getTime());
+                return false;
+            }
+
+            switch (frequency.toLowerCase()) {
+                case "daily":
+                    Log.d("Habit", "Daily habit, visible on " + dateToCheck);
+                    return true; // Always visible for daily habits
+
+                case "weekly":
+                    // Show habit on the same weekday as startDate
+                    boolean isVisibleWeekly = start.get(Calendar.DAY_OF_WEEK) == checkDate.get(Calendar.DAY_OF_WEEK);
+                    Log.d("TimelineAdapter", "Weekly habit, is visible on " + dateToCheck + ": " + isVisibleWeekly);
+                    return isVisibleWeekly;
+
+                case "custom":
+                    // Example: User-defined custom days (modify this logic to fit actual user input)
+                    List<String> customDays = Arrays.asList("SUNDAY", "TUESDAY", "THURSDAY");
+
+                    // Convert Calendar day to a string (e.g., "MONDAY")
+                    String dayOfWeek = checkDate.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()).toUpperCase();
+                    boolean isVisibleCustom = customDays.contains(dayOfWeek);
+                    Log.d("TimelineAdapter", "Custom habit, is visible on " + dateToCheck + ": " + isVisibleCustom);
+                    return isVisibleCustom;
+
+                default:
+                    Log.d("Habit", "Unknown frequency, habit not visible");
+                    return false;
+            }
+
+        } catch (ParseException e) {
+            Log.e("TimelineAdapter", "Error parsing date", e);
+            return false; // Handle parsing errors gracefully
+        }
+    }
+
 
     public String toString() {
         return "Habit{" + "id='" + id + '\'' + ", name='" + name + '\'' +

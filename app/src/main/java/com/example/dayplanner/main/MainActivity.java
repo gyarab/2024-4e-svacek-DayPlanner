@@ -25,6 +25,7 @@ import com.example.dayplanner.auth.AuthenticationActivity;
 import com.example.dayplanner.auth.signin.EmailSignInActivity;
 import com.example.dayplanner.main.dayslist.DayAdapter;
 import com.example.dayplanner.main.dayslist.WeeklyHeaderFragment;
+import com.example.dayplanner.main.habits.Habit;
 import com.example.dayplanner.main.tasks.TaskDialogFragment;
 import com.example.dayplanner.main.timeline.TimelineFragment;
 import com.example.dayplanner.settings.SettingsActivity;
@@ -175,8 +176,9 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
         addHabitFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Habit newHabit = new Habit();
                 // Open Add Habit Dialog
-                HabitDialogFragment fragment = new HabitDialogFragment();
+                HabitDialogFragment fragment = new HabitDialogFragment(false, newHabit);
                 fragment.show(getSupportFragmentManager(), "AddHabitDialog");
                 toggleAddOptions(); // Hide options after selection
             }
@@ -228,6 +230,21 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
         }
     }
 
+    public void onHabitDataChanged(String dateId) {
+        TimelineFragment timelineFragment = (TimelineFragment) getSupportFragmentManager().findFragmentByTag("TIMELINE_FRAGMENT_TAG");
+        if (timelineFragment != null) {
+            timelineFragment.fetchTasksAndHabits(dateId); // Refresh timeline with both tasks and habits
+
+            // Optionally update any UI components related to habits (if needed)
+            RecyclerView weeklyRecyclerView = findViewById(R.id.weeklyRecyclerView);
+            DayAdapter adapter = (DayAdapter) weeklyRecyclerView.getAdapter();
+            if (adapter != null) {
+                adapter.setActiveDotByDateId(dateId); // Update the dot in the weekly view (similar to task data change)
+            }
+        } else {
+            Log.e("MainActivity", "TimelineFragment not found");
+        }
+    }
 
     private void logout() {
         FirebaseAuth.getInstance().signOut();

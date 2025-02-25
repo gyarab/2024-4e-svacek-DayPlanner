@@ -37,7 +37,7 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
     private DatabaseReference habitsRef;
     private int pendingFetches = 0; // Tracks unfinished fetch operations
     // Store the currently selected date
-    private String selectedDate = "03012025"; // default value; update as needed
+    private String selectedDate = "25022025"; // default value; update as needed
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -61,13 +61,20 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
 
     @Override
     public void onDaySelected(String dateId) {
+        Log.d("HELLO", dateId);
         // Update the selected date
         selectedDate = dateId;
-        // Update the adapter with the new current date
+
+        // Update the adapter with the new date before fetching
         timelineAdapter.setCurrentDate(dateId);
+
+        // Clear existing data before reloading
+        timelineItems.clear();
+        timelineAdapter.notifyDataSetChanged();
+
         // Re-fetch tasks and habits for the selected day.
+        Log.d("DAY SELECTED", "Day selected: " + dateId);
         fetchTasksAndHabits(dateId);
-        Log.d("TimelineFragment", "Day selected: " + dateId);
     }
 
     public void fetchTasksAndHabits(String dateId) {
@@ -87,11 +94,15 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
                 timelineItems.add(new TimelineItem(task));
                 Log.d("TimelineTasks", "Added task: " + task.toString());
             }
+        } else {
+            Log.d("FetchTasks", "No tasks found for date: " + dateId);
         }
         fetchComplete();
     }
 
+
     private void fetchHabits(String dateId) {
+        Log.d("Fetching Habits", dateId);
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         habitsRef = FirebaseDatabase.getInstance().getReference("users").child(userId).child("habits");
 
@@ -101,22 +112,25 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
                 for (DataSnapshot habitSnapshot : snapshot.getChildren()) {
                     Habit habit = habitSnapshot.getValue(Habit.class);
                     if (habit != null) {
-                        // Ensure the habit's entries map is initialized
-                        Map<String, HabitEntry> entries = habit.getEntries();
-                        if (entries == null) {
-                            entries = new HashMap<>();
-                            habit.setEntries(entries);
-                        }
+                        // Check if the habit is visible on the given date
+                        if (habit.isHabitVisible(dateId)) {
+                            // Ensure the habit's entries map is initialized
+                            Map<String, HabitEntry> entries = habit.getEntries();
+                            if (entries == null) {
+                                entries = new HashMap<>();
+                                habit.setEntries(entries);
+                            }
 
-                        // If no entry exists for the given dateId, add one with progress = 0
-                        if (!entries.containsKey(dateId)) {
-                            HabitEntry defaultEntry = new HabitEntry(dateId, false, 0, habit.getGoalValue());
-                            entries.put(dateId, defaultEntry);
-                        }
+                            // If no entry exists for the given dateId, add one with progress = 0
+                            if (!entries.containsKey(dateId)) {
+                                HabitEntry defaultEntry = new HabitEntry(dateId, false, 0, habit.getGoalValue());
+                                entries.put(dateId, defaultEntry);
+                            }
 
-                        // Add the habit (with the correct entries) to the timeline items list
-                        timelineItems.add(new TimelineItem(habit));
-                        Log.d("TimelineHabits", "Added habit: " + habit.toString());
+                            // Add the habit (with the correct entries) to the timeline items list
+                            timelineItems.add(new TimelineItem(habit));
+                            Log.d("TimelineHabits", "Added habit: " + habit.toString());
+                        }
                     }
                 }
                 fetchComplete();
@@ -129,6 +143,7 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
             }
         });
     }
+
 
 
 

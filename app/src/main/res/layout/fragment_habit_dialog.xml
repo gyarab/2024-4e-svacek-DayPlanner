@@ -21,6 +21,19 @@
             android:layout_height="wrap_content"
             android:hint="Description" />
 
+        <TextView
+            android:id="@+id/edit_habit_start_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Select start date"
+            android:padding="8dp" />
+
+        <Button
+            android:id="@+id/pick_habit_date_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Pick Date" />
+
         <Spinner
             android:id="@+id/spinner_habit_frequency"
             android:layout_width="match_parent"
