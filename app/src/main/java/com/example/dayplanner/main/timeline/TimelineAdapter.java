@@ -86,6 +86,12 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
             holder.taskDescriptionTextView.setVisibility(View.GONE);
             holder.seekBar.setVisibility(View.VISIBLE);
             holder.taskTitleTextView.setText(item.getHabitName());
+            holder.iconView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d("Habit edit", item.toString());
+                }
+            });
 
             // ✅ Fetch progress from Firebase
             fetchHabitProgress(item.getHabit(), currentDate, holder.seekBar);
