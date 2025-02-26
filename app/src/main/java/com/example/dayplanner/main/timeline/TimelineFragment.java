@@ -132,6 +132,7 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
                             Log.d("TimelineHabits", "Added habit: " + habit.toString());
                         }
                     }
+
                 }
                 fetchComplete();
             }

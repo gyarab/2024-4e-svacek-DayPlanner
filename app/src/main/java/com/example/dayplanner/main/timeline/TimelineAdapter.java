@@ -78,6 +78,7 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
             holder.taskDescriptionTextView.setVisibility(View.VISIBLE);
             holder.iconView.setOnClickListener(v -> showTaskDetail(item.getTaskId()));
             holder.statusIcon.setImageResource(R.drawable.ic_circle);
+            holder.seekBar.setVisibility(View.GONE);  // ✅ Hide SeekBar for tasks
         } else { // Habit
             Log.d("TimelineAdapter", "Binding habit item: " + item.getHabitName());
 
@@ -86,12 +87,16 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
             holder.seekBar.setVisibility(View.VISIBLE);
             holder.taskTitleTextView.setText(item.getHabitName());
 
+            // ✅ Fetch progress from Firebase
+            fetchHabitProgress(item.getHabit(), currentDate, holder.seekBar);
+
             holder.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                     if (fromUser) {
-                        Log.d("SEEKBAR", currentDate);
                         Log.d("TimelineAdapter", "Updating habit entry: " + item.getHabitName() + ", Progress: " + progress);
+
+                        // ✅ Update Firebase
                         updateHabitEntryInFirebase(item.getHabit(), currentDate, progress);
                     }
                 }
@@ -104,6 +109,30 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
             });
         }
     }
+
+    private void fetchHabitProgress(Habit habit, String date, SeekBar seekBar) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference entryRef = FirebaseDatabase.getInstance()
+                .getReference("users").child(userId).child("habits")
+                .child(habit.getId()).child("entries").child(date);
+
+        entryRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult().exists()) {
+                Integer progress = task.getResult().child("progress").getValue(Integer.class);
+                if (progress != null) {
+                    seekBar.setProgress(progress);  // ✅ Set retrieved progress
+                } else {
+                    seekBar.setProgress(0);  // ✅ Default to 0 if no progress found
+                }
+            } else {
+                seekBar.setProgress(0);  // ✅ Default to 0 if no entry exists
+            }
+        }).addOnFailureListener(e -> {
+            Log.e("TimelineAdapter", "Failed to fetch progress from Firebase", e);
+            seekBar.setProgress(0);  // ✅ Ensure UI does not break
+        });
+    }
+
 
     @Override
     public int getItemCount() {
