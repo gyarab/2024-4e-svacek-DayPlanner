@@ -4,7 +4,7 @@ public class HabitEntry {
     private String date; // The date the habit was performed (could be in the format "YYYY-MM-DD")
     private boolean completed; // Whether the habit was completed on that day
     private int progress; // How much was completed (e.g., 5km out of 10km)
-    private int goal; // The goal for that habit (e.g., 10km)
+    private int goalValue; // The goal for that habit (e.g., 10km)
 
     // ✅ Required **no-argument** constructor for Firebase
     public HabitEntry() { }
@@ -13,7 +13,7 @@ public class HabitEntry {
         this.date = date;
         this.completed = completed;
         this.progress = progress;
-        this.goal = goal;
+        this.goalValue = goal;
     }
 
     // ✅ Getters and Setters
@@ -26,6 +26,7 @@ public class HabitEntry {
     public int getProgress() { return progress; }
     public void setProgress(int progress) { this.progress = progress; }
 
-    public int getGoal() { return goal; }
-    public void setGoal(int goal) { this.goal = goal; }
+    public int getGoalValue() { return goalValue; }
+
+    public void setGoalValue(int goal) { this.goalValue = goal; }
 }

@@ -110,7 +110,12 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot habitSnapshot : snapshot.getChildren()) {
+                    Map<String, Object> habitDataMap = (Map<String, Object>) habitSnapshot.getValue();
+                    Log.d("HabitRawJSON", "Habit JSON data: " + habitDataMap);
+
                     Habit habit = habitSnapshot.getValue(Habit.class);
+                    Log.d("habitsnapshot",  String.valueOf(habitSnapshot.getValue(Habit.class)));
+                    Log.d("habit from snapshot",  habit.toString());
                     if (habit != null) {
                         // Check if the habit is visible on the given date
                         if (habit.isHabitVisible(dateId)) {
@@ -120,9 +125,10 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
                                 entries = new HashMap<>();
                                 habit.setEntries(entries);
                             }
-
+                            Log.d("defaultEntry", String.valueOf(habit.getGoalValue()));
                             // If no entry exists for the given dateId, add one with progress = 0
                             if (!entries.containsKey(dateId)) {
+                                habit.setGoalValue(habit.getGoalValue());
                                 HabitEntry defaultEntry = new HabitEntry(dateId, false, 0, habit.getGoalValue());
                                 entries.put(dateId, defaultEntry);
                             }

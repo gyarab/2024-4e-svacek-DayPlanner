@@ -106,6 +106,7 @@ public class TimelineItem {
 
     // Returns duration in minutes
     public int getDurationInMinutes() {
-        return isTask ? getTaskDuration() : (habit != null ? habit.getLength() : 0);
+        //return isTask ? getTaskDuration() : (habit != null ? habit.getLength() : 0);
+        return 5;
     }
 }

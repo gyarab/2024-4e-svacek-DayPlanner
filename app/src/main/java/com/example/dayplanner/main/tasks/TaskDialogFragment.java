@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -86,14 +87,17 @@ public class TaskDialogFragment extends DialogFragment {
                     taskDescription,
                     taskDate,
                     taskStartTime,
-                    Integer.parseInt(taskLength)
+                    Integer.parseInt(taskLength),
+                    task.isTaskCompleted()
             );
 
             TasksDBHelper dbHelper = new TasksDBHelper(getContext());
             if (isEditMode) {
                 dbHelper.editTask(newTask);
+                Log.d("edit task", newTask.toString());
             } else {
                 dbHelper.addTask(newTask);
+                Log.d("add task", newTask.toString());
             }
 
             if (getActivity() instanceof TaskDialogListener) {

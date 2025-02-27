@@ -10,14 +10,14 @@ public class Task {
     private boolean isCompleted;
 
     // Constructor
-    public Task(String taskId, String taskTitle, String taskDescription, String taskDate, String taskStartTime, int taskLengt) {
+    public Task(String taskId, String taskTitle, String taskDescription, String taskDate, String taskStartTime, int taskLength, boolean isCompleted) {
         this.taskId = taskId;
         this.taskTitle = taskTitle;
         this.taskDescription = taskDescription;
         this.taskDate = taskDate;
         this.taskStartTime = taskStartTime;
         this.taskLength = taskLength;
-        this.isCompleted = false;
+        this.isCompleted = isCompleted;
     }
 
     // Getter and Setter methods

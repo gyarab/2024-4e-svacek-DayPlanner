@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
             @Override
             public void onClick(View view) {
                 // Create a new empty Task object
-                Task newTask = new Task(null, "", "", "", "", 0);
+                Task newTask = new Task(null, "", "", "", "", 0, false);
 
                 // Open Add Task Dialog
                 TaskDialogFragment fragment = new TaskDialogFragment(false, newTask);

@@ -51,7 +51,7 @@ public class HabitDialogFragment extends DialogFragment {
 
         editHabitName = view.findViewById(R.id.edit_habit_name);
         editHabitDescription = view.findViewById(R.id.edit_habit_description);
-        editHabitLength = view.findViewById(R.id.edit_habit_length);
+        //editHabitLength = view.findViewById(R.id.edit_habit_length);
         editStartTime = view.findViewById(R.id.edit_start_time);
         editStartDate = view.findViewById(R.id.edit_start_date);
         editGoalValue = view.findViewById(R.id.edit_goal_value);
@@ -103,7 +103,7 @@ public class HabitDialogFragment extends DialogFragment {
         if (habit != null) {
             editHabitName.setText(habit.getName());
             editHabitDescription.setText(habit.getDescription());
-            editHabitLength.setText(String.valueOf(habit.getLength()));
+            //editHabitLength.setText(String.valueOf(habit.getLength()));
             editStartTime.setText(habit.getStartTime());
             editStartDate.setText(habit.getStartDate());
             editGoalValue.setText(String.valueOf(habit.getGoalValue()));
@@ -129,8 +129,8 @@ public class HabitDialogFragment extends DialogFragment {
         String metric = metricSpinner.getSelectedItem().toString();
 
         // Handle potential empty number fields safely
-        int length = editHabitLength.getText().toString().trim().isEmpty() ? 0 :
-                Integer.parseInt(editHabitLength.getText().toString().trim());
+        /*int length = editHabitLength.getText().toString().trim().isEmpty() ? 0 :
+                Integer.parseInt(editHabitLength.getText().toString().trim());*/
 
         int goalValue = editGoalValue.getText().toString().trim().isEmpty() ? 0 :
                 Integer.parseInt(editGoalValue.getText().toString().trim());
@@ -143,7 +143,6 @@ public class HabitDialogFragment extends DialogFragment {
                 frequency,
                 startDate,
                 startTime,
-                length,
                 metric,
                 goalValue
         );

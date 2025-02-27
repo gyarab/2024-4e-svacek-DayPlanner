@@ -103,7 +103,8 @@ public class AddTaskActivity extends AppCompatActivity {
                         description_input.getText().toString().trim(),
                         formatDate(dateTextView.getText().toString().trim()),
                         timeTextView.getText().toString().trim(),
-                        Integer.parseInt(length_input.getText().toString().trim())
+                        Integer.parseInt(length_input.getText().toString().trim()),
+                        false
                 );
 
                 // Insert task into the database

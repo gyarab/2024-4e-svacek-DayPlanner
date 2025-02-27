@@ -21,7 +21,6 @@ public class Habit {
     private String frequency;
     private String startDate;
     private String startTime;
-    private int length;
     private String metric;
     private int goalValue;
     private int currentStreak;
@@ -34,14 +33,13 @@ public class Habit {
         this.entries = new HashMap<>();
     }
 
-    public Habit(String id, String name, String description, String frequency, String startDate, String startTime, int length, String metric, int goalValue) {
+    public Habit(String id, String name, String description, String frequency, String startDate, String startTime, String metric, int goalValue) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.frequency = frequency;
         this.startDate = startDate;
         this.startTime = startTime;
-        this.length = length;
         this.metric = metric;
         this.goalValue = goalValue;
         this.currentStreak = 0;
@@ -68,9 +66,6 @@ public class Habit {
     public String getStartTime() { return startTime; }
     public void setStartTime(String startTime) { this.startTime = startTime; }
 
-    public int getLength() { return length; }
-    public void setLength(int length) { this.length = length; }
-
     public String getMetric() { return metric; }
     public void setMetric(String metric) { this.metric = metric; }
 
@@ -93,12 +88,16 @@ public class Habit {
         if (entries == null) {
             entries = new HashMap<>();
         }
+
         HabitEntry entry = entries.get(date);
         if (entry != null) {
+            // Update progress and set completion based on goalValue
             entry.setProgress(progress);
+            entry.setCompleted(progress >= goalValue); // Set completed to true if progress equals or exceeds goalValue
         } else {
-            /** check false or true not done**/
-            entry = new HabitEntry(date, false, progress, goalValue);
+            // If the entry doesn't exist, create a new one and set completion based on goalValue
+            boolean completed = progress >= goalValue; // Set completed to true if progress equals or exceeds goalValue
+            entry = new HabitEntry(date, completed, progress, goalValue);
             entries.put(date, entry);
         }
     }
@@ -163,9 +162,33 @@ public class Habit {
     }
 
 
+    @Override
     public String toString() {
-        return "Habit{" + "id='" + id + '\'' + ", name='" + name + '\'' +
-                ", description='" + description + '\'' + ", frequency='" + frequency + '\'' +
-                ", startTime='" + startTime + '\'' + ", length=" + length + '}';
+        StringBuilder entriesString = new StringBuilder();
+        if (entries != null && !entries.isEmpty()) {
+            // Loop through entries and append each entry's toString()
+            for (Map.Entry<String, HabitEntry> entry : entries.entrySet()) {
+                HabitEntry habitEntry = entry.getValue();
+                entriesString.append("\n  - Date: ").append(entry.getKey())
+                        .append(", Progress: ").append(habitEntry.getProgress())
+                        .append(", Completed: ").append(habitEntry.isCompleted())
+                        .append(", Goal: ").append(habitEntry.getGoalValue());  // Add goal value
+            }
+        }
+
+        return "Habit{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", frequency='" + frequency + '\'' +
+                ", startDate='" + startDate + '\'' +
+                ", startTime='" + startTime + '\'' +
+                ", metric='" + metric + '\'' +
+                ", goalValue=" + goalValue +
+                ", currentStreak=" + currentStreak +
+                ", longestStreak=" + longestStreak +
+                ", entries=" + entriesString.toString() +
+                '}';
     }
+
 }
