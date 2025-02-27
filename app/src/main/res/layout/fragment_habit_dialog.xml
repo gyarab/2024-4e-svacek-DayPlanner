@@ -9,24 +9,28 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <!-- Habit Name -->
         <EditText
             android:id="@+id/edit_habit_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Habit Name" />
 
+        <!-- Habit Description -->
         <EditText
             android:id="@+id/edit_habit_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Description" />
 
+        <!-- Start Date -->
         <TextView
-            android:id="@+id/edit_habit_start_date"
+            android:id="@+id/edit_start_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Select start date"
-            android:padding="8dp" />
+            android:text="Select Start Date"
+            android:textSize="16sp"
+            android:paddingTop="8dp" />
 
         <Button
             android:id="@+id/pick_habit_date_button"
@@ -34,14 +38,16 @@
             android:layout_height="wrap_content"
             android:text="Pick Date" />
 
+        <!-- Frequency Spinner -->
         <Spinner
-            android:id="@+id/spinner_habit_frequency"
+            android:id="@+id/spinner_frequency"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:entries="@array/habit_frequencies" />
 
+        <!-- Start Time -->
         <TextView
-            android:id="@+id/edit_habit_start_time"
+            android:id="@+id/edit_start_time"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Select Start Time"
@@ -54,18 +60,21 @@
             android:layout_height="wrap_content"
             android:text="Pick Time" />
 
+        <!-- Duration -->
         <EditText
             android:id="@+id/edit_habit_length"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Duration (e.g., 30 min)" />
 
+        <!-- Metric Selection -->
         <Spinner
-            android:id="@+id/spinner_habit_metric"
+            android:id="@+id/spinner_metric"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:entries="@array/habit_metrics" />
 
+        <!-- Custom Metric -->
         <EditText
             android:id="@+id/edit_custom_metric"
             android:layout_width="match_parent"
@@ -73,14 +82,14 @@
             android:hint="Custom Metric"
             android:visibility="gone" />
 
-        <!-- Added Goal Value Input -->
+        <!-- Goal Value -->
         <EditText
             android:id="@+id/edit_goal_value"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Goal Value (e.g., 10km, 15 min)" />
 
-        <!-- Streak Tracking Section -->
+        <!-- Streak Tracking -->
         <TextView
             android:id="@+id/text_current_streak"
             android:layout_width="match_parent"
@@ -99,7 +108,7 @@
             android:textStyle="bold"
             android:paddingBottom="8dp" />
 
-        <!-- Placeholder for Daily Entries (Can be dynamically updated in RecyclerView) -->
+        <!-- Daily Progress Section -->
         <TextView
             android:id="@+id/text_daily_entries"
             android:layout_width="match_parent"
@@ -114,15 +123,25 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-            <!-- Entries will be dynamically added here -->
+            <!-- Dynamic Entries Here -->
         </LinearLayout>
 
+        <!-- Save Habit Button -->
         <Button
             android:id="@+id/save_habit_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Save Habit"
             android:layout_marginTop="16dp" />
+
+        <!-- Delete Habit Button (Hidden by Default) -->
+        <Button
+            android:id="@+id/delete_habit_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Delete Habit"
+            android:visibility="gone"
+            android:layout_marginTop="8dp" />
 
     </LinearLayout>
 </ScrollView>

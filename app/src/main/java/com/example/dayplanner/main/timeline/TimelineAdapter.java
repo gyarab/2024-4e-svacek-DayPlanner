@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dayplanner.R;
 import com.example.dayplanner.main.habits.Habit;
+import com.example.dayplanner.main.habits.HabitDialogFragment;
 import com.example.dayplanner.main.tasks.Task;
 import com.example.dayplanner.main.tasks.TaskDialogFragment;
 import com.example.dayplanner.main.tasks.TasksDBHelper;
@@ -90,6 +91,8 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
                 @Override
                 public void onClick(View v) {
                     Log.d("Habit edit", item.toString());
+                    HabitDialogFragment dialogFragment = new HabitDialogFragment(true, item.getHabit());
+                    dialogFragment.show(((AppCompatActivity) context).getSupportFragmentManager(), "EditHabitDialog");
                 }
             });
 

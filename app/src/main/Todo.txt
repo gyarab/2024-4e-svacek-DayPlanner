@@ -1,0 +1,5 @@
+Bug opraven ale jeste:
+- udelat edit habitu
+- udelat spravne zakladani habitu
+- fetch goal for seekbar
+- add manual add for progress noT only seekbar
