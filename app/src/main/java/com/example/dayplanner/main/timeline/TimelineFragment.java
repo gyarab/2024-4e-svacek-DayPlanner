@@ -107,6 +107,58 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
         habitsRef = FirebaseDatabase.getInstance().getReference("users").child(userId).child("habits");
 
         habitsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+             @Override
+             public void onDataChange(DataSnapshot dataSnapshot) {
+                 for (DataSnapshot habitSnapshot : dataSnapshot.getChildren()) {
+                     Habit habit = habitSnapshot.getValue(Habit.class);
+
+                     if (habit.isHabitVisible(dateId)) {
+                         Map<String, HabitEntry> entries = new HashMap<>();
+
+                         // Since Firebase may not automatically map 'entries', handle it manually
+                         if (habitSnapshot.hasChild("entries")) {
+                             Log.d("FirebaseHelper", "Entries exist for habit");
+                             for (DataSnapshot entrySnapshot : habitSnapshot.child("entries").getChildren()) {
+                                 HabitEntry entry = entrySnapshot.getValue(HabitEntry.class);
+
+                                 if (entry != null && entry.getDate() != null && !entry.getDate().isEmpty()) {
+                                     Log.d("FirebaseHelper", "Adding entry: " + entry.toString());
+                                     entries.put(entry.getDate(), entry);
+                                 } else {
+                                     Log.d("FirebaseHelper", "Invalid entry found: " + entry.toString());
+                                     // If entry has no valid date, create a new entry
+                                     String newDate = dateId; // Example: Generate today's date dynamically
+                                     HabitEntry newEntry = new HabitEntry(newDate, habit.getGoalValue(), 69, false);
+                                     entries.put(newDate, newEntry);
+                                 }
+                             }
+                         } else {
+                             Log.d("FirebaseHelper", "New entry created");
+                             // If no entries exist, create a new one
+                             String newDate = dateId; // Example: Generate today's date dynamically
+                             HabitEntry newEntry = new HabitEntry(newDate, habit.getGoalValue(), 0, false);
+                             entries.put(newDate, newEntry);
+
+                             // **Upload new entry to Firebase**
+                             habitSnapshot.getRef().child("entries").child(newDate).setValue(newEntry)
+                                     .addOnSuccessListener(aVoid -> Log.d("FirebaseHelper", "New entry uploaded: " + newEntry))
+                                     .addOnFailureListener(e -> Log.e("FirebaseHelper", "Failed to upload entry: " + e.getMessage()));
+                         }
+
+                         habit.setEntries(entries);
+
+                         // Log the habit object
+                         Log.d("FirebaseHelper", "Fetched Habit: " + habit.toString());
+                    }
+                 }
+             }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+        /*habitsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot habitSnapshot : snapshot.getChildren()) {
@@ -129,7 +181,7 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
                             // If no entry exists for the given dateId, add one with progress = 0
                             if (!entries.containsKey(dateId)) {
                                 habit.setGoalValue(habit.getGoalValue());
-                                HabitEntry defaultEntry = new HabitEntry(dateId, false, 0, habit.getGoalValue());
+                                HabitEntry defaultEntry = new HabitEntry(dateId, habit.getGoalValue(), 0, false);
                                 entries.put(dateId, defaultEntry);
                             }
 
@@ -148,11 +200,8 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
                 Log.e("Firebase", "Failed to load habits", error.toException());
                 fetchComplete();
             }
-        });
+        });*/
     }
-
-
-
 
     private void fetchComplete() {
         pendingFetches--;

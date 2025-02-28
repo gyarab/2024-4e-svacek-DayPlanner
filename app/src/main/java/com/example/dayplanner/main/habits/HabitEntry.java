@@ -1,32 +1,41 @@
 package com.example.dayplanner.main.habits;
 
 public class HabitEntry {
-    private String date; // The date the habit was performed (could be in the format "YYYY-MM-DD")
-    private boolean completed; // Whether the habit was completed on that day
-    private int progress; // How much was completed (e.g., 5km out of 10km)
-    private int goalValue; // The goal for that habit (e.g., 10km)
+    private String date;
+    private int entryGoalValue;
+    private int progress;
+    private boolean completed;
 
-    // ✅ Required **no-argument** constructor for Firebase
-    public HabitEntry() { }
+    // Constructor (Empty for Firebase)
+    public HabitEntry() {}
 
-    public HabitEntry(String date, boolean completed, int progress, int goal) {
+    // Constructor
+    public HabitEntry(String date, int entryGoalValue, int progress, boolean completed) {
         this.date = date;
-        this.completed = completed;
+        this.entryGoalValue = entryGoalValue;
         this.progress = progress;
-        this.goalValue = goal;
+        this.completed = completed;
     }
 
-    // ✅ Getters and Setters
+    // Getters and Setters
     public String getDate() { return date; }
     public void setDate(String date) { this.date = date; }
 
-    public boolean isCompleted() { return completed; }
-    public void setCompleted(boolean completed) { this.completed = completed; }
+    public int getEntryGoalValue() { return entryGoalValue; }
+    public void setEntryGoalValue(int entryGoalValue) { this.entryGoalValue = entryGoalValue; }
 
     public int getProgress() { return progress; }
     public void setProgress(int progress) { this.progress = progress; }
 
-    public int getGoalValue() { return goalValue; }
+    public boolean isCompleted() { return completed; }
+    public void setCompleted(boolean completed) { this.completed = completed; }
 
-    public void setGoalValue(int goal) { this.goalValue = goal; }
+    // Method to update progress and check completion
+    public void updateProgress(int amount) {
+        this.progress += amount;
+        if (this.progress >= this.entryGoalValue) {
+            this.completed = true;
+            this.progress = this.entryGoalValue; // Prevent overflow
+        }
+    }
 }

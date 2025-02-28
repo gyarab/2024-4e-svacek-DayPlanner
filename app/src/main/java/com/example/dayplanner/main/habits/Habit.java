@@ -30,7 +30,7 @@ public class Habit {
 
     // Required no-argument constructor for Firebase
     public Habit() {
-        this.entries = new HashMap<>();
+
     }
 
     public Habit(String id, String name, String description, String frequency, String startDate, String startTime, String metric, int goalValue) {
@@ -44,7 +44,6 @@ public class Habit {
         this.goalValue = goalValue;
         this.currentStreak = 0;
         this.longestStreak = 0;
-        this.entries = new HashMap<>();
     }
 
     // Getters and Setters
@@ -80,27 +79,6 @@ public class Habit {
 
     public Map<String, HabitEntry> getEntries() { return entries; }
     public void setEntries(Map<String, HabitEntry> entries) { this.entries = entries; }
-
-    /**
-     * Update or create a habit entry for a given date.
-     */
-    public void setProgressForDate(String date, int progress) {
-        if (entries == null) {
-            entries = new HashMap<>();
-        }
-
-        HabitEntry entry = entries.get(date);
-        if (entry != null) {
-            // Update progress and set completion based on goalValue
-            entry.setProgress(progress);
-            entry.setCompleted(progress >= goalValue); // Set completed to true if progress equals or exceeds goalValue
-        } else {
-            // If the entry doesn't exist, create a new one and set completion based on goalValue
-            boolean completed = progress >= goalValue; // Set completed to true if progress equals or exceeds goalValue
-            entry = new HabitEntry(date, completed, progress, goalValue);
-            entries.put(date, entry);
-        }
-    }
 
     /**
      * Checks if the habit should be visible on the given date.
@@ -172,7 +150,7 @@ public class Habit {
                 entriesString.append("\n  - Date: ").append(entry.getKey())
                         .append(", Progress: ").append(habitEntry.getProgress())
                         .append(", Completed: ").append(habitEntry.isCompleted())
-                        .append(", Goal: ").append(habitEntry.getGoalValue());  // Add goal value
+                        .append(", Goal: ").append(habitEntry.getEntryGoalValue());  // Add goal value
             }
         }
 
