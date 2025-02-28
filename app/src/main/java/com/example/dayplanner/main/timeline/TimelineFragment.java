@@ -107,58 +107,65 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
         habitsRef = FirebaseDatabase.getInstance().getReference("users").child(userId).child("habits");
 
         habitsRef.addListenerForSingleValueEvent(new ValueEventListener() {
-             @Override
-             public void onDataChange(DataSnapshot dataSnapshot) {
-                 for (DataSnapshot habitSnapshot : dataSnapshot.getChildren()) {
-                     Habit habit = habitSnapshot.getValue(Habit.class);
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot habitSnapshot : dataSnapshot.getChildren()) {
+                    Habit habit = habitSnapshot.getValue(Habit.class);
+                    if (habit != null && habit.isHabitVisible(dateId)) {
+                        Map<String, HabitEntry> entries = new HashMap<>();
 
-                     if (habit.isHabitVisible(dateId)) {
-                         Map<String, HabitEntry> entries = new HashMap<>();
+                        if (habitSnapshot.hasChild("entries")) {
+                            Log.d("FirebaseHelper", "Entries exist for habit");
+                            boolean dateFound = false;
 
-                         // Since Firebase may not automatically map 'entries', handle it manually
-                         if (habitSnapshot.hasChild("entries")) {
-                             Log.d("FirebaseHelper", "Entries exist for habit");
-                             for (DataSnapshot entrySnapshot : habitSnapshot.child("entries").getChildren()) {
-                                 HabitEntry entry = entrySnapshot.getValue(HabitEntry.class);
+                            for (DataSnapshot entrySnapshot : habitSnapshot.child("entries").getChildren()) {
+                                HabitEntry entry = entrySnapshot.getValue(HabitEntry.class);
+                                if (entry != null && entry.getDate() != null) {
+                                    entries.put(entry.getDate(), entry);
+                                    Log.d("FirebaseHelper", "Adding entry: " + entry.toString());
 
-                                 if (entry != null && entry.getDate() != null && !entry.getDate().isEmpty()) {
-                                     Log.d("FirebaseHelper", "Adding entry: " + entry.toString());
-                                     entries.put(entry.getDate(), entry);
-                                 } else {
-                                     Log.d("FirebaseHelper", "Invalid entry found: " + entry.toString());
-                                     // If entry has no valid date, create a new entry
-                                     String newDate = dateId; // Example: Generate today's date dynamically
-                                     HabitEntry newEntry = new HabitEntry(newDate, habit.getGoalValue(), 69, false);
-                                     entries.put(newDate, newEntry);
-                                 }
-                             }
-                         } else {
-                             Log.d("FirebaseHelper", "New entry created");
-                             // If no entries exist, create a new one
-                             String newDate = dateId; // Example: Generate today's date dynamically
-                             HabitEntry newEntry = new HabitEntry(newDate, habit.getGoalValue(), 0, false);
-                             entries.put(newDate, newEntry);
+                                    // Check if the desired date already exists
+                                    if (entry.getDate().equals(dateId)) {
+                                        dateFound = true;
+                                    }
+                                }
+                            }
 
-                             // **Upload new entry to Firebase**
-                             habitSnapshot.getRef().child("entries").child(newDate).setValue(newEntry)
-                                     .addOnSuccessListener(aVoid -> Log.d("FirebaseHelper", "New entry uploaded: " + newEntry))
-                                     .addOnFailureListener(e -> Log.e("FirebaseHelper", "Failed to upload entry: " + e.getMessage()));
-                         }
+                            if (!dateFound) {
+                                Log.d("FirebaseHelper", "Desired date not found, creating default entry");
+                                HabitEntry newEntry = new HabitEntry(dateId, habit.getGoalValue(), 0, false);
+                                entries.put(dateId, newEntry);
+                                habitSnapshot.getRef().child("entries").child(dateId).setValue(newEntry)
+                                        .addOnSuccessListener(aVoid -> Log.d("FirebaseHelper", "New entry uploaded: " + newEntry))
+                                        .addOnFailureListener(e -> Log.e("FirebaseHelper", "Failed to upload entry: " + e.getMessage()));
+                            }
+                        } else {
+                            Log.d("FirebaseHelper", "No entries found, creating default entry");
+                            HabitEntry newEntry = new HabitEntry(dateId, habit.getGoalValue(), 0, false);
+                            entries.put(dateId, newEntry);
+                            habitSnapshot.getRef().child("entries").child(dateId).setValue(newEntry)
+                                    .addOnSuccessListener(aVoid -> Log.d("FirebaseHelper", "New entry uploaded: " + newEntry))
+                                    .addOnFailureListener(e -> Log.e("FirebaseHelper", "Failed to upload entry: " + e.getMessage()));
+                        }
 
-                         habit.setEntries(entries);
+                        habit.setEntries(entries);
+                        Log.d("FirebaseHelper", "Fetched Habit: " + habit.toString());
 
-                         // Log the habit object
-                         Log.d("FirebaseHelper", "Fetched Habit: " + habit.toString());
+                        timelineItems.add(new TimelineItem(habit));
+                        fetchComplete();
                     }
-                 }
-             }
+                }
+            }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
+                fetchComplete();
+                Log.e("FirebaseHelper", "Database Error: " + error.getMessage());
             }
         });
-        /*habitsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+
+       /* habitsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot habitSnapshot : snapshot.getChildren()) {
