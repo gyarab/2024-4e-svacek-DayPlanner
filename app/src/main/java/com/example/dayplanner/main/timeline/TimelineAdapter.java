@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.dayplanner.R;
 import com.example.dayplanner.main.habits.Habit;
 import com.example.dayplanner.main.habits.HabitDialogFragment;
+import com.example.dayplanner.main.habits.HabitEntry;
 import com.example.dayplanner.main.tasks.Task;
 import com.example.dayplanner.main.tasks.TaskDialogFragment;
 import com.example.dayplanner.main.tasks.TasksDBHelper;
@@ -111,7 +112,17 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
                 }
             });
         } else { // Habit
-            Log.d("TimelineAdapter", "Binding habit item: " + item.getHabitName());
+            Habit habit = item.getHabit();
+            HabitEntry currentEntry = habit.getEntryForDate(currentDate);
+
+            int progress = currentEntry != null ? currentEntry.getProgress() : 0;
+            int entryGoalValue = currentEntry != null ? currentEntry.getEntryGoalValue() : 0;
+
+            Log.d("XML preparation", String.valueOf(progress) + " / " + String.valueOf(entryGoalValue));
+
+            Log.d("Current Date", String.valueOf(habit.getEntryForDate(currentDate)));
+
+            Log.d("TimelineAdapter", "Binding habit item: " + item.getHabit().toString());
 
             holder.taskStartTimeTextView.setText(getTimeRangeForHabit(item));
             holder.taskDescriptionTextView.setVisibility(View.GONE);

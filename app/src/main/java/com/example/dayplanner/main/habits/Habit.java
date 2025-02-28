@@ -79,6 +79,12 @@ public class Habit {
 
     public Map<String, HabitEntry> getEntries() { return entries; }
     public void setEntries(Map<String, HabitEntry> entries) { this.entries = entries; }
+    public HabitEntry getEntryForDate(String date) {
+        if (entries != null) {
+            return entries.get(date);
+        }
+        return null;
+    }
 
     /**
      * Checks if the habit should be visible on the given date.

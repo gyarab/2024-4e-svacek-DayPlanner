@@ -38,4 +38,8 @@ public class HabitEntry {
             this.progress = this.entryGoalValue; // Prevent overflow
         }
     }
+
+    public String toString() {
+        return "Date: " + date + ", Goal: " + entryGoalValue + ", Progress: " + progress + ", Completed: " + completed;
+    }
 }
