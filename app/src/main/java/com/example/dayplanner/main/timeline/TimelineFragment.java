@@ -102,56 +102,102 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
 
 
     private void fetchHabits(String dateId) {
+        Log.d("Fetching Habits", dateId);
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
         habitsRef = FirebaseDatabase.getInstance().getReference("users").child(userId).child("habits");
 
-        habitsRef.get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                Log.d("Firebase", "Raw data: " + task.getResult().getValue());
+        habitsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot habitSnapshot : dataSnapshot.getChildren()) {
+                    Habit habit = habitSnapshot.getValue(Habit.class);
+                    if (habit != null && habit.isHabitVisible(dateId)) {
+                        Map<String, HabitEntry> entries = new HashMap<>();
+
+                        if (habitSnapshot.hasChild("entries")) {
+                            Log.d("FirebaseHelper", "Entries exist for habit");
+                            boolean dateFound = false;
+
+                            for (DataSnapshot entrySnapshot : habitSnapshot.child("entries").getChildren()) {
+                                HabitEntry entry = entrySnapshot.getValue(HabitEntry.class);
+                                if (entry != null && entry.getDate() != null) {
+                                    entries.put(entry.getDate(), entry);
+                                    Log.d("FirebaseHelper", "Adding entry: " + entry.toString());
+
+                                    // Check if the desired date already exists
+                                    if (entry.getDate().equals(dateId)) {
+                                        dateFound = true;
+                                    }
+                                }
+                            }
+
+                            if (!dateFound) {
+                                Log.d("FirebaseHelper", "Desired date not found, creating default entry");
+                                HabitEntry newEntry = new HabitEntry(dateId, habit.getGoalValue(), 0, false);
+                                entries.put(dateId, newEntry);
+                                habitSnapshot.getRef().child("entries").child(dateId).setValue(newEntry)
+                                        .addOnSuccessListener(aVoid -> Log.d("FirebaseHelper", "New entry uploaded: " + newEntry))
+                                        .addOnFailureListener(e -> Log.e("FirebaseHelper", "Failed to upload entry: " + e.getMessage()));
+                            }
+                        } else {
+                            Log.d("FirebaseHelper", "No entries found, creating default entry");
+                            HabitEntry newEntry = new HabitEntry(dateId, habit.getGoalValue(), 0, false);
+                            entries.put(dateId, newEntry);
+                            habitSnapshot.getRef().child("entries").child(dateId).setValue(newEntry)
+                                    .addOnSuccessListener(aVoid -> Log.d("FirebaseHelper", "New entry uploaded: " + newEntry))
+                                    .addOnFailureListener(e -> Log.e("FirebaseHelper", "Failed to upload entry: " + e.getMessage()));
+                        }
+
+                        habit.setEntries(entries);
+                        Log.d("FirebaseHelper", "Fetched Habit: " + habit.toString());
+
+                        timelineItems.add(new TimelineItem(habit));
+                        fetchComplete();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                fetchComplete();
+                Log.e("FirebaseHelper", "Database Error: " + error.getMessage());
             }
         });
 
 
-        habitsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+       /* habitsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot habitSnapshot : snapshot.getChildren()) {
+                    Map<String, Object> habitDataMap = (Map<String, Object>) habitSnapshot.getValue();
+                    Log.d("HabitRawJSON", "Habit JSON data: " + habitDataMap);
+
                     Habit habit = habitSnapshot.getValue(Habit.class);
-                    Log.d("Firebase habit to string",  habit.toString());
+                    Log.d("habitsnapshot",  String.valueOf(habitSnapshot.getValue(Habit.class)));
+                    Log.d("habit from snapshot",  habit.toString());
                     if (habit != null) {
                         // Check if the habit is visible on the given date
                         if (habit.isHabitVisible(dateId)) {
-
                             // Ensure the habit's entries map is initialized
                             Map<String, HabitEntry> entries = habit.getEntries();
                             if (entries == null) {
                                 entries = new HashMap<>();
                                 habit.setEntries(entries);
-
-                                /** debug **/
                             }
-
+                            Log.d("defaultEntry", String.valueOf(habit.getGoalValue()));
                             // If no entry exists for the given dateId, add one with progress = 0
                             if (!entries.containsKey(dateId)) {
-                                HabitEntry defaultEntry = new HabitEntry(dateId, false, 0, habit.getGoalValue());
-                                Log.d("Firebase", "default entry goal value: " + defaultEntry.getEntryGoalValue());
-
+                                habit.setGoalValue(habit.getGoalValue());
+                                HabitEntry defaultEntry = new HabitEntry(dateId, habit.getGoalValue(), 0, false);
                                 entries.put(dateId, defaultEntry);
                             }
 
-                            // Set the current entry for the selected date
-                            habit.setCurrentEntry(entries.get(dateId));
-
-                            Log.d("Firebase", "Goal in HabitEntry: " + habit.getCurrentEntry().getEntryGoalValue());
-                            Log.d("Firebase", "Goal in Habit: " + habit.getGoalValue());
-
-
                             // Add the habit (with the correct entries) to the timeline items list
                             timelineItems.add(new TimelineItem(habit));
-                            Log.d("Firebase", "Added habit: " + habit.toString());
+                            Log.d("TimelineHabits", "Added habit: " + habit.toString());
                         }
                     }
+
                 }
                 fetchComplete();
             }
@@ -161,11 +207,8 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
                 Log.e("Firebase", "Failed to load habits", error.toException());
                 fetchComplete();
             }
-        });
+        });*/
     }
-
-
-
 
     private void fetchComplete() {
         pendingFetches--;

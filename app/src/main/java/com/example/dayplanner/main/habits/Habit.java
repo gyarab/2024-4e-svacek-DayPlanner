@@ -3,7 +3,6 @@ package com.example.dayplanner.main.habits;
 import android.util.Log;
 
 import com.google.firebase.database.IgnoreExtraProperties;
-import com.google.firebase.database.PropertyName;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,11 +27,10 @@ public class Habit {
     private int longestStreak;
     // Use a Map where the key is the date (e.g. "2025-02-28") and the value is the HabitEntry
     private Map<String, HabitEntry> entries;
-    private HabitEntry currentEntry;
 
     // Required no-argument constructor for Firebase
     public Habit() {
-        this.entries = new HashMap<>();
+
     }
 
     public Habit(String id, String name, String description, String frequency, String startDate, String startTime, String metric, int goalValue) {
@@ -46,7 +44,6 @@ public class Habit {
         this.goalValue = goalValue;
         this.currentStreak = 0;
         this.longestStreak = 0;
-        this.entries = new HashMap<>();
     }
 
     // Getters and Setters
@@ -72,7 +69,6 @@ public class Habit {
     public void setMetric(String metric) { this.metric = metric; }
 
     public int getGoalValue() { return goalValue; }
-
     public void setGoalValue(int goalValue) { this.goalValue = goalValue; }
 
     public int getCurrentStreak() { return currentStreak; }
@@ -83,36 +79,11 @@ public class Habit {
 
     public Map<String, HabitEntry> getEntries() { return entries; }
     public void setEntries(Map<String, HabitEntry> entries) { this.entries = entries; }
-
-    public HabitEntry getCurrentEntry() {
-        return currentEntry;
-    }
-
-    public void setCurrentEntry(HabitEntry currentEntry) {
-        this.currentEntry = currentEntry;
-    }
-
-    /**
-     * Update or create a habit entry for a given date.
-     */
-    public void setProgressForDate(String date, int progress) {
-        if (entries == null) {
-            entries = new HashMap<>();
+    public HabitEntry getEntryForDate(String date) {
+        if (entries != null) {
+            return entries.get(date);
         }
-
-        HabitEntry entry = entries.get(date);
-        if (entry != null) {
-            // Update progress and set completion based on goalValue
-            entry.setProgress(progress);
-            entry.setCompleted(progress >= goalValue);
-            entry.setEntryGoalValue(goalValue); // Ensure goalValue is updated
-        } else {
-            // If the entry doesn't exist, create a new one with goal value explicitly set
-            boolean completed = progress >= goalValue;
-            entry = new HabitEntry(date, completed, progress, goalValue);  // Ensure goalValue is passed here
-            entries.put(date, entry);
-        }
-        Log.d("seekbar", "habit method " + entry.toString());
+        return null;
     }
 
     /**
