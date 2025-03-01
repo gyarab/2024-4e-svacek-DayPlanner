@@ -148,6 +148,8 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
                                     .addOnFailureListener(e -> Log.e("FirebaseHelper", "Failed to upload entry: " + e.getMessage()));
                         }
 
+                        //Habit sampleHabit = new Habit("169an", "Gym", "NICE","Daily", "01032025", "12:00", "kcal", 2500);
+
                         habit.setEntries(entries);
                         Log.d("FirebaseHelper", "Fetched Habit: " + habit.toString());
 

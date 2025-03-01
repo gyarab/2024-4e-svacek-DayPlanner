@@ -117,8 +117,11 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
 
             int progress = currentEntry != null ? currentEntry.getProgress() : 0;
             int entryGoalValue = currentEntry != null ? currentEntry.getEntryGoalValue() : 0;
+            String metric = habit.getMetric();
 
-            Log.d("XML preparation", String.valueOf(progress) + " / " + String.valueOf(entryGoalValue));
+            Log.d("XML preparation", String.valueOf(progress) + " / " + String.valueOf(entryGoalValue) + " " + metric);
+
+            holder.progressTextView.setText(progress + " / " + entryGoalValue + " " + metric);
 
             Log.d("Current Date", String.valueOf(habit.getEntryForDate(currentDate)));
 
@@ -153,7 +156,7 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
                     if (fromUser) {
                         Log.d("TimelineAdapter", "Updating habit entry: " + item.getHabitName() + ", Progress: " + progress);
 
-
+                        holder.progressTextView.setText(progress + " / " + entryGoalValue + " " + metric);
                     }
                 }
 
@@ -167,9 +170,13 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
                     int progress = seekBar.getProgress(); // Get the final progress when the user releases the SeekBar
                     int goal = item.getHabit().getGoalValue(); // Use the habit's goal
 
+
+                    /** Update the progress in onChanged aswell as on stop tracking touch**/
+                    Log.d("TimelineAdapter - onStopTrackingTouch", "Updating habit entry: " + item.getHabitName() + ", Progress: " + progress);
+                    holder.progressTextView.setText(progress + " / " + entryGoalValue + " " + metric);
+
                     // Update Firebase with the new progress and goal when the user stops adjusting the SeekBar
                     updateHabitEntryInFirebase(item.getHabit(), currentDate, progress, goal);
-                    notifyDataSetChanged();
                 }
             });
         }
