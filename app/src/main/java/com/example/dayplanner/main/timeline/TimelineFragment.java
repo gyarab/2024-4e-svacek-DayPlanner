@@ -102,43 +102,56 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
 
 
     private void fetchHabits(String dateId) {
-        Log.d("Fetching Habits", dateId);
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
         habitsRef = FirebaseDatabase.getInstance().getReference("users").child(userId).child("habits");
+
+        habitsRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Log.d("Firebase", "Raw data: " + task.getResult().getValue());
+            }
+        });
+
 
         habitsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot habitSnapshot : snapshot.getChildren()) {
-                    Map<String, Object> habitDataMap = (Map<String, Object>) habitSnapshot.getValue();
-                    Log.d("HabitRawJSON", "Habit JSON data: " + habitDataMap);
-
                     Habit habit = habitSnapshot.getValue(Habit.class);
-                    Log.d("habitsnapshot",  String.valueOf(habitSnapshot.getValue(Habit.class)));
-                    Log.d("habit from snapshot",  habit.toString());
+                    Log.d("Firebase habit to string",  habit.toString());
                     if (habit != null) {
                         // Check if the habit is visible on the given date
                         if (habit.isHabitVisible(dateId)) {
+
                             // Ensure the habit's entries map is initialized
                             Map<String, HabitEntry> entries = habit.getEntries();
                             if (entries == null) {
                                 entries = new HashMap<>();
                                 habit.setEntries(entries);
+
+                                /** debug **/
                             }
-                            Log.d("defaultEntry", String.valueOf(habit.getGoalValue()));
+
                             // If no entry exists for the given dateId, add one with progress = 0
                             if (!entries.containsKey(dateId)) {
-                                habit.setGoalValue(habit.getGoalValue());
                                 HabitEntry defaultEntry = new HabitEntry(dateId, false, 0, habit.getGoalValue());
+                                Log.d("Firebase", "default entry goal value: " + defaultEntry.getEntryGoalValue());
+
                                 entries.put(dateId, defaultEntry);
                             }
 
+                            // Set the current entry for the selected date
+                            habit.setCurrentEntry(entries.get(dateId));
+
+                            Log.d("Firebase", "Goal in HabitEntry: " + habit.getCurrentEntry().getEntryGoalValue());
+                            Log.d("Firebase", "Goal in Habit: " + habit.getGoalValue());
+
+
                             // Add the habit (with the correct entries) to the timeline items list
                             timelineItems.add(new TimelineItem(habit));
-                            Log.d("TimelineHabits", "Added habit: " + habit.toString());
+                            Log.d("Firebase", "Added habit: " + habit.toString());
                         }
                     }
-
                 }
                 fetchComplete();
             }

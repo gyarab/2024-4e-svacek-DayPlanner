@@ -1,19 +1,27 @@
 package com.example.dayplanner.main.habits;
 
+import android.util.Log;
+
+import com.google.firebase.database.PropertyName;
+
 public class HabitEntry {
     private String date; // The date the habit was performed (could be in the format "YYYY-MM-DD")
     private boolean completed; // Whether the habit was completed on that day
     private int progress; // How much was completed (e.g., 5km out of 10km)
-    private int goalValue; // The goal for that habit (e.g., 10km)
+    private int entryGoalValue; // The goal for that habit (e.g., 10km)
 
     // ✅ Required **no-argument** constructor for Firebase
     public HabitEntry() { }
 
-    public HabitEntry(String date, boolean completed, int progress, int goal) {
+    public HabitEntry(String date, boolean completed, int progress, int entryGoalValue) {
+        if (date == null) {
+            throw new IllegalArgumentException("Date cannot be null");
+        }
         this.date = date;
         this.completed = completed;
         this.progress = progress;
-        this.goalValue = goal;
+        this.entryGoalValue = entryGoalValue;
+        Log.d("HabitEntry", "Constructor called - Goal set to: " + entryGoalValue);
     }
 
     // ✅ Getters and Setters
@@ -26,7 +34,18 @@ public class HabitEntry {
     public int getProgress() { return progress; }
     public void setProgress(int progress) { this.progress = progress; }
 
-    public int getGoalValue() { return goalValue; }
+    public int getEntryGoalValue() { return entryGoalValue; }
 
-    public void setGoalValue(int goal) { this.goalValue = goal; }
+    public void setEntryGoalValue(int goal) { this.entryGoalValue = entryGoalValue; }
+
+    @Override
+    public String toString() {
+        return "HabitEntry{" +
+                "date='" + date + '\'' +
+                ", completed=" + completed +
+                ", progress=" + progress +
+                ", goalValue=" + entryGoalValue +
+                '}';
+    }
+
 }

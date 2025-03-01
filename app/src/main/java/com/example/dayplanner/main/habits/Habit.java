@@ -3,6 +3,7 @@ package com.example.dayplanner.main.habits;
 import android.util.Log;
 
 import com.google.firebase.database.IgnoreExtraProperties;
+import com.google.firebase.database.PropertyName;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -27,6 +28,7 @@ public class Habit {
     private int longestStreak;
     // Use a Map where the key is the date (e.g. "2025-02-28") and the value is the HabitEntry
     private Map<String, HabitEntry> entries;
+    private HabitEntry currentEntry;
 
     // Required no-argument constructor for Firebase
     public Habit() {
@@ -70,6 +72,7 @@ public class Habit {
     public void setMetric(String metric) { this.metric = metric; }
 
     public int getGoalValue() { return goalValue; }
+
     public void setGoalValue(int goalValue) { this.goalValue = goalValue; }
 
     public int getCurrentStreak() { return currentStreak; }
@@ -80,6 +83,14 @@ public class Habit {
 
     public Map<String, HabitEntry> getEntries() { return entries; }
     public void setEntries(Map<String, HabitEntry> entries) { this.entries = entries; }
+
+    public HabitEntry getCurrentEntry() {
+        return currentEntry;
+    }
+
+    public void setCurrentEntry(HabitEntry currentEntry) {
+        this.currentEntry = currentEntry;
+    }
 
     /**
      * Update or create a habit entry for a given date.
@@ -93,13 +104,15 @@ public class Habit {
         if (entry != null) {
             // Update progress and set completion based on goalValue
             entry.setProgress(progress);
-            entry.setCompleted(progress >= goalValue); // Set completed to true if progress equals or exceeds goalValue
+            entry.setCompleted(progress >= goalValue);
+            entry.setEntryGoalValue(goalValue); // Ensure goalValue is updated
         } else {
-            // If the entry doesn't exist, create a new one and set completion based on goalValue
-            boolean completed = progress >= goalValue; // Set completed to true if progress equals or exceeds goalValue
-            entry = new HabitEntry(date, completed, progress, goalValue);
+            // If the entry doesn't exist, create a new one with goal value explicitly set
+            boolean completed = progress >= goalValue;
+            entry = new HabitEntry(date, completed, progress, goalValue);  // Ensure goalValue is passed here
             entries.put(date, entry);
         }
+        Log.d("seekbar", "habit method " + entry.toString());
     }
 
     /**
@@ -172,7 +185,7 @@ public class Habit {
                 entriesString.append("\n  - Date: ").append(entry.getKey())
                         .append(", Progress: ").append(habitEntry.getProgress())
                         .append(", Completed: ").append(habitEntry.isCompleted())
-                        .append(", Goal: ").append(habitEntry.getGoalValue());  // Add goal value
+                        .append(", Goal: ").append(habitEntry.getEntryGoalValue());  // Add goal value
             }
         }
 
