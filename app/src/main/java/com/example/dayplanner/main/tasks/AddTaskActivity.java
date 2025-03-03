@@ -35,6 +35,9 @@ public class AddTaskActivity extends AppCompatActivity {
     Button pickTimeButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        //TODO: Delete the activity because it is not used
+
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_add_task);

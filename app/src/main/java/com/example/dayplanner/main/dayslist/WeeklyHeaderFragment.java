@@ -41,7 +41,7 @@ public class WeeklyHeaderFragment extends Fragment {
         return view;
     }
 
-    // Interface for communicating with the activity
+    /** Interface for communicating with the activity **/
     public interface OnDaySelectedListener {
         void onDaySelected(String dateId);
     }

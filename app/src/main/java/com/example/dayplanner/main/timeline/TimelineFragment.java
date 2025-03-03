@@ -37,8 +37,7 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
     private TimelineAdapter timelineAdapter;
     private DatabaseReference habitsRef;
     private int pendingFetches = 0; // Tracks unfinished fetch operations
-    // Store the currently selected date
-    private String selectedDate = "25022025"; // default value; update as needed
+    private String selectedDate = "25022025"; //TODO: Dynamic
 
     FirebaseHelper firebaseHelper = new FirebaseHelper();
 
@@ -52,11 +51,10 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
         timelineItems = new ArrayList<>();
         tasksDBHelper = new TasksDBHelper(getContext());
         timelineAdapter = new TimelineAdapter(getContext(), timelineItems);
-        // Set the default date into the adapter
+
         timelineAdapter.setCurrentDate(selectedDate);
         timeLine.setAdapter(timelineAdapter);
 
-        // Initially fetch tasks and habits for the default date.
         fetchTasksAndHabits(selectedDate);
 
         return view;
@@ -65,17 +63,13 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
     @Override
     public void onDaySelected(String dateId) {
         Log.d("HELLO", dateId);
-        // Update the selected date
         selectedDate = dateId;
 
-        // Update the adapter with the new date before fetching
         timelineAdapter.setCurrentDate(dateId);
 
-        // Clear existing data before reloading
         timelineItems.clear();
         timelineAdapter.notifyDataSetChanged();
 
-        // Re-fetch tasks and habits for the selected day.
         Log.d("DAY SELECTED", "Day selected: " + dateId);
         fetchTasksAndHabits(dateId);
     }
@@ -83,7 +77,7 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
     public void fetchTasksAndHabits(String dateId) {
         Log.d("FetchTasksAndHabits", "Fetching tasks and habits for date: " + dateId);
         timelineItems.clear();
-        pendingFetches = 2; // We are fetching both tasks and habits
+        pendingFetches = 2; //ensures that habits and tasks show at the same time
 
         fetchTasks(dateId);
         fetchHabits(dateId);
@@ -106,8 +100,6 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
 
     private void fetchHabits(String dateId) {
         Log.d("Fetching Habits", dateId);
-        /*String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        habitsRef = FirebaseDatabase.getInstance().getReference("users").child(userId).child("habits");*/
 
         habitsRef = FirebaseHelper.getHabitsRef();
 
@@ -153,8 +145,6 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
                                     .addOnFailureListener(e -> Log.e("FirebaseHelper", "Failed to upload entry: " + e.getMessage()));
                         }
 
-                        //Habit sampleHabit = new Habit("169an", "Gym", "NICE","Daily", "01032025", "12:00", "kcal", 2500);
-
                         habit.setEntries(entries);
                         Log.d("FirebaseHelper", "Fetched Habit: " + habit.toString());
 
@@ -170,51 +160,6 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
                 Log.e("FirebaseHelper", "Database Error: " + error.getMessage());
             }
         });
-
-
-       /* habitsRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot habitSnapshot : snapshot.getChildren()) {
-                    Map<String, Object> habitDataMap = (Map<String, Object>) habitSnapshot.getValue();
-                    Log.d("HabitRawJSON", "Habit JSON data: " + habitDataMap);
-
-                    Habit habit = habitSnapshot.getValue(Habit.class);
-                    Log.d("habitsnapshot",  String.valueOf(habitSnapshot.getValue(Habit.class)));
-                    Log.d("habit from snapshot",  habit.toString());
-                    if (habit != null) {
-                        // Check if the habit is visible on the given date
-                        if (habit.isHabitVisible(dateId)) {
-                            // Ensure the habit's entries map is initialized
-                            Map<String, HabitEntry> entries = habit.getEntries();
-                            if (entries == null) {
-                                entries = new HashMap<>();
-                                habit.setEntries(entries);
-                            }
-                            Log.d("defaultEntry", String.valueOf(habit.getGoalValue()));
-                            // If no entry exists for the given dateId, add one with progress = 0
-                            if (!entries.containsKey(dateId)) {
-                                habit.setGoalValue(habit.getGoalValue());
-                                HabitEntry defaultEntry = new HabitEntry(dateId, habit.getGoalValue(), 0, false);
-                                entries.put(dateId, defaultEntry);
-                            }
-
-                            // Add the habit (with the correct entries) to the timeline items list
-                            timelineItems.add(new TimelineItem(habit));
-                            Log.d("TimelineHabits", "Added habit: " + habit.toString());
-                        }
-                    }
-
-                }
-                fetchComplete();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("Firebase", "Failed to load habits", error.toException());
-                fetchComplete();
-            }
-        });*/
     }
 
     private void fetchComplete() {

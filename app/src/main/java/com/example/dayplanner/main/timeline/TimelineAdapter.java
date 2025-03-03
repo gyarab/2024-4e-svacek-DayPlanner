@@ -48,7 +48,7 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
     public void setCurrentDate(String date) {
         this.currentDate = date;
         Log.d("TimelineAdapter", "Date set to: " + currentDate);  // Debugging log
-        notifyDataSetChanged();  // Refresh the adapter
+        notifyDataSetChanged();
     }
 
 
@@ -90,28 +90,27 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
                 holder.statusIcon.setImageResource(R.drawable.ic_circle);
             }
 
-            holder.seekBar.setVisibility(View.GONE);  // ✅ Hide SeekBar for tasks
+            holder.seekBar.setVisibility(View.GONE);
 
             holder.statusIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Task task = item.getTask();
                     if(!task.isTaskCompleted()) {
-                        //task is not completed
                         Log.d("Task clicked", task.toString());
                         task.setTaskCompleted(true);
                         Log.d("Task clicked", task.toString());
-                        //save item to sqlite
+
                         TasksDBHelper dbHelper = new TasksDBHelper(context);
                         dbHelper.editTask(task);
-                        //change the icon
+
                         holder.statusIcon.setImageResource(R.drawable.ic_chceck);
                     } else {
                         Log.d("Task clicked", "already completed");
                     }
                 }
             });
-        } else { // Habit
+        } else {
             Habit habit = item.getHabit();
             HabitEntry currentEntry = habit.getEntryForDate(currentDate);
 
@@ -141,13 +140,12 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
                 }
             });
 
-            // ✅ Fetch progress from Firebase
             fetchHabitProgress(item.getHabit(), currentDate, holder.seekBar);
 
-            holder.seekBar.setMax(item.getHabit().getGoalValue());  // Set the SeekBar max value to the habit goal value
+            holder.seekBar.setMax(item.getHabit().getGoalValue()); //sets seekbar limit - max value
 
-            // Set the progress increment step (optional, based on your tiling logic)
-            int progressIncrement = item.getHabit().getGoalValue() / 10; // For example, break the range into 10 parts
+            // Set the progress increment step
+            int progressIncrement = item.getHabit().getGoalValue() / 10;
             holder.seekBar.setKeyProgressIncrement(progressIncrement);
 
             //TODO: Change progress only if current date is >= habit change date
@@ -168,10 +166,8 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
 
                 @Override
                 public void onStopTrackingTouch(SeekBar seekBar) {
-                    // ✅ Update Firebase with the new progress value
-                    // Fetch and update the habit progress after the user has stopped sliding the SeekBar
-                    int progress = seekBar.getProgress(); // Get the final progress when the user releases the SeekBar
-                    int goal = item.getHabit().getGoalValue(); // Use the habit's goal
+                    int progress = seekBar.getProgress();
+                    int goal = item.getHabit().getGoalValue();
 
                     currentEntry.setProgress(progress);
                     Log.d("Habit - after", habit.toString());
@@ -179,7 +175,6 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
                     /** Update the progress in onChanged aswell as on stop tracking touch**/
                     Log.d("TimelineAdapter - onStopTrackingTouch", "Updating habit entry: " + item.getHabitName() + ", Progress: " + progress);
 
-                    // Update Firebase with the new progress and goal when the user stops adjusting the SeekBar
                     updateHabitEntryInFirebase(item.getHabit(), currentDate, progress, goal);
                 }
             });
@@ -196,16 +191,16 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
             if (task.isSuccessful() && task.getResult().exists()) {
                 Integer progress = task.getResult().child("progress").getValue(Integer.class);
                 if (progress != null) {
-                    seekBar.setProgress(progress);  // ✅ Set retrieved progress
+                    seekBar.setProgress(progress);
                 } else {
-                    seekBar.setProgress(0);  // ✅ Default to 0 if no progress found
+                    seekBar.setProgress(0);
                 }
             } else {
-                seekBar.setProgress(0);  // ✅ Default to 0 if no entry exists
+                seekBar.setProgress(0);
             }
         }).addOnFailureListener(e -> {
             Log.e("TimelineAdapter", "Failed to fetch progress from Firebase", e);
-            seekBar.setProgress(0);  // ✅ Ensure UI does not break
+            seekBar.setProgress(0);  //safety
         });
     }
 
@@ -239,11 +234,11 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
 
         // Create a map with the progress, completed, and goal values to update the Firebase entry
         Map<String, Object> updates = new HashMap<>();
-        updates.put("progress", progress);  // Set the progress value
+        updates.put("progress", progress);
         updates.put("completed", progress >= goal);  // Automatically update 'completed' status based on progress and goal
-        updates.put("goal", goal);  // Set the custom goal for the entry
+        updates.put("goal", goal);
 
-        // Update the entry in Firebase
+        /** update firebase **/
         entryRef.updateChildren(updates)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {

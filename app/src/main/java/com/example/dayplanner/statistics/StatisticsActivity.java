@@ -116,7 +116,7 @@ public class StatisticsActivity extends AppCompatActivity {
 
                                 if (!dailyTotalPercentage.containsKey(dateKey)) {
                                     dailyTotalPercentage.put(dateKey, 0.0f);
-                                    dailyEntryCount.put(dateKey, 0); // Assume zero entries initially
+                                    dailyEntryCount.put(dateKey, 0);
                                 }
 
                                 // Check if habit has an entry for this date
@@ -126,7 +126,7 @@ public class StatisticsActivity extends AppCompatActivity {
                                     dailyTotalPercentage.put(dateKey, dailyTotalPercentage.get(dateKey) + percentage);
                                     dailyEntryCount.put(dateKey, dailyEntryCount.get(dateKey) + 1);
                                 } else {
-                                    // No recorded entry, but habit existed → Count as 0% completion
+                                    // No recorded entry, but habit existed -> Count as 0% completion
                                     dailyEntryCount.put(dateKey, dailyEntryCount.get(dateKey) + 1);
                                 }
                             }
@@ -188,6 +188,8 @@ public class StatisticsActivity extends AppCompatActivity {
     }
 
     private void countPerfectDays(String monthId) {
+        /** perfect day = all of the habits of the day are completed **/
+
         habitsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -219,7 +221,7 @@ public class StatisticsActivity extends AppCompatActivity {
                         }
 
                         // Check if the date belongs to the given month
-                        if (dateKey.substring(2, 8).equals(monthId)) { // Extract MMYYYY part
+                        if (dateKey.substring(2, 8).equals(monthId)) {
                             // Initialize the day as perfect (true) if not already present
                             if (!perfectDays.containsKey(dateKey)) {
                                 perfectDays.put(dateKey, true);
@@ -227,7 +229,7 @@ public class StatisticsActivity extends AppCompatActivity {
 
                             HabitEntry habitEntry = habit.getEntryForDate(dateKey);
                             if (habitEntry == null || habitEntry.getProgress() < habitEntry.getEntryGoalValue()) {
-                                // Entry missing or not 100%, so not a perfect day
+                                // Entry missing or not 100% -> so not a perfect day
                                 perfectDays.put(dateKey, false);
                             }
                         }
@@ -261,9 +263,7 @@ public class StatisticsActivity extends AppCompatActivity {
         //TODO: make and pass data to design
         Log.d("Monthly Progress", "Updating UI with monthly progress: " + dailyCompletionPercentages.toString());
 
-        // Example: Create a list of entries from 01-02-2025 to 28-02-2025 with the corresponding progress percentages
         for (int i = 0; i < dailyCompletionPercentages.size(); i++) {
-            // Display or store the date and its completion percentage
             Log.d("Monthly Progress", "Date: " + (i + 1) + " Completion: " + dailyCompletionPercentages.get(i) + "%");
         }
     }

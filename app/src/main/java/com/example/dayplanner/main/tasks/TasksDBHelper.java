@@ -51,7 +51,6 @@ public class TasksDBHelper extends SQLiteOpenHelper {
     }
 
 
-    // **Add a new task**
     public void addTask(Task task) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -66,7 +65,6 @@ public class TasksDBHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    // **Edit an existing task**
     public void editTask(Task task) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -81,14 +79,12 @@ public class TasksDBHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    // **Delete a task**
     public void deleteTask(String taskId) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_TASKS, COLUMN_ID + " = ?", new String[]{taskId});
         db.close();
     }
 
-    // **Retrieve a single task by ID**
     public Task getTaskById(String taskId) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_TASKS, null, COLUMN_ID + " = ?", new String[]{taskId}, null, null, null);
@@ -109,8 +105,9 @@ public class TasksDBHelper extends SQLiteOpenHelper {
         return null;
     }
 
-    // **Retrieve all tasks**
     public List<Task> getAllTasks() {
+        //TODO: Used before but no need for it now
+
         List<Task> taskList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_TASKS, null, null, null, null, null, COLUMN_DATE + ", " + COLUMN_START_TIME);
@@ -134,7 +131,6 @@ public class TasksDBHelper extends SQLiteOpenHelper {
         return taskList;
     }
 
-    // **Retrieve tasks by specific date**
     public List<Task> getTasksByDate(String date) {
         List<Task> taskList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();

@@ -6,10 +6,9 @@ public class HabitEntry {
     private int progress;
     private boolean completed;
 
-    // Constructor (Empty for Firebase)
+    // Required no-argument constructor for Firebase
     public HabitEntry() {}
 
-    // Constructor
     public HabitEntry(String date, int entryGoalValue, int progress, boolean completed) {
         this.date = date;
         this.entryGoalValue = entryGoalValue;
@@ -17,7 +16,7 @@ public class HabitEntry {
         this.completed = completed;
     }
 
-    // Getters and Setters
+    /** Geters and Setters **/
     public String getDate() { return date; }
     public void setDate(String date) { this.date = date; }
 
@@ -30,7 +29,7 @@ public class HabitEntry {
     public boolean isCompleted() { return completed; }
     public void setCompleted(boolean completed) { this.completed = completed; }
 
-    // Method to update progress and check completion
+    /** Method to update progress and check completion **/
     public void updateProgress(int amount) {
         this.progress += amount;
         if (this.progress >= this.entryGoalValue) {

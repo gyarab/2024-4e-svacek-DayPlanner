@@ -9,7 +9,6 @@ public class Task {
     private int taskLength;
     private boolean isCompleted;
 
-    // Constructor
     public Task(String taskId, String taskTitle, String taskDescription, String taskDate, String taskStartTime, int taskLength, boolean isCompleted) {
         this.taskId = taskId;
         this.taskTitle = taskTitle;
@@ -20,7 +19,7 @@ public class Task {
         this.isCompleted = isCompleted;
     }
 
-    // Getter and Setter methods
+    /** Getters and Setters **/
     public String getTaskId() {
         return taskId;
     }
@@ -77,7 +76,6 @@ public class Task {
         this.isCompleted = isCompleted;
     }
 
-    // Utility methods
     @Override
     public String toString() {
         return "Task{" +

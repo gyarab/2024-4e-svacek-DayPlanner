@@ -49,6 +49,7 @@ public class HabitDialogFragment extends DialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_habit_dialog, container, false);
 
+        //TODO: delete the habit length from xml
         editHabitName = view.findViewById(R.id.edit_habit_name);
         editHabitDescription = view.findViewById(R.id.edit_habit_description);
         //editHabitLength = view.findViewById(R.id.edit_habit_length);
@@ -73,7 +74,7 @@ public class HabitDialogFragment extends DialogFragment {
 
         saveHabitButton.setOnClickListener(v -> saveHabitToFirebase());
 
-        // Date Picker
+        /** Date Picker **/
         pickDateButton.setOnClickListener(v -> {
             int year = selectedDate.get(Calendar.YEAR);
             int month = selectedDate.get(Calendar.MONTH);
@@ -86,7 +87,7 @@ public class HabitDialogFragment extends DialogFragment {
             }, year, month, day).show();
         });
 
-        // Time Picker
+        /** Time Picker **/
         pickTimeButton.setOnClickListener(v -> {
             Calendar calendar = Calendar.getInstance();
             TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(), (view12, hourOfDay, minute) -> {
@@ -117,10 +118,9 @@ public class HabitDialogFragment extends DialogFragment {
 
         if (habitId == null) {
             Log.e("saveHabitToFirebase", "Error: habitId is null");
-            return; // Stop execution if habitId is null
+            return;
         }
 
-        // Get input values
         String name = editHabitName.getText().toString().trim();
         String description = editHabitDescription.getText().toString().trim();
         String frequency = frequencySpinner.getSelectedItem().toString();
@@ -128,14 +128,9 @@ public class HabitDialogFragment extends DialogFragment {
         String startTime = editStartTime.getText().toString().trim();
         String metric = metricSpinner.getSelectedItem().toString();
 
-        // Handle potential empty number fields safely
-        /*int length = editHabitLength.getText().toString().trim().isEmpty() ? 0 :
-                Integer.parseInt(editHabitLength.getText().toString().trim());*/
-
         int goalValue = editGoalValue.getText().toString().trim().isEmpty() ? 0 :
                 Integer.parseInt(editGoalValue.getText().toString().trim());
 
-        // Create new Habit object
         Habit newHabit = new Habit(
                 habitId,
                 name,
@@ -147,13 +142,13 @@ public class HabitDialogFragment extends DialogFragment {
                 goalValue
         );
 
-        // Save to Firebase
+        /** Save to Firebase **/
         habitsRef.child(habitId).setValue(newHabit)
                 .addOnSuccessListener(aVoid -> {
                     //TODO: NotifyDataSetChanged
 
                     Log.d("saveHabitToFirebase", "Habit saved successfully");
-                    dismiss(); // Dismiss the dialog after saving the habit
+                    dismiss(); //dismiss() -> closes the dialog
                 })
                 .addOnFailureListener(e -> Log.e("saveHabitToFirebase", "Error saving habit", e));
         dismiss();

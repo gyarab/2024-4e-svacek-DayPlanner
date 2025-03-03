@@ -34,12 +34,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         if (usernamePref != null) {
             usernamePref.setOnPreferenceChangeListener((preference, newValue) -> {
                 String username = (String) newValue;
-                // Handle username change, e.g., validate or save it elsewhere
+                //TODO: handle username change
                 if (username.trim().isEmpty()) {
                     Toast.makeText(getContext(), "Username cannot be empty!", Toast.LENGTH_SHORT).show();
-                    return false; // Reject invalid input
+                    return false;
                 }
-                return true; // Save the new username
+                return true;
             });
         }
     }

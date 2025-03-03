@@ -52,7 +52,7 @@ public class TaskDialogFragment extends DialogFragment {
         Button pickTimeButton = view.findViewById(R.id.pick_time_button);
         Button saveButton = view.findViewById(R.id.save_task_button);
 
-        // Populate fields if in edit mode
+        /** Fill in field when the user is editing the habit = edit mode is true **/
         if (isEditMode && task != null) {
             editTaskTitle.setText(task.getTaskTitle());
             editTaskDescription.setText(task.getTaskDescription());
@@ -65,24 +65,19 @@ public class TaskDialogFragment extends DialogFragment {
             deleteButton.setOnClickListener(v -> showDeleteConfirmationDialog(task.getTaskId(), task.getTaskDate()));
         }
 
-        // Date Picker
         pickDateButton.setOnClickListener(v -> showDatePicker(editTaskDate));
 
-        // Time Picker
         pickTimeButton.setOnClickListener(v -> showTimePicker(editTaskTime));
 
-        // Save Button Click
         saveButton.setOnClickListener(v -> {
-            // Get input values
             String taskTitle = editTaskTitle.getText().toString();
             String taskDescription = editTaskDescription.getText().toString();
             String taskLength = editTaskLength.getText().toString();
             String taskDate = formatTaskDateForDB(editTaskDate.getText().toString());
             String taskStartTime = editTaskTime.getText().toString();
 
-            // Create Task object
             Task newTask = new Task(
-                    isEditMode ? task.getTaskId() : null, // Keep existing ID or generate a new one
+                    isEditMode ? task.getTaskId() : null, // Keep existing ID or generate a new one TODO: Not allow null
                     taskTitle,
                     taskDescription,
                     taskDate,
@@ -151,16 +146,14 @@ public class TaskDialogFragment extends DialogFragment {
         Log.d("formattedDateB", taskDate);
 
         if (taskDate != null && taskDate.length() == 8) { // Ensure the date is in the correct format (DDMMYYYY)
-            // Extract day, month, and year using substring
-            String day = taskDate.substring(0, 2); // First two characters for day
-            String month = taskDate.substring(2, 4); // Next two characters for month
-            String year = taskDate.substring(4); // Remaining characters for year
+            String day = taskDate.substring(0, 2);
+            String month = taskDate.substring(2, 4);
+            String year = taskDate.substring(4);
 
-            // Remove leading zeros from day and month for user-friendly format
+            /** Remove leading zeros from day and month for user-friendly format **/
             day = day.startsWith("0") ? day.substring(1) : day;
             month = month.startsWith("0") ? month.substring(1) : month;
 
-            // Combine into user-friendly format
             formattedDate = day + "." + month + "." + year;
         } else {
             Log.d("formattedDateError", "Invalid date format: " + taskDate);
@@ -175,13 +168,12 @@ public class TaskDialogFragment extends DialogFragment {
         Log.d("formattedDateB", taskDate);
         if (taskDate != null && !taskDate.isEmpty()) {
             // Split the input date by dots
-            String[] parts = taskDate.split("\\."); // Escape the dot since it's a regex special character
+            String[] parts = taskDate.split("\\.");
             if (parts.length == 3) { // Ensure the date is in the format DD.MM.YYYY
-                // Parse and zero-pad day and month
                 String day = parts[0].length() == 1 ? "0" + parts[0] : parts[0];   // Ensure 2-digit day
                 String month = parts[1].length() == 1 ? "0" + parts[1] : parts[1]; // Ensure 2-digit month
                 String year = parts[2];
-                formattedDate = day + month + year; // Rearrange to YYYYMMDD
+                formattedDate = day + month + year;
             }
         }
         Log.d("formattedDate", formattedDate);

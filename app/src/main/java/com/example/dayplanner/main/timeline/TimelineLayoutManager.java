@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TimelineLayoutManager extends RecyclerView.LayoutManager {
-    private static final int HOUR_HEIGHT = 200; // Base height for one hour, adjustable
-    private static final int OVERLAP_OFFSET = 20; // Offset for overlapping tasks
+    private static final int HOUR_HEIGHT = 200; // Base height for one hour
+    private static final int OVERLAP_OFFSET = 20; // Offset for overlapping tasks TODO: not working
 
     public TimelineLayoutManager(Context context) {}
 
@@ -34,7 +34,7 @@ public class TimelineLayoutManager extends RecyclerView.LayoutManager {
 
             // Retrieve item start time and duration
             TimelineItem item = (TimelineItem) view.getTag();
-            int startMinute = item.getStartTimeInMinutes(); // Use directly
+            int startMinute = item.getStartTimeInMinutes();
             int duration = item.getDurationInMinutes();
             int height = (duration * HOUR_HEIGHT) / 60;
 

@@ -76,15 +76,15 @@ public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayViewHolder> {
         holder.dateTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //configure active dot
+                /** configure active dot **/
                 setActiveDot(holder.getAdapterPosition());
 
-                //configure MonthYearTextView
+                /** configure MonthYearTextView **/
                 Log.d("CLICKED", "id: " + dayModel.getDate() + "" + dayModel.getMonth() + "" + dayModel.getYear());
                 TextView textView = ((Activity) context).findViewById(R.id.monthYearTextView); //I need the context for using the method
                 textView.setText(monthName  + " " + dayModel.getYear());
 
-                //Send the date it to main function
+                /** Send the date it to main function **/
                 String dateId = dayModel.getDate() + "" + dayModel.getMonth() + "" + dayModel.getYear();
                 onDayClickListener.onDayClick(dateId);
             }
@@ -121,8 +121,7 @@ public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayViewHolder> {
             currentDayViewHolder.activeDot.setVisibility(View.VISIBLE);
         }
 
-        // Update the selected position to the new position
-        selectedPosition = position;
+        selectedPosition = position; // Updates the selected position to the new position
 
         Log.d("SetDot", "selectedPosition updated: " + selectedPosition);
     }

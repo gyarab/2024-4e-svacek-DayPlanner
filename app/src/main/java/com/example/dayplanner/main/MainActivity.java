@@ -55,26 +55,21 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
     boolean isOptionsVisible = false;
     Button register;
     private FirebaseAuth mAuth;
-    /** Useless import */
     private TaskDialogFragment.TaskDialogListener listener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        /*FacebookSdk.sdkInitialize(getApplicationContext());
-        AppEventsLogger.activateApp(this.getApplication());*/
-
+        //TODO: Logout Button in setting activity
         /** logs user out**/
         //logout();
 
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        // Write a message to the database
         /** For databases outside of USA I need an url as an argument for getInstance*/
         FirebaseDatabase database = FirebaseDatabase.getInstance("https://dayplanner-18a02-default-rtdb.europe-west1.firebasedatabase.app");
-        DatabaseReference myRef = database.getReference("MSG");
 
         /** Check if user is signed in **/
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -88,12 +83,11 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
         }
         Log.d("USR", currentUser.toString());
 
-        myRef.setValue("HELLO WORd!");
-
         DatabaseReference userReference = database.getReference("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("info");
         userReference.setValue(FirebaseAuth.getInstance().getCurrentUser().getEmail());
 
         /** Register Button Temporary Design**/
+        //TODO: Move to settings activity
         register = findViewById(R.id.RegisterPage);
         register.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -121,13 +115,13 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
             transaction2.commit();
         }
 
-        // Set up system UI insets
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
          Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
          });
 
+        //TODO: do a seperate fragment from it
         popupMenu(); // function that sets the popup menu to work
 
         // Get current date and set month/year in the UI
@@ -135,15 +129,11 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
         int currentYear = calendar.get(Calendar.YEAR);
         int currentMonth = calendar.get(Calendar.MONTH);
         String currentMonthName = new DateFormatSymbols().getMonths()[currentMonth]; // convert month number to name
-        ((TextView) findViewById(R.id.monthYearTextView)).setText(currentMonthName + " " + currentYear); // set the month year view to current month and year as default
+        ((TextView) findViewById(R.id.monthYearTextView)).setText(currentMonthName + " " + currentYear);
 
         addButton = findViewById(R.id.AddTaskButton);
-        //addTaskContainer = findViewById(R.id.addTaskContainer);
         addTaskFab = findViewById(R.id.addTaskFab);
-        //addTaskText = findViewById(R.id.addTaskText);
-        //addHabitContainer = findViewById(R.id.addHabitContainer);
         addHabitFab = findViewById(R.id.addHabitFab);
-        //addHabitText = findViewById(R.id.addHabitText);
         blurOverlay = findViewById(R.id.blurOverlay);
 
         addButton.setOnClickListener(new View.OnClickListener() {
@@ -155,21 +145,19 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
         blurOverlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                toggleAddOptions(); // Hide options if clicked outside
+                toggleAddOptions(); // Hides options if clicked outside
             }
         });
 
         addTaskFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Create a new empty Task object
                 Task newTask = new Task(null, "", "", "", "", 0, false);
 
-                // Open Add Task Dialog
                 TaskDialogFragment fragment = new TaskDialogFragment(false, newTask);
                 fragment.show(getSupportFragmentManager(), "AddTaskDialog");
 
-                toggleAddOptions(); // Hide options after selection
+                toggleAddOptions();
             }
         });
 
@@ -177,14 +165,15 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
             @Override
             public void onClick(View view) {
                 Habit newHabit = new Habit();
-                // Open Add Habit Dialog
+
                 HabitDialogFragment fragment = new HabitDialogFragment(false, newHabit);
                 fragment.show(getSupportFragmentManager(), "AddHabitDialog");
-                toggleAddOptions(); // Hide options after selection
+                toggleAddOptions();
             }
         });
     }
 
+    /** Method for creating a blur effect and animation **/
     private void toggleAddOptions() {
         if (isOptionsVisible) {
             // Hide options
@@ -196,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
             // Show options
             blurOverlay.setVisibility(View.VISIBLE);
             blurOverlay.animate().alpha(1f).setDuration(300);
-            profileButton.animate().alpha(0.3f).setDuration(300); // Dim the profile button
+            profileButton.animate().alpha(0.3f).setDuration(300); // Blur the profile button
             addTaskFab.setVisibility(View.VISIBLE);
             addTaskFab.animate().translationY(-100).alpha(1f).setDuration(300);
             addHabitFab.setVisibility(View.VISIBLE);
@@ -209,7 +198,6 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
     public void onDaySelected(String dateId) {
         TimelineFragment timelineFragment = (TimelineFragment) getSupportFragmentManager().findFragmentByTag("TIMELINE_FRAGMENT_TAG");
         if (timelineFragment != null) {
-            //timelineFragment.fetchTasksAndHabits(dateId); // Fetch both tasks and habits
             timelineFragment.onDaySelected(dateId);
         } else {
             Log.e("MainActivity", "TimelineFragment not found");
@@ -232,15 +220,16 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
     }
 
     public void onHabitDataChanged(String dateId) {
+        //TODO: needs to be used
+
         TimelineFragment timelineFragment = (TimelineFragment) getSupportFragmentManager().findFragmentByTag("TIMELINE_FRAGMENT_TAG");
         if (timelineFragment != null) {
             timelineFragment.fetchTasksAndHabits(dateId); // Refresh timeline with both tasks and habits
 
-            // Optionally update any UI components related to habits (if needed)
             RecyclerView weeklyRecyclerView = findViewById(R.id.weeklyRecyclerView);
             DayAdapter adapter = (DayAdapter) weeklyRecyclerView.getAdapter();
             if (adapter != null) {
-                adapter.setActiveDotByDateId(dateId); // Update the dot in the weekly view (similar to task data change)
+                adapter.setActiveDotByDateId(dateId);
             }
         } else {
             Log.e("MainActivity", "TimelineFragment not found");
@@ -254,8 +243,8 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
         finish();
     }
 
+    /** Function for showing a popup menu when the profile button is clicked **/
     void popupMenu() {
-        // Function for showing a popup menu when the profile button is clicked
         profileButton = findViewById(R.id.ProfileButton);
 
         profileButton.setOnClickListener(new View.OnClickListener() {
@@ -266,7 +255,7 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
 
                 // Force icons to be shown in the PopupMenu
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    // by default the icons are hidden, but force them to be shown
+                    // by default the icons are hidden, idk why
                     popupMenu.setForceShowIcon(true);
                 }
 
