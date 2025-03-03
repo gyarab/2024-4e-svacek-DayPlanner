@@ -21,7 +21,7 @@ public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayViewHolder> {
     private Context context;
     private ArrayList<DayModel> days;
     private int selectedPosition = -1; //serve to track the previous active position to later hide the active dot
-    private HashMap<String, Integer> dateIdToPositionMap; // Map for fast lookups
+    private HashMap<String, Integer> dateIdToPositionMap;
     private OnDayClickListener onDayClickListener;
     public interface OnDayClickListener {
         void onDayClick(String dateID);
@@ -30,10 +30,9 @@ public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayViewHolder> {
         this.context = context;
         this.days = days;
         this.onDayClickListener = onDayClickListener;
-        buildDateIdToPositionMap(); // Initialize the map
+        buildDateIdToPositionMap();
     }
 
-    // Build the map for fast lookups
     private void buildDateIdToPositionMap() {
         dateIdToPositionMap = new HashMap<>();
         for (int i = 0; i < days.size(); i++) {
@@ -43,7 +42,6 @@ public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayViewHolder> {
         }
     }
 
-    // Update the map if the dataset changes
     public void updateDays(ArrayList<DayModel> newDays) {
         this.days = newDays;
         buildDateIdToPositionMap();
@@ -51,9 +49,9 @@ public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayViewHolder> {
     }
 
     public void setActiveDotByDateId(String dateID) {
-        Integer position = dateIdToPositionMap.get(dateID); // Fast lookup
+        Integer position = dateIdToPositionMap.get(dateID);
         if (position != null) {
-            setActiveDot(position); // Update the active dot
+            setActiveDot(position);
         } else {
             Log.d("SetDotByDateId", "No matching dateID found: " + dateID);
         }
@@ -86,7 +84,7 @@ public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayViewHolder> {
                 TextView textView = ((Activity) context).findViewById(R.id.monthYearTextView); //I need the context for using the method
                 textView.setText(monthName  + " " + dayModel.getYear());
 
-                //GET THE ROWS CORRESPONDING TO THE ID AND SEND THE ARRAYS TO MAIN FUNCTION AND DISPLAY THEM
+                //Send the date it to main function
                 String dateId = dayModel.getDate() + "" + dayModel.getMonth() + "" + dayModel.getYear();
                 onDayClickListener.onDayClick(dateId);
             }
@@ -101,21 +99,18 @@ public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayViewHolder> {
     public void setActiveDot(int position) {
         Log.d("SetDot", "Clicked position: " + position);
 
-        // Get the RecyclerView instance
         RecyclerView weeklyRecyclerView = ((Activity) context).findViewById(R.id.weeklyRecyclerView);
 
-        // Ensure the adapter is not null
         RecyclerView.Adapter adapter = weeklyRecyclerView.getAdapter();
         if (adapter == null) return;
 
         // If a position is already selected, reset the active dot for that position
         if (selectedPosition != -1 && selectedPosition != position) {
-            // Ensure you're properly getting the ViewHolder for the previous selected position
             RecyclerView.ViewHolder previousViewHolder = weeklyRecyclerView.findViewHolderForAdapterPosition(selectedPosition);
             if (previousViewHolder instanceof DayViewHolder) {
                 DayViewHolder previousDayViewHolder = (DayViewHolder) previousViewHolder;
                 // Reset the active dot visibility for the previous item
-                previousDayViewHolder.activeDot.setVisibility(View.GONE); // Hide the active dot
+                previousDayViewHolder.activeDot.setVisibility(View.GONE);
             }
         }
 
@@ -123,7 +118,6 @@ public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayViewHolder> {
         RecyclerView.ViewHolder currentViewHolder = weeklyRecyclerView.findViewHolderForAdapterPosition(position);
         if (currentViewHolder instanceof DayViewHolder) {
             DayViewHolder currentDayViewHolder = (DayViewHolder) currentViewHolder;
-            // Set the active dot visibility to VISIBLE for the clicked item
             currentDayViewHolder.activeDot.setVisibility(View.VISIBLE);
         }
 
@@ -144,7 +138,7 @@ public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayViewHolder> {
             dayTextView = itemView.findViewById(R.id.dayTextView);
             dateTextView = itemView.findViewById(R.id.dateTextView);
 
-            activeDot = itemView.findViewById(R.id.activeDot); // Pink dot in the layout
+            activeDot = itemView.findViewById(R.id.activeDot);
         }
     }
 }

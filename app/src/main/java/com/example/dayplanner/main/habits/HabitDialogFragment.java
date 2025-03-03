@@ -150,6 +150,8 @@ public class HabitDialogFragment extends DialogFragment {
         // Save to Firebase
         habitsRef.child(habitId).setValue(newHabit)
                 .addOnSuccessListener(aVoid -> {
+                    //TODO: NotifyDataSetChanged
+
                     Log.d("saveHabitToFirebase", "Habit saved successfully");
                     dismiss(); // Dismiss the dialog after saving the habit
                 })

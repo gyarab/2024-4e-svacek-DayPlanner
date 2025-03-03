@@ -111,7 +111,7 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot habitSnapshot : dataSnapshot.getChildren()) {
                     Habit habit = habitSnapshot.getValue(Habit.class);
-                    if (habit != null && habit.isHabitVisible(dateId)) {
+                    if (habit != null && habit.isHabitVisibleOnDate(dateId)) {
                         Map<String, HabitEntry> entries = new HashMap<>();
 
                         if (habitSnapshot.hasChild("entries")) {

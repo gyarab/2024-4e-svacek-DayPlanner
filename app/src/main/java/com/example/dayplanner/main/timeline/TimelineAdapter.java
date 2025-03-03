@@ -150,6 +150,8 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
             int progressIncrement = item.getHabit().getGoalValue() / 10; // For example, break the range into 10 parts
             holder.seekBar.setKeyProgressIncrement(progressIncrement);
 
+            //TODO: Change progress only if current date is >= habit change date
+
             holder.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
