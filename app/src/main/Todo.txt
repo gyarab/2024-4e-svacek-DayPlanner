@@ -10,3 +10,5 @@ Bug opraven ale jeste:
 - Warnings in UI
 - Setting activity
 - Share habits with friends
+- Archive habits
+- Count statistics from task and implement karma points system
