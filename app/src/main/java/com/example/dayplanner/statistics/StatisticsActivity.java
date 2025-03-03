@@ -20,8 +20,15 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 
 public class StatisticsActivity extends AppCompatActivity {
 
@@ -55,81 +62,118 @@ public class StatisticsActivity extends AppCompatActivity {
         firebaseDatabase = FirebaseDatabase.getInstance();
         habitsRef = firebaseDatabase.getReference("users").child(userId).child("habits");
 
-        // Use addValueEventListener to listen to the habits data
         habitsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                // This will store the completion percentages for each day
-                List<Float> dailyCompletionPercentages = new ArrayList<>();
+                LinkedHashMap<String, Float> dailyTotalPercentage = new LinkedHashMap<>();
+                LinkedHashMap<String, Integer> dailyEntryCount = new LinkedHashMap<>();
 
-                // Loop through each habit in the database
+                long currentDateMillis = System.currentTimeMillis();
+                SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy", Locale.getDefault());
+                String currentDateStr = sdf.format(new Date(currentDateMillis)); // Get today's date in ddMMyyyy format
+
+                // Iterate over habits
                 for (DataSnapshot habitSnapshot : dataSnapshot.getChildren()) {
-                    // Assuming habit data is a custom model class
                     Habit habit = habitSnapshot.getValue(Habit.class);
 
                     if (habit != null) {
-                        Log.d("fetchAndStoreHabits", "Found habit: " + habit.toString());
-                        // Loop through habit entries (one entry per day)
-                        for (String date : habit.getEntries().keySet()) {
-                            // Extract month and year part from the date (e.g., "022025" for February 2025)
-                            String entryMonthId = date.substring(2, 8);  // Extract MMYYYY part from ddMMyyyy date format
-                            Log.d("fetchAndStoreHabits", "Entry month ID: " + entryMonthId);
+                        Log.d("fetchAndStoreHabits", "Processing habit: " + habit.getName());
+                        String startDate = habit.getStartDate();  // Get habit's start date (ddMMyyyy)
 
-                            // Check if the entry's date corresponds to the specified monthId
-                            if (entryMonthId.equals(monthId)) {
-                                Log.d("fetchAndStoreHabits", "Matching month ID: " + entryMonthId);
-                                HabitEntry habitEntry = habit.getEntryForDate(date);
+                        // Iterate from startDate to currentDate
+                        Calendar calendar = Calendar.getInstance();
+                        try {
+                            calendar.setTime(sdf.parse(startDate)); // Start from habit's start date
+                        } catch (ParseException e) {
+                            Log.e("fetchAndStoreHabits", "Invalid start date format: " + startDate);
+                            continue;
+                        }
+
+                        while (true) {
+                            String dateKey = sdf.format(calendar.getTime()); // Generate date in ddMMyyyy format
+
+                            if (dateKey.substring(2, 8).equals(monthId)) { // Ensure it's within the selected month
+                                if (dateKey.compareTo(currentDateStr) > 0) {
+                                    break; // Stop when exceeding today’s date
+                                }
+
+                                if (!dailyTotalPercentage.containsKey(dateKey)) {
+                                    dailyTotalPercentage.put(dateKey, 0.0f);
+                                    dailyEntryCount.put(dateKey, 0); // Assume zero entries initially
+                                }
+
+                                // Check if habit has an entry for this date
+                                HabitEntry habitEntry = habit.getEntryForDate(dateKey);
                                 if (habitEntry != null) {
-                                    // Calculate the completion percentage for this entry
                                     float percentage = (float) habitEntry.getProgress() / habitEntry.getEntryGoalValue() * 100;
-                                    Log.d("fetchAndStoreHabits", "Found entry for date " + date + " with progress: "
-                                            + habitEntry.getProgress() + " / " + habitEntry.getEntryGoalValue()
-                                            + " = " + percentage + "%");
-
-                                    // Store the completion percentage for that day
-                                    int dayIndex = getDayIndexFromDate(date);  // Extract day from date (e.g., 01 from 01022025)
-                                    Log.d("fetchAndStoreHabits", "Day index for date " + date + ": " + dayIndex);
-
-                                    while (dailyCompletionPercentages.size() <= dayIndex) {
-                                        dailyCompletionPercentages.add(0f);  // Add default value of 0% if not already initialized
-                                        Log.d("fetchAndStoreHabits", "Initialized default value for day " + (dayIndex + 1));
-                                    }
-                                    // Add this entry's percentage to the corresponding day's total
-                                    float existingPercentage = dailyCompletionPercentages.get(dayIndex);
-                                    Log.d("fetchAndStoreHabits", "Existing percentage for day " + (dayIndex + 1) + ": " + existingPercentage);
-                                    dailyCompletionPercentages.set(dayIndex, existingPercentage + percentage);
-                                    Log.d("fetchAndStoreHabits", "Updated percentage for day " + (dayIndex + 1) + ": " + dailyCompletionPercentages.get(dayIndex) + "%");
+                                    dailyTotalPercentage.put(dateKey, dailyTotalPercentage.get(dateKey) + percentage);
+                                    dailyEntryCount.put(dateKey, dailyEntryCount.get(dateKey) + 1);
+                                } else {
+                                    // No recorded entry, but habit existed → Count as 0% completion
+                                    dailyEntryCount.put(dateKey, dailyEntryCount.get(dateKey) + 1);
                                 }
                             }
+
+                            calendar.add(Calendar.DAY_OF_MONTH, 1); // Move to next day
+                            if (dateKey.equals(currentDateStr)) break; // Stop at today’s date
                         }
                     }
                 }
 
-                // After looping through all habits and entries, calculate the average percentage for each day
-                for (int i = 0; i < dailyCompletionPercentages.size(); i++) {
-                    // Normalize the percentage (divide by number of habits with entries for this day)
-                    int habitsForDay = getNumberOfHabitsForDay(i, monthId);
-                    Log.d("fetchAndStoreHabits", "Normalizing day " + (i + 1) + " with " + habitsForDay + " habit(s) for the day.");
-
-                    if (habitsForDay > 0) {
-                        float normalizedPercentage = dailyCompletionPercentages.get(i) / habitsForDay;
-                        Log.d("fetchAndStoreHabits", "Normalized percentage for day " + (i + 1) + ": " + normalizedPercentage + "%");
-                        dailyCompletionPercentages.set(i, normalizedPercentage);
+                // Calculate daily average percentage
+                LinkedHashMap<String, Float> dailyAveragePercentage = new LinkedHashMap<>();
+                for (String date : dailyTotalPercentage.keySet()) {
+                    int count = dailyEntryCount.get(date);
+                    if (count > 0) {
+                        dailyAveragePercentage.put(date, dailyTotalPercentage.get(date) / count);
                     } else {
-                        Log.d("fetchAndStoreHabits", "No habits for day " + (i + 1) + ", keeping percentage at 0%");
+                        dailyAveragePercentage.put(date, 0.0f);
                     }
                 }
 
-                // Store or display the calculated daily percentages
-                updateUIWithMonthlyProgress(dailyCompletionPercentages);
+                Log.d("fetchAndStoreHabits", "dailyTotalPercentage: " + dailyTotalPercentage);
+                Log.d("fetchAndStoreHabits", "dailyEntryCount: " + dailyEntryCount);
+                Log.d("fetchAndStoreHabits", "dailyAveragePercentage: " + dailyAveragePercentage);
+
+                updateUIWithMonthlyProgress(dailyAveragePercentage);
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                // Handle any errors
                 Log.e("fetchAndStoreHabits", "Error fetching habits: " + databaseError.getMessage());
             }
         });
+    }
+
+
+
+    private String getNextDate(String date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy", Locale.getDefault());
+        try {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(sdf.parse(date));
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
+            return sdf.format(calendar.getTime());
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return date;
+        }
+    }
+
+    private boolean isDateWithinRange(String date, String start, String end) {
+        return date.compareTo(start) >= 0 && date.compareTo(end) <= 0;
+    }
+
+    private int getLastDayOfMonth(String monthYear) {
+        SimpleDateFormat sdf = new SimpleDateFormat("MMyyyy", Locale.getDefault());
+        try {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(sdf.parse(monthYear));
+            return calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return 31; // Default to avoid errors
+        }
     }
 
     private int getDayIndexFromDate(String date) {
@@ -137,6 +181,7 @@ public class StatisticsActivity extends AppCompatActivity {
         int dayIndex = Integer.parseInt(date.substring(0, 2)) - 1;  // Extract day and use it as index (1st day -> index 0)
         Log.d("fetchAndStoreHabits", "Extracted day index from date " + date + ": " + dayIndex);
         return dayIndex;
+        //return Integer.parseInt(date);
     }
 
     private int getNumberOfHabitsForDay(int dayIndex, String monthId) {
@@ -146,7 +191,7 @@ public class StatisticsActivity extends AppCompatActivity {
         return 1; // This is a stub. You need to implement the logic based on how your data is structured.
     }
 
-    private void updateUIWithMonthlyProgress(List<Float> dailyCompletionPercentages) {
+    private void updateUIWithMonthlyProgress(HashMap<String, Float> dailyCompletionPercentages) {
         /** Use this method to update your UI with the list of daily completion percentages **/
         Log.d("Monthly Progress", "Updating UI with monthly progress: " + dailyCompletionPercentages.toString());
 

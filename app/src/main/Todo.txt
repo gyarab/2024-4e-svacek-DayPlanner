@@ -4,4 +4,5 @@ Bug opraven ale jeste:
 - fetch goal for seekbar DONE
 - add manual add for progress noT only seekbar
 - save habits locally or notify user that he is not connected to internet and cant access firebase
-- update progress -> weird delay -> needs fixing
+- update progress -> weird delay -> needs fixing done
+- Display dates instead of indexes & date 1 extra? & Calculate for non-existing entries if(nee <= currentadate)
