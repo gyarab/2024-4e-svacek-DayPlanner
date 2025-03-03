@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -78,13 +79,6 @@ public class StatisticsActivity extends AppCompatActivity {
 
     public void fetchAndStoreHabitsForMonth(String monthId) {
         Log.d("fetchAndStoreHabits", "Fetching habits for month: " + monthId);
-
-        // Initialize Firebase refs
-        /*firebaseAuth = FirebaseAuth.getInstance();
-        currentUser = firebaseAuth.getCurrentUser();
-        userId = currentUser.getUid();
-        firebaseDatabase = FirebaseDatabase.getInstance();*/
-        //habitsRef = firebaseDatabase.getReference("users").child(userId).child("habits");
 
         habitsRef = FirebaseHelper.getHabitsRef();
 
@@ -179,7 +173,21 @@ public class StatisticsActivity extends AppCompatActivity {
         //TODO: fetch data for one habit
         Log.d("fetchAndStoreHabits", "Fetching data for habit: " + habitId);
 
+        DatabaseReference oneHabitRef = FirebaseHelper.getHabitsRef().child(habitId);
+        oneHabitRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Habit habit = dataSnapshot.getValue(Habit.class);
+                if (habit != null) {
+                    Log.d("fetchAndStoreHabits", "Fetched Habit: " + habit.toString());
+                }
+            }
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     private void updateUIWithMonthlyProgress(HashMap<String, Float> dailyCompletionPercentages) {
