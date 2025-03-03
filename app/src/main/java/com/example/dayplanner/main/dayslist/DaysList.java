@@ -10,7 +10,7 @@ public class DaysList extends ArrayList<DayModel> {
 
     public DaysList() {
         super(); // Initializes the ArrayList
-        this.addAll(getCurrentWeekDays()); // Populates DaysList with days of the current week
+        this.addAll(getCurrentWeekDays());
     }
 
     private ArrayList<DayModel> getCurrentWeekDays() {

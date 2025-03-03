@@ -5,7 +5,6 @@ import android.util.Log;
 import com.google.firebase.database.IgnoreExtraProperties;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.text.ParseException;
@@ -25,7 +24,6 @@ public class Habit {
     private int goalValue;
     private int currentStreak;
     private int longestStreak;
-    // Use a Map where the key is the date (e.g. "2025-02-28") and the value is the HabitEntry
     private Map<String, HabitEntry> entries;
 
     // Required no-argument constructor for Firebase
@@ -46,7 +44,7 @@ public class Habit {
         this.longestStreak = 0;
     }
 
-    // Getters and Setters
+    /** Getters and setters **/
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
@@ -86,14 +84,9 @@ public class Habit {
         return null;
     }
 
-    /**
-     * Checks if the habit should be visible on the given date.
-     * @param dateToCheck The date to check (format: ddMMyyyy)
-     * @return true if the habit should be shown, false otherwise
-     */
-    public boolean isHabitVisible(String dateToCheck) {
+    public boolean isHabitVisibleOnDate(String dateToCheck) {
         Log.d("Habit", "Checking visibility");
-        // Date format to match your ddMMyyyy pattern
+
         SimpleDateFormat dateFormat = new SimpleDateFormat("ddMMyyyy", Locale.getDefault());
 
         try {
@@ -104,7 +97,6 @@ public class Habit {
             Calendar checkDate = Calendar.getInstance();
             checkDate.setTime(dateFormat.parse(dateToCheck));
 
-            // Debug logs to see parsed dates and comparison result
             Log.d("Habit", "Start Date: " + start.getTime() + " Check Date: " + checkDate.getTime());
 
             // If check date is before the habit start date, return false

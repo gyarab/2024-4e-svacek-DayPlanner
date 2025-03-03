@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dayplanner.R;
+import com.example.dayplanner.main.habits.FirebaseHelper;
 import com.example.dayplanner.main.habits.Habit;
 import com.example.dayplanner.main.habits.HabitEntry;
 import com.example.dayplanner.main.tasks.Task;
@@ -38,6 +39,8 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
     private int pendingFetches = 0; // Tracks unfinished fetch operations
     // Store the currently selected date
     private String selectedDate = "25022025"; // default value; update as needed
+
+    FirebaseHelper firebaseHelper = new FirebaseHelper();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -103,15 +106,17 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
 
     private void fetchHabits(String dateId) {
         Log.d("Fetching Habits", dateId);
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        habitsRef = FirebaseDatabase.getInstance().getReference("users").child(userId).child("habits");
+        /*String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        habitsRef = FirebaseDatabase.getInstance().getReference("users").child(userId).child("habits");*/
+
+        habitsRef = FirebaseHelper.getHabitsRef();
 
         habitsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot habitSnapshot : dataSnapshot.getChildren()) {
                     Habit habit = habitSnapshot.getValue(Habit.class);
-                    if (habit != null && habit.isHabitVisible(dateId)) {
+                    if (habit != null && habit.isHabitVisibleOnDate(dateId)) {
                         Map<String, HabitEntry> entries = new HashMap<>();
 
                         if (habitSnapshot.hasChild("entries")) {
@@ -147,6 +152,8 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
                                     .addOnSuccessListener(aVoid -> Log.d("FirebaseHelper", "New entry uploaded: " + newEntry))
                                     .addOnFailureListener(e -> Log.e("FirebaseHelper", "Failed to upload entry: " + e.getMessage()));
                         }
+
+                        //Habit sampleHabit = new Habit("169an", "Gym", "NICE","Daily", "01032025", "12:00", "kcal", 2500);
 
                         habit.setEntries(entries);
                         Log.d("FirebaseHelper", "Fetched Habit: " + habit.toString());

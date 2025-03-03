@@ -117,8 +117,11 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
 
             int progress = currentEntry != null ? currentEntry.getProgress() : 0;
             int entryGoalValue = currentEntry != null ? currentEntry.getEntryGoalValue() : 0;
+            String metric = habit.getMetric();
 
-            Log.d("XML preparation", String.valueOf(progress) + " / " + String.valueOf(entryGoalValue));
+            Log.d("XML preparation", String.valueOf(progress) + " / " + String.valueOf(entryGoalValue) + " " + metric);
+
+            holder.progressTextView.setText(progress + " / " + entryGoalValue + " " + metric);
 
             Log.d("Current Date", String.valueOf(habit.getEntryForDate(currentDate)));
 
@@ -147,13 +150,16 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
             int progressIncrement = item.getHabit().getGoalValue() / 10; // For example, break the range into 10 parts
             holder.seekBar.setKeyProgressIncrement(progressIncrement);
 
+            //TODO: Change progress only if current date is >= habit change date
+
             holder.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                     if (fromUser) {
+                        Log.d("Habit - before", habit.toString());
+
                         Log.d("TimelineAdapter", "Updating habit entry: " + item.getHabitName() + ", Progress: " + progress);
-
-
+                        holder.progressTextView.setText(progress + " / " + entryGoalValue + " " + metric);
                     }
                 }
 
@@ -167,9 +173,14 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
                     int progress = seekBar.getProgress(); // Get the final progress when the user releases the SeekBar
                     int goal = item.getHabit().getGoalValue(); // Use the habit's goal
 
+                    currentEntry.setProgress(progress);
+                    Log.d("Habit - after", habit.toString());
+
+                    /** Update the progress in onChanged aswell as on stop tracking touch**/
+                    Log.d("TimelineAdapter - onStopTrackingTouch", "Updating habit entry: " + item.getHabitName() + ", Progress: " + progress);
+
                     // Update Firebase with the new progress and goal when the user stops adjusting the SeekBar
                     updateHabitEntryInFirebase(item.getHabit(), currentDate, progress, goal);
-                    notifyDataSetChanged();
                 }
             });
         }
