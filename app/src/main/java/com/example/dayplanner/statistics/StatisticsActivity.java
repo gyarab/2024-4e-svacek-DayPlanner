@@ -35,13 +35,8 @@ import java.util.Map;
 
 public class StatisticsActivity extends AppCompatActivity {
 
-    private FirebaseDatabase firebaseDatabase;
-    private FirebaseAuth firebaseAuth;
-    private FirebaseUser currentUser;
-    private String userId;
-    private DatabaseReference habitsRef;
-
     FirebaseHelper firebaseHelper = new FirebaseHelper();
+    private DatabaseReference habitsRef = firebaseHelper.getHabitsRef();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,11 +49,15 @@ public class StatisticsActivity extends AppCompatActivity {
             return insets;
         });
 
+        String monthId = "032025";
+
         //TODO: fetch for current date
-        fetchAndStoreHabitsForMonth("032025");
+        fetchAndStoreHabitsForMonth(monthId);
 
         //TODO: on click on habit element in UI
         fetchDataForOneHabit("-OKNMSZx8GHaqlG6ZxDp");
+
+        countPerfectDays(monthId);
     }
 
     public int calculateMonthOverallProgress(HashMap<String, Float> dailyCompletionPercentages) {
@@ -79,8 +78,6 @@ public class StatisticsActivity extends AppCompatActivity {
 
     public void fetchAndStoreHabitsForMonth(String monthId) {
         Log.d("fetchAndStoreHabits", "Fetching habits for month: " + monthId);
-
-        habitsRef = FirebaseHelper.getHabitsRef();
 
         habitsRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -190,6 +187,76 @@ public class StatisticsActivity extends AppCompatActivity {
         });
     }
 
+    private void countPerfectDays(String monthId) {
+        habitsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                LinkedHashMap<String, Boolean> perfectDays = new LinkedHashMap<>(); // Track perfect days
+
+                long currentDateMillis = System.currentTimeMillis();
+                SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy", Locale.getDefault());
+                String currentDateStr = sdf.format(new Date(currentDateMillis));
+
+                for (DataSnapshot habitSnapshot : dataSnapshot.getChildren()) {
+                    Habit habit = habitSnapshot.getValue(Habit.class);
+                    if (habit == null) continue;
+
+                    String startDate = habit.getStartDate();
+                    Calendar calendar = Calendar.getInstance();
+
+                    try {
+                        calendar.setTime(sdf.parse(startDate)); // Start from habit's start date
+                    } catch (ParseException e) {
+                        Log.e("countPerfectDays", "Invalid start date format: " + startDate);
+                        continue;
+                    }
+
+                    while (true) {
+                        String dateKey = sdf.format(calendar.getTime());
+
+                        if (dateKey.compareTo(currentDateStr) > 0) {
+                            break; // Stop at today’s date
+                        }
+
+                        // Check if the date belongs to the given month
+                        if (dateKey.substring(2, 8).equals(monthId)) { // Extract MMYYYY part
+                            // Initialize the day as perfect (true) if not already present
+                            if (!perfectDays.containsKey(dateKey)) {
+                                perfectDays.put(dateKey, true);
+                            }
+
+                            HabitEntry habitEntry = habit.getEntryForDate(dateKey);
+                            if (habitEntry == null || habitEntry.getProgress() < habitEntry.getEntryGoalValue()) {
+                                // Entry missing or not 100%, so not a perfect day
+                                perfectDays.put(dateKey, false);
+                            }
+                        }
+
+                        calendar.add(Calendar.DAY_OF_MONTH, 1); // Move to next day
+                        if (dateKey.equals(currentDateStr)) break;
+                    }
+                }
+
+                // Count the number of perfect days in the given month
+                int perfectDaysCount = 0;
+                for (String date : perfectDays.keySet()) {
+                    if (date.substring(2, 8).equals(monthId) && perfectDays.get(date)) {
+                        perfectDaysCount++;
+                    }
+                }
+
+                Log.d("countPerfectDays", "Perfect days in " + monthId + ": " + perfectDaysCount);
+                updateUIWithPerfectDays(perfectDaysCount);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("countPerfectDays", "Error fetching habits: " + error.getMessage());
+            }
+        });
+    }
+
+
     private void updateUIWithMonthlyProgress(HashMap<String, Float> dailyCompletionPercentages) {
         //TODO: make and pass data to design
         Log.d("Monthly Progress", "Updating UI with monthly progress: " + dailyCompletionPercentages.toString());
@@ -205,5 +272,9 @@ public class StatisticsActivity extends AppCompatActivity {
         //TODO: make and pass data to design
 
         Log.d("Monthly Progress", "Updating UI with overall month progress: " + overallMonthProgress + "%");
+    }
+
+    private void updateUIWithPerfectDays(int perfectDaysCount) {
+
     }
 }
