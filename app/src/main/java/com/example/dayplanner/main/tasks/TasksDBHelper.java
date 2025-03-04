@@ -12,8 +12,8 @@ import java.util.List;
 
 public class TasksDBHelper extends SQLiteOpenHelper {
 
-    private static final String DATABASE_NAME = "tasks.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final String DATABASE_NAME = "tasks3.db";
+    private static final int DATABASE_VERSION = 4;
 
     private static final String TABLE_TASKS = "tasks";
     private static final String COLUMN_ID = "id";
@@ -37,17 +37,14 @@ public class TasksDBHelper extends SQLiteOpenHelper {
                 COLUMN_DATE + " TEXT, " +
                 COLUMN_START_TIME + " TEXT, " +
                 COLUMN_LENGTH + " INTEGER, " +
-                COLUMN_COMPLETED + "INTEGER DEFAULT 0)";
+                COLUMN_COMPLETED + " INTEGER DEFAULT 0)";
         db.execSQL(createTable);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion < 3) {
-            Log.d("ON UPGRADE", "done");
-            // Add the new 'is_completed' column in version 2
-            db.execSQL("ALTER TABLE " + TABLE_TASKS + " ADD COLUMN " + COLUMN_COMPLETED + " INTEGER DEFAULT 0");
-        }
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TASKS);
+        onCreate(db);
     }
 
 

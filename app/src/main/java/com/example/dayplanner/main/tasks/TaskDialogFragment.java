@@ -52,6 +52,8 @@ public class TaskDialogFragment extends DialogFragment {
         Button pickTimeButton = view.findViewById(R.id.pick_time_button);
         Button saveButton = view.findViewById(R.id.save_task_button);
 
+        //TODO: length of habit isnt updated in UI
+
         /** Fill in field when the user is editing the habit = edit mode is true **/
         if (isEditMode && task != null) {
             editTaskTitle.setText(task.getTaskTitle());

@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dayplanner.R;
@@ -24,10 +25,12 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -59,6 +62,8 @@ public class StatisticsActivity extends AppCompatActivity {
         overallProgressPBar = findViewById(R.id.overallProgressBar);
         //MonthlyProgressRecyclerView = findViewById(R.id.rvMonthlyProgress);
 
+        MonthlyProgressRecyclerView = findViewById(R.id.rvMonthlyProgress);
+        MonthlyProgressRecyclerView.setLayoutManager(new GridLayoutManager(this, 7)); // 7 days per row
 
         String monthId = "032025";
 
@@ -292,18 +297,21 @@ public class StatisticsActivity extends AppCompatActivity {
 
 
     private void updateUIWithMonthlyProgress(HashMap<String, Float> dailyCompletionPercentages) {
-        //TODO: make and pass data to design
         Log.d("Monthly Progress", "Updating UI with monthly progress: " + dailyCompletionPercentages.toString());
 
-        for (int i = 0; i < dailyCompletionPercentages.size(); i++) {
-            Log.d("Monthly Progress", "Date: " + (i + 1) + " Completion: " + dailyCompletionPercentages.get(i) + "%");
+        List<DailyProgress> dayProgressList = new ArrayList<>();
+        for (Map.Entry<String, Float> entry : dailyCompletionPercentages.entrySet()) {
+            int day = Integer.parseInt(entry.getKey().substring(0, 2)); // Extract day from date format "ddMMyyyy"
+            float completion = entry.getValue();
+            dayProgressList.add(new DailyProgress(day, completion));
         }
-        /*
+
         runOnUiThread(() -> {
-            MonthlyProgressAdapter adapter = new MonthlyProgressAdapter(new ArrayList<>(dailyCompletionPercentages.entrySet()));
-            rvMonthlyProgress.setAdapter(adapter);
-        });*/
+            MonthlyProgressAdapter adapter = new MonthlyProgressAdapter(this, dayProgressList);
+            MonthlyProgressRecyclerView.setAdapter(adapter);
+        });
     }
+
 
     private void updateUIWithMonthOverallProgress(int overallMonthProgress) {
         runOnUiThread(() -> {

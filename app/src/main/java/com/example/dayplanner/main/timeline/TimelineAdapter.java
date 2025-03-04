@@ -91,6 +91,8 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
             }
 
             holder.seekBar.setVisibility(View.GONE);
+            holder.progressTextView.setVisibility(View.GONE);
+            holder.taskDescriptionTextView.setText(item.getTaskDescription());
 
             holder.statusIcon.setOnClickListener(new View.OnClickListener() {
                 @Override

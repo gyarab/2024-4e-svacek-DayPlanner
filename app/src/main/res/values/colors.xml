@@ -9,6 +9,11 @@
     <color name="gray">#BDBDBD</color>
     <color name="green">#4CAF50</color> <!-- For the checkmark -->
 
+    <color name="progress_high">#4CAF50</color>  <!-- Green for 90%+ -->
+    <color name="progress_medium">#FFEB3B</color>  <!-- Yellow for 50-89% -->
+    <color name="progress_low">#F44336</color>  <!-- Red for <50% -->
+
+
 
     <color name="colorPrimaryLight">#CE9932</color>
     <color name="colorOnPrimaryLight">#000000</color>

@@ -43,6 +43,11 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_arrow_right"
             android:contentDescription="Next Month"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvMonthlyProgress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
     </LinearLayout>
 
     <!-- Scrollable daily progress -->
@@ -83,10 +88,10 @@
             android:text="75%"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintTop_toTopOf="parent" />
     </FrameLayout>
 
     <!-- Statistics Grid -->
