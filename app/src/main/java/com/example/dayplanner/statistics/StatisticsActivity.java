@@ -2,6 +2,8 @@ package com.example.dayplanner.statistics;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -9,27 +11,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dayplanner.R;
 import com.example.dayplanner.main.habits.FirebaseHelper;
 import com.example.dayplanner.main.habits.Habit;
 import com.example.dayplanner.main.habits.HabitEntry;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -37,6 +35,12 @@ public class StatisticsActivity extends AppCompatActivity {
 
     FirebaseHelper firebaseHelper = new FirebaseHelper();
     private DatabaseReference habitsRef = firebaseHelper.getHabitsRef();
+
+    /** UI **/
+    private TextView overallProgressTextView, perfectDaysTextView, longestStreakTextView;
+    private ProgressBar overallProgressPBar;
+    private RecyclerView MonthlyProgressRecyclerView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +52,13 @@ public class StatisticsActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        overallProgressTextView = findViewById(R.id.tvOverallProgress);
+        perfectDaysTextView = findViewById(R.id.tvPerfectDays);
+        longestStreakTextView = findViewById(R.id.tvLongestStreak);
+        overallProgressPBar = findViewById(R.id.overallProgressBar);
+        //MonthlyProgressRecyclerView = findViewById(R.id.rvMonthlyProgress);
+
 
         String monthId = "032025";
 
@@ -243,6 +254,8 @@ public class StatisticsActivity extends AppCompatActivity {
 
                 Log.d("countPerfectDays", "Perfect days in " + monthId + ": " + perfectDaysCount);
                 Log.d("countPerfectDays", "Longest streak in " + monthId + ": " + longestStreak);
+
+                updateUIWithLongestStreak(longestStreak);
                 updateUIWithPerfectDays(perfectDaysCount);
             }
 
@@ -273,7 +286,9 @@ public class StatisticsActivity extends AppCompatActivity {
     }
 
     private void updateUIWithLongestStreak(int longestStreak) {
+        runOnUiThread(() -> longestStreakTextView.setText("Longest Streak: " + longestStreak + " days"));
     }
+
 
 
     private void updateUIWithMonthlyProgress(HashMap<String, Float> dailyCompletionPercentages) {
@@ -283,15 +298,22 @@ public class StatisticsActivity extends AppCompatActivity {
         for (int i = 0; i < dailyCompletionPercentages.size(); i++) {
             Log.d("Monthly Progress", "Date: " + (i + 1) + " Completion: " + dailyCompletionPercentages.get(i) + "%");
         }
+        /*
+        runOnUiThread(() -> {
+            MonthlyProgressAdapter adapter = new MonthlyProgressAdapter(new ArrayList<>(dailyCompletionPercentages.entrySet()));
+            rvMonthlyProgress.setAdapter(adapter);
+        });*/
     }
 
     private void updateUIWithMonthOverallProgress(int overallMonthProgress) {
-        //TODO: make and pass data to design
-
-        Log.d("Monthly Progress", "Updating UI with overall month progress: " + overallMonthProgress + "%");
+        runOnUiThread(() -> {
+            overallProgressTextView.setText(overallMonthProgress + "%");
+            overallProgressPBar.setProgress(overallMonthProgress);
+        });
     }
 
     private void updateUIWithPerfectDays(int perfectDaysCount) {
-
+        runOnUiThread(() -> perfectDaysTextView.setText("Perfect Days: " + perfectDaysCount));
     }
+
 }
