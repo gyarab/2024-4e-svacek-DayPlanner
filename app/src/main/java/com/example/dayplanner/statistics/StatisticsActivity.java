@@ -82,70 +82,64 @@ public class StatisticsActivity extends AppCompatActivity {
         habitsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                LinkedHashMap<String, Float> dailyTotalPercentage = new LinkedHashMap<>(); //Calculates total percentage for each day for all habits
-                LinkedHashMap<String, Integer> dailyEntryCount = new LinkedHashMap<>(); //Calculates all habit entries for each day
+                LinkedHashMap<String, Float> dailyTotalPercentage = new LinkedHashMap<>();
+                LinkedHashMap<String, Integer> dailyEntryCount = new LinkedHashMap<>();
 
                 long currentDateMillis = System.currentTimeMillis();
                 SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy", Locale.getDefault());
                 String currentDateStr = sdf.format(new Date(currentDateMillis));
 
                 for (DataSnapshot habitSnapshot : dataSnapshot.getChildren()) {
-                    //Iterating through all habits
                     Habit habit = habitSnapshot.getValue(Habit.class);
 
                     if (habit != null) {
                         Log.d("fetchAndStoreHabits", "Processing habit: " + habit.getName());
                         String startDate = habit.getStartDate();
 
-                        // Iterate from startDate to currentDate
                         Calendar calendar = Calendar.getInstance();
                         try {
-                            calendar.setTime(sdf.parse(startDate)); // Start from habit's start date
+                            calendar.setTime(sdf.parse(startDate));
                         } catch (ParseException e) {
                             Log.e("fetchAndStoreHabits", "Invalid start date format: " + startDate);
                             continue;
                         }
 
                         while (true) {
-                            String dateKey = sdf.format(calendar.getTime()); // Convert to ddMMyyyy format
+                            String dateKey = sdf.format(calendar.getTime());
 
-                            if (dateKey.substring(2, 8).equals(monthId)) { //01022025 -> 022025
+                            if (dateKey.substring(2, 8).equals(monthId)) {
                                 if (dateKey.compareTo(currentDateStr) > 0) {
-                                    break; // Stop when exceeding today’s date
+                                    break;
                                 }
 
-                                if (!dailyTotalPercentage.containsKey(dateKey)) {
-                                    dailyTotalPercentage.put(dateKey, 0.0f);
-                                    dailyEntryCount.put(dateKey, 0);
-                                }
+                                // Ensure the habit is visible on this date
+                                if (habit.isHabitVisibleOnDate(dateKey)) {
+                                    if (!dailyTotalPercentage.containsKey(dateKey)) {
+                                        dailyTotalPercentage.put(dateKey, 0.0f);
+                                        dailyEntryCount.put(dateKey, 0);
+                                    }
 
-                                // Check if habit has an entry for this date
-                                HabitEntry habitEntry = habit.getEntryForDate(dateKey);
-                                if (habitEntry != null) {
-                                    float percentage = (float) habitEntry.getProgress() / habitEntry.getEntryGoalValue() * 100;
-                                    dailyTotalPercentage.put(dateKey, dailyTotalPercentage.get(dateKey) + percentage);
-                                    dailyEntryCount.put(dateKey, dailyEntryCount.get(dateKey) + 1);
-                                } else {
-                                    // No recorded entry, but habit existed -> Count as 0% completion
-                                    dailyEntryCount.put(dateKey, dailyEntryCount.get(dateKey) + 1);
+                                    HabitEntry habitEntry = habit.getEntryForDate(dateKey);
+                                    if (habitEntry != null) {
+                                        float percentage = (float) habitEntry.getProgress() / habitEntry.getEntryGoalValue() * 100;
+                                        dailyTotalPercentage.put(dateKey, dailyTotalPercentage.get(dateKey) + percentage);
+                                        dailyEntryCount.put(dateKey, dailyEntryCount.get(dateKey) + 1);
+                                    } else {
+                                        dailyEntryCount.put(dateKey, dailyEntryCount.get(dateKey) + 1);
+                                    }
                                 }
                             }
 
-                            calendar.add(Calendar.DAY_OF_MONTH, 1); // Move to next day
-                            if (dateKey.equals(currentDateStr)) break; // Stop at today’s date
+                            calendar.add(Calendar.DAY_OF_MONTH, 1);
+                            if (dateKey.equals(currentDateStr)) break;
                         }
                     }
                 }
 
-                // Calculate daily average percentage
                 LinkedHashMap<String, Float> dailyAveragePercentage = new LinkedHashMap<>();
                 for (String date : dailyTotalPercentage.keySet()) {
                     int count = dailyEntryCount.get(date);
-                    if (count > 0) {
-                        dailyAveragePercentage.put(date, dailyTotalPercentage.get(date) / count);
-                    } else {
-                        dailyAveragePercentage.put(date, 0.0f);
-                    }
+                    dailyAveragePercentage.put(date, count > 0 ? dailyTotalPercentage.get(date) / count : 0.0f);
                 }
 
                 Log.d("fetchAndStoreHabits", "dailyTotalPercentage: " + dailyTotalPercentage);
@@ -153,10 +147,7 @@ public class StatisticsActivity extends AppCompatActivity {
                 Log.d("fetchAndStoreHabits", "dailyAveragePercentage: " + dailyAveragePercentage);
 
                 updateUIWithMonthlyProgress(dailyAveragePercentage);
-
-                int overallMonthProgress = calculateMonthOverallProgress(dailyAveragePercentage);
-
-                updateUIWithMonthOverallProgress(overallMonthProgress);
+                updateUIWithMonthOverallProgress(calculateMonthOverallProgress(dailyAveragePercentage));
             }
 
             @Override
@@ -165,6 +156,7 @@ public class StatisticsActivity extends AppCompatActivity {
             }
         });
     }
+
 
     private void fetchDataForOneHabit(String habitId) {
         //TODO: fetch data for one habit
@@ -188,7 +180,7 @@ public class StatisticsActivity extends AppCompatActivity {
     }
 
     private void countPerfectDays(String monthId) {
-        /** perfect day = all of the habits of the day are completed **/
+        /** perfect day = all visible habits of the day are completed **/
 
         habitsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -220,8 +212,7 @@ public class StatisticsActivity extends AppCompatActivity {
                             break; // Stop at today’s date
                         }
 
-                        // Check if the date belongs to the given month
-                        if (dateKey.substring(2, 8).equals(monthId)) {
+                        if (dateKey.substring(2, 8).equals(monthId) && habit.isHabitVisibleOnDate(dateKey)) {
                             // Initialize the day as perfect (true) if not already present
                             if (!perfectDays.containsKey(dateKey)) {
                                 perfectDays.put(dateKey, true);
@@ -247,7 +238,11 @@ public class StatisticsActivity extends AppCompatActivity {
                     }
                 }
 
+                // Calculate longest streak
+                int longestStreak = countLongestStreak(perfectDays);
+
                 Log.d("countPerfectDays", "Perfect days in " + monthId + ": " + perfectDaysCount);
+                Log.d("countPerfectDays", "Longest streak in " + monthId + ": " + longestStreak);
                 updateUIWithPerfectDays(perfectDaysCount);
             }
 
@@ -256,6 +251,28 @@ public class StatisticsActivity extends AppCompatActivity {
                 Log.e("countPerfectDays", "Error fetching habits: " + error.getMessage());
             }
         });
+    }
+
+    /**
+     * Counts the longest streak of consecutive perfect days in the given month.
+     */
+    private int countLongestStreak(LinkedHashMap<String, Boolean> perfectDays) {
+        int longestStreak = 0;
+        int currentStreak = 0;
+
+        for (String date : perfectDays.keySet()) {
+            if (perfectDays.get(date)) {
+                currentStreak++;
+                longestStreak = Math.max(longestStreak, currentStreak);
+            } else {
+                currentStreak = 0; // Reset streak if there's a break
+            }
+        }
+
+        return longestStreak;
+    }
+
+    private void updateUIWithLongestStreak(int longestStreak) {
     }
 
 
