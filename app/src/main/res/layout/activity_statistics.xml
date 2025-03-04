@@ -5,7 +5,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".statistics.StatisticsActivity">
+    tools:context=".statistics.StatisticsActivity"
+    android:padding="16dp">
 
     <!-- Month Picker -->
     <LinearLayout
@@ -16,8 +17,7 @@
         android:gravity="center"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:padding="16dp">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <ImageButton
             android:id="@+id/btnPreviousMonth"
@@ -43,115 +43,100 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_arrow_right"
             android:contentDescription="Next Month"/>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvMonthlyProgress"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
     </LinearLayout>
 
-    <!-- Scrollable daily progress -->
-    <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/monthPicker">
-
-        <LinearLayout
-            android:id="@+id/dailyProgressContainer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"/>
-    </HorizontalScrollView>
-
-    <!-- Overall Month Progress -->
+    <!-- Circular Progress Bar -->
     <FrameLayout
         android:id="@+id/overallProgressContainer"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
+        android:layout_width="148dp"
+        android:layout_height="167dp"
         android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/monthPicker">
 
-        <ProgressBar
+        <com.example.dayplanner.statistics.CustomCircularProgressBar
             android:id="@+id/overallProgressBar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:progress="75"
-            android:max="100"/>
-
-        <TextView
-            android:id="@+id/tvOverallProgress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="75%"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_marginTop="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/monthPicker" />
+
     </FrameLayout>
 
-    <!-- Statistics Grid -->
+    <!-- RecyclerView (Daily Progress) -->
+
+    <!-- Statistics Grid (Perfect Days & Longest Streak) -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvMonthlyProgress"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintBottom_toTopOf="@id/statsGrid"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/overallProgressContainer"
+        app:layout_constraintVertical_bias="0.0" />
+
     <GridLayout
         android:id="@+id/statsGrid"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginBottom="10dp"
         android:columnCount="2"
-        android:rowCount="2"
-        app:layout_constraintTop_toBottomOf="@id/overallProgressContainer"
-        app:layout_constraintStart_toStartOf="parent"
+        android:rowCount="1"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:padding="16dp">
+        app:layout_constraintStart_toStartOf="parent">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:gravity="center"
+            android:orientation="vertical"
             android:padding="8dp">
 
             <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="Perfect Days"
                 android:textSize="14sp"
-                android:textStyle="bold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvPerfectDays"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="5"
                 android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:textStyle="bold" />
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:gravity="center"
+            android:orientation="vertical"
             android:padding="8dp">
 
             <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="Longest Streak"
                 android:textSize="14sp"
-                android:textStyle="bold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvLongestStreak"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="10"
                 android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:textStyle="bold" />
 
         </LinearLayout>
 

@@ -1,5 +1,6 @@
 package com.example.dayplanner.statistics;
 
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ProgressBar;
@@ -41,7 +42,7 @@ public class StatisticsActivity extends AppCompatActivity {
 
     /** UI **/
     private TextView overallProgressTextView, perfectDaysTextView, longestStreakTextView;
-    private ProgressBar overallProgressPBar;
+    private CustomCircularProgressBar overallProgressPBar;
     private RecyclerView MonthlyProgressRecyclerView;
 
 
@@ -56,7 +57,7 @@ public class StatisticsActivity extends AppCompatActivity {
             return insets;
         });
 
-        overallProgressTextView = findViewById(R.id.tvOverallProgress);
+        //overallProgressTextView = findViewById(R.id.tvOverallProgress);
         perfectDaysTextView = findViewById(R.id.tvPerfectDays);
         longestStreakTextView = findViewById(R.id.tvLongestStreak);
         overallProgressPBar = findViewById(R.id.overallProgressBar);
@@ -315,10 +316,12 @@ public class StatisticsActivity extends AppCompatActivity {
 
     private void updateUIWithMonthOverallProgress(int overallMonthProgress) {
         runOnUiThread(() -> {
-            overallProgressTextView.setText(overallMonthProgress + "%");
             overallProgressPBar.setProgress(overallMonthProgress);
+            overallProgressPBar.setTextStyle(Typeface.NORMAL);
+            overallProgressPBar.setTextSize(80f);
         });
     }
+
 
     private void updateUIWithPerfectDays(int perfectDaysCount) {
         runOnUiThread(() -> perfectDaysTextView.setText("Perfect Days: " + perfectDaysCount));

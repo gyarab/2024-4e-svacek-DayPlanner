@@ -65,4 +65,7 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
 
     implementation("com.facebook.android:facebook-android-sdk:latest.release")
+
+    /** design **/
+    implementation("com.mikhaellopez:circularprogressbar:3.1.0")
 }
