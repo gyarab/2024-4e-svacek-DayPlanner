@@ -3,6 +3,7 @@ package com.example.dayplanner.statistics;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -40,10 +41,15 @@ public class StatisticsActivity extends AppCompatActivity {
     FirebaseHelper firebaseHelper = new FirebaseHelper();
     private DatabaseReference habitsRef = firebaseHelper.getHabitsRef();
 
+    private Calendar currentCalendar;
+    private SimpleDateFormat monthFormat = new SimpleDateFormat("MMyyyy", Locale.getDefault());
+
     /** UI **/
-    private TextView overallProgressTextView, perfectDaysTextView, longestStreakTextView;
+    private TextView overallProgressTextView, perfectDaysTextView, longestStreakTextView, tvMonthYear;
     private CustomCircularProgressBar overallProgressPBar;
     private RecyclerView MonthlyProgressRecyclerView;
+    private ImageButton btnPreviousMonth, btnNextMonth;
+
 
 
     @Override
@@ -66,6 +72,18 @@ public class StatisticsActivity extends AppCompatActivity {
         MonthlyProgressRecyclerView = findViewById(R.id.rvMonthlyProgress);
         MonthlyProgressRecyclerView.setLayoutManager(new GridLayoutManager(this, 7)); // 7 days per row
 
+        tvMonthYear = findViewById(R.id.tvMonthYear);
+        btnPreviousMonth = findViewById(R.id.btnPreviousMonth);
+        btnNextMonth = findViewById(R.id.btnNextMonth);
+
+        currentCalendar = Calendar.getInstance();
+
+        updateMonthDisplay();
+        fetchAndStoreHabitsForMonth(getCurrentMonthId());
+
+        btnPreviousMonth.setOnClickListener(v -> changeMonth(-1));
+        btnNextMonth.setOnClickListener(v -> changeMonth(1));
+
         String monthId = "032025";
 
         //TODO: fetch for current date
@@ -76,7 +94,19 @@ public class StatisticsActivity extends AppCompatActivity {
 
         countPerfectDays(monthId);
     }
-
+    private void changeMonth(int direction) {
+        currentCalendar.add(Calendar.MONTH, direction);
+        updateMonthDisplay();
+        fetchAndStoreHabitsForMonth(getCurrentMonthId());
+        countPerfectDays(getCurrentMonthId());
+    }
+    private void updateMonthDisplay() {
+        SimpleDateFormat displayFormat = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
+        tvMonthYear.setText(displayFormat.format(currentCalendar.getTime()));
+    }
+    private String getCurrentMonthId() {
+        return monthFormat.format(currentCalendar.getTime());
+    }
     public int calculateMonthOverallProgress(HashMap<String, Float> dailyCompletionPercentages) {
         Float sumOfAllPercentages = 0.0f;
         int numberOfRecords = 0;
