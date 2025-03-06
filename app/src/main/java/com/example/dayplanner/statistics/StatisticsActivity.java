@@ -65,6 +65,9 @@ public class StatisticsActivity extends AppCompatActivity {
             return insets;
         });
 
+        //TODO: fetch data for one habit to recycler view
+        //TODO: Make calculation more dynamic => both month and habit could use them
+
         //overallProgressTextView = findViewById(R.id.tvOverallProgress);
         perfectDaysTextView = findViewById(R.id.tvPerfectDays);
         longestStreakTextView = findViewById(R.id.tvLongestStreak);
@@ -88,10 +91,15 @@ public class StatisticsActivity extends AppCompatActivity {
 
         /** recycler view for habits **/
         habitsRecyclerView = findViewById(R.id.rvHabitsList);
-        habitsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        habitsRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
         habitListAdapter = new HabitListAdapter(habitList, this::fetchDataForOneHabit);
         habitsRecyclerView.setAdapter(habitListAdapter);
+
+        /*RecyclerView recyclerView = findViewById(R.id.rvHabitsList);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        recyclerView.setLayoutManager(layoutManager);*/
+
 
         loadUserHabits();
 
@@ -240,60 +248,79 @@ public class StatisticsActivity extends AppCompatActivity {
     private void fetchDataForOneHabit(String habitId) {
         Log.d("fetchAndStoreHabits", "Fetching data for habit: " + habitId);
 
-        String monthId = getCurrentMonthId(); // Get the current month ID
+        String currentMonthId = getCurrentMonthId(); // Get the current month ID
         DatabaseReference oneHabitRef = FirebaseHelper.getHabitsRef().child(habitId);
 
         oneHabitRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String currentMonthId = getCurrentMonthId();
-
                 Habit habit = dataSnapshot.getValue(Habit.class);
+
                 if (habit != null) {
-                    Log.d("fetchAndStoreHabits - v", "Fetched Habit for: " + currentMonthId + " is:" + habit.toString());
+                    Log.d("fetchAndStoreHabits", "Fetched Habit for: " + currentMonthId + " -> " + habit.toString());
 
                     // Get all entries from the habit
                     Map<String, HabitEntry> entries = habit.getEntries();
-
-                    // Clear the previous entries (assuming you're using a Map to store them)
-                    Map<String, HabitEntry> currentEntries = new LinkedHashMap<>();
-
-                    // LinkedHashMap to store the daily completion percentages
                     LinkedHashMap<String, Float> dailyCompletionPercentages = new LinkedHashMap<>();
 
-                    // Iterate through each entry in the habit's entries map
-                    for (Map.Entry<String, HabitEntry> entry : entries.entrySet()) {
-                        String entryDate = entry.getKey();  // The key is the date of the entry (assumed to be in ddMMyyyy format)
+                    // Get today's date
+                    String todayDate = new SimpleDateFormat("ddMMyyyy", Locale.getDefault()).format(new Date());
 
-                        // Compare month part of the date (assuming it's in ddMMyyyy format)
-                        if (entryDate.substring(2, 8).equals(currentMonthId)) {
-                            // This entry matches the monthId, process it
-                            HabitEntry habitEntry = entry.getValue();
-                            Log.d("fetchAndStoreHabits", "Matching entry: " + habitEntry.toString());
+                    // Get the first day of the month
+                    String firstDayOfMonth = "01" + currentMonthId;
 
-                            // Calculate progress for each habit entry
-                            float percentage = (float) habitEntry.getProgress() / habitEntry.getEntryGoalValue() * 100;
+                    // Loop from the first day of the month to today
+                    Calendar calendar = Calendar.getInstance();
+                    try {
+                        SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy", Locale.getDefault());
+                        Date startDate = sdf.parse(firstDayOfMonth);
+                        Date endDate = sdf.parse(todayDate);
 
-                            // Store the calculated percentage for each day
-                            dailyCompletionPercentages.put(entryDate, percentage);
+                        calendar.setTime(startDate);
+
+                        while (!calendar.getTime().after(endDate)) {
+                            String entryDate = sdf.format(calendar.getTime());
+
+                            // Check if entry exists, otherwise set progress to 0
+                            if (entries.containsKey(entryDate)) {
+                                HabitEntry habitEntry = entries.get(entryDate);
+                                float percentage = (float) habitEntry.getProgress() / habitEntry.getEntryGoalValue() * 100;
+                                dailyCompletionPercentages.put(entryDate, percentage);
+
+                                Log.d("fetchAndStoreHabits", "Progress for " + entryDate + " = " + habitEntry.getProgress() +
+                                        "/" + habitEntry.getEntryGoalValue() + " -> " + percentage + "%");
+                            } else {
+                                dailyCompletionPercentages.put(entryDate, 0f);
+                                Log.d("fetchAndStoreHabits", "No entry for " + entryDate + ", setting progress to 0%");
+                            }
+
+                            // Move to the next day
+                            calendar.add(Calendar.DAY_OF_MONTH, 1);
                         }
+
+                    } catch (ParseException e) {
+                        Log.e("fetchAndStoreHabits", "Date parsing error: " + e.getMessage());
                     }
 
-                    // Now that we have the daily completion percentages, calculate the overall progress for the month
+                    // Calculate overall progress for the month
                     int overallMonthProgress = calculateMonthOverallProgress(dailyCompletionPercentages);
+                    Log.d("fetchAndStoreHabits", "Overall month progress for " + currentMonthId + " = " + overallMonthProgress + "%");
 
-                    // Update the UI with the overall progress for the month
+                    // Update the UI
                     updateUIWithMonthOverallProgress(overallMonthProgress);
+                    updateUIWithMonthlyProgress(dailyCompletionPercentages);
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                // Handle possible errors
                 Log.e("fetchAndStoreHabits", "Error fetching habit: " + error.getMessage());
             }
         });
     }
+
+
 
 
     private void countPerfectDays(String monthId) {
