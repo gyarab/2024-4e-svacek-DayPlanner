@@ -45,42 +45,45 @@
             android:contentDescription="Next Month"/>
     </LinearLayout>
 
+    <!-- Habit List RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvHabitsList"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/monthPicker"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/overallProgressContainer"/>
+
     <!-- Circular Progress Bar -->
     <FrameLayout
         android:id="@+id/overallProgressContainer"
         android:layout_width="148dp"
         android:layout_height="167dp"
         android:layout_marginTop="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/rvHabitsList"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/monthPicker">
+        app:layout_constraintEnd_toEndOf="parent">
 
         <com.example.dayplanner.statistics.CustomCircularProgressBar
             android:id="@+id/overallProgressBar"
             android:layout_width="150dp"
-            android:layout_height="150dp"
-            android:layout_marginTop="16dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/monthPicker" />
-
+            android:layout_height="150dp"/>
     </FrameLayout>
 
     <!-- RecyclerView (Daily Progress) -->
-
-    <!-- Statistics Grid (Perfect Days & Longest Streak) -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvMonthlyProgress"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        app:layout_constraintBottom_toTopOf="@id/statsGrid"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/overallProgressContainer"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/statsGrid"/>
 
+    <!-- Statistics Grid (Perfect Days & Longest Streak) -->
     <GridLayout
         android:id="@+id/statsGrid"
         android:layout_width="match_parent"
@@ -89,8 +92,8 @@
         android:columnCount="2"
         android:rowCount="1"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <LinearLayout
             android:layout_width="wrap_content"

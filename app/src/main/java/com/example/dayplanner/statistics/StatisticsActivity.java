@@ -14,6 +14,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dayplanner.R;
@@ -49,8 +50,9 @@ public class StatisticsActivity extends AppCompatActivity {
     private CustomCircularProgressBar overallProgressPBar;
     private RecyclerView MonthlyProgressRecyclerView;
     private ImageButton btnPreviousMonth, btnNextMonth;
-
-
+    private RecyclerView habitsRecyclerView;
+    private HabitListAdapter habitListAdapter;
+    private List<Habit> habitList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +85,15 @@ public class StatisticsActivity extends AppCompatActivity {
 
         btnPreviousMonth.setOnClickListener(v -> changeMonth(-1));
         btnNextMonth.setOnClickListener(v -> changeMonth(1));
+
+        /** recycler view for habits **/
+        habitsRecyclerView = findViewById(R.id.rvHabitsList);
+        habitsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        habitListAdapter = new HabitListAdapter(habitList, this::fetchDataForOneHabit);
+        habitsRecyclerView.setAdapter(habitListAdapter);
+
+        loadUserHabits();
 
         String monthId = "032025";
 
@@ -121,6 +132,28 @@ public class StatisticsActivity extends AppCompatActivity {
         Log.d("calculateMonthOverallProgress", "Overall Progress: " + result + "%");
 
         return result;
+    }
+
+    private void loadUserHabits() {
+        habitsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                habitList.clear();
+                for (DataSnapshot habitSnapshot : snapshot.getChildren()) {
+                    Habit habit = habitSnapshot.getValue(Habit.class);
+                    if (habit != null) {
+                        habit.setId(habitSnapshot.getKey()); // Set habit ID
+                        habitList.add(habit);
+                    }
+                }
+                habitListAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("loadUserHabits", "Error fetching habits: " + error.getMessage());
+            }
+        });
     }
 
     public void fetchAndStoreHabitsForMonth(String monthId) {
