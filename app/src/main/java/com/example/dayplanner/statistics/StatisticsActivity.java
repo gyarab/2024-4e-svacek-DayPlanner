@@ -237,9 +237,7 @@ public class StatisticsActivity extends AppCompatActivity {
         });
     }
 
-
     private void fetchDataForOneHabit(String habitId) {
-        //TODO: fetch data for one habit
         Log.d("fetchAndStoreHabits", "Fetching data for habit: " + habitId);
 
         String monthId = getCurrentMonthId(); // Get the current month ID
@@ -260,6 +258,9 @@ public class StatisticsActivity extends AppCompatActivity {
                     // Clear the previous entries (assuming you're using a Map to store them)
                     Map<String, HabitEntry> currentEntries = new LinkedHashMap<>();
 
+                    // LinkedHashMap to store the daily completion percentages
+                    LinkedHashMap<String, Float> dailyCompletionPercentages = new LinkedHashMap<>();
+
                     // Iterate through each entry in the habit's entries map
                     for (Map.Entry<String, HabitEntry> entry : entries.entrySet()) {
                         String entryDate = entry.getKey();  // The key is the date of the entry (assumed to be in ddMMyyyy format)
@@ -270,14 +271,19 @@ public class StatisticsActivity extends AppCompatActivity {
                             HabitEntry habitEntry = entry.getValue();
                             Log.d("fetchAndStoreHabits", "Matching entry: " + habitEntry.toString());
 
-                            // Add matching entries to the currentEntries map or process as needed
-                            currentEntries.put(entryDate, habitEntry);
+                            // Calculate progress for each habit entry
+                            float percentage = (float) habitEntry.getProgress() / habitEntry.getEntryGoalValue() * 100;
+
+                            // Store the calculated percentage for each day
+                            dailyCompletionPercentages.put(entryDate, percentage);
                         }
                     }
 
-                    // Now, currentEntries will only contain the habit entries for the current month
-                    // You can use currentEntries to update your UI, save to local storage, etc.
-                    Log.d("fetchAndStoreHabits", "Filtered entries for the current month: " + currentEntries);
+                    // Now that we have the daily completion percentages, calculate the overall progress for the month
+                    int overallMonthProgress = calculateMonthOverallProgress(dailyCompletionPercentages);
+
+                    // Update the UI with the overall progress for the month
+                    updateUIWithMonthOverallProgress(overallMonthProgress);
                 }
             }
 
@@ -288,8 +294,6 @@ public class StatisticsActivity extends AppCompatActivity {
             }
         });
     }
-
-
 
 
     private void countPerfectDays(String monthId) {
