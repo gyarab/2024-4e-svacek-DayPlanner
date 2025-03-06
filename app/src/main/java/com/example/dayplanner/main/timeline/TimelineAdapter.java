@@ -45,6 +45,14 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
         this.items = items;
     }
 
+    public TimelineItem getItemAt(int position) {
+        if (position >= 0 && position < items.size()) {
+            return items.get(position);
+        }
+        return null; // Return null if index is out of bounds
+    }
+
+
     public void setCurrentDate(String date) {
         this.currentDate = date;
         Log.d("TimelineAdapter", "Date set to: " + currentDate);  // Debugging log
@@ -74,6 +82,7 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Log.d("TimelineAdapter", "Binding item for date: " + currentDate);
         TimelineItem item = items.get(position);
+        holder.itemView.setTag(item);
         Log.d("TimelineAdapter", "onBindViewHolder: Position " + position + ", Item: " + item.toString());
 
         if (item.isTask()) {
@@ -122,6 +131,7 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
 
             Log.d("XML preparation", String.valueOf(progress) + " / " + String.valueOf(entryGoalValue) + " " + metric);
 
+            holder.progressTextView.setVisibility(View.VISIBLE);
             holder.progressTextView.setText(progress + " / " + entryGoalValue + " " + metric);
 
             Log.d("Current Date", String.valueOf(habit.getEntryForDate(currentDate)));

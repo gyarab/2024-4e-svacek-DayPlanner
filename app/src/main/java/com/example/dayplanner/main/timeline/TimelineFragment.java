@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -46,7 +47,10 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
         View view = inflater.inflate(R.layout.fragment_timeline, container, false);
 
         timeLine = view.findViewById(R.id.timeLine);
-        timeLine.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        // Apply TimelineLayoutManager to the RecyclerView
+        TimelineLayoutManager layoutManager = new TimelineLayoutManager(getContext());
+        timeLine.setLayoutManager(layoutManager);
 
         timelineItems = new ArrayList<>();
         tasksDBHelper = new TasksDBHelper(getContext());
@@ -54,6 +58,9 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
 
         timelineAdapter.setCurrentDate(selectedDate);
         timeLine.setAdapter(timelineAdapter);
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new TimelineItemTouchHelperCallback(timelineAdapter, getContext()));
+        itemTouchHelper.attachToRecyclerView(timeLine);
 
         fetchTasksAndHabits(selectedDate);
 

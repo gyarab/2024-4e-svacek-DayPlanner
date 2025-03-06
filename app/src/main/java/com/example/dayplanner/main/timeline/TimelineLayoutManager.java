@@ -1,17 +1,66 @@
 package com.example.dayplanner.main.timeline;
 
 import android.content.Context;
+import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.example.dayplanner.R;
 
-public class TimelineLayoutManager extends RecyclerView.LayoutManager {
-    private static final int HOUR_HEIGHT = 200; // Base height for one hour
-    private static final int OVERLAP_OFFSET = 20; // Offset for overlapping tasks TODO: not working
+public class TimelineLayoutManager extends LinearLayoutManager {
 
-    public TimelineLayoutManager(Context context) {}
+    private final Context context;
+
+    public TimelineLayoutManager(Context context) {
+        super(context);
+        this.context = context;
+    }
+
+    @Override
+    public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+        super.onLayoutChildren(recycler, state);
+
+        if (getItemCount() == 0) return;
+
+        // Get display density for converting dp to pixels
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        float density = displayMetrics.density;
+
+        // Define min and max height in DP
+        int minHeightDp = 50;  // Minimum height (e.g., 24dp)
+        int maxHeightDp = 250; // Maximum height (e.g., 100dp)
+
+        for (int i = 0; i < getChildCount(); i++) {
+            View view = getChildAt(i);
+            if (view == null) continue;
+
+            ImageView iconView = view.findViewById(R.id.iconView);
+            if (iconView == null) continue;
+
+            RecyclerView recyclerView = (RecyclerView) view.getParent();
+            RecyclerView.Adapter<?> adapter = recyclerView.getAdapter();
+
+            if (adapter instanceof TimelineAdapter) {
+                TimelineItem item = ((TimelineAdapter) adapter).getItemAt(i);
+
+                if (item != null && item.isTask()) { // Only apply to tasks
+                    // Scale height based on duration, but keep within min/max limits
+                    int iconHeightDp = Math.max(minHeightDp, Math.min(24 + (item.getDurationInMinutes() / 2), maxHeightDp));
+                    int iconHeightPx = (int) (iconHeightDp * density); // Convert dp to pixels
+
+                    ViewGroup.LayoutParams params = iconView.getLayoutParams();
+                    params.height = iconHeightPx;
+                    iconView.setLayoutParams(params);
+                }
+            }
+        }
+    }
+
+
 
     @Override
     public RecyclerView.LayoutParams generateDefaultLayoutParams() {
@@ -22,40 +71,7 @@ public class TimelineLayoutManager extends RecyclerView.LayoutManager {
     }
 
     @Override
-    public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
-        detachAndScrapAttachedViews(recycler);
-
-        List<View> overlappingViews = new ArrayList<>();
-
-        for (int i = 0; i < getItemCount(); i++) {
-            View view = recycler.getViewForPosition(i);
-            addView(view);
-            measureChildWithMargins(view, 0, 0);
-
-            // Retrieve item start time and duration
-            TimelineItem item = (TimelineItem) view.getTag();
-            int startMinute = item.getStartTimeInMinutes();
-            int duration = item.getDurationInMinutes();
-            int height = (duration * HOUR_HEIGHT) / 60;
-
-            int top = (startMinute * HOUR_HEIGHT) / 60;
-            int left = 0;
-
-            // Handle overlapping tasks
-            for (View other : overlappingViews) {
-                if (Math.abs(other.getTop() - top) < height / 2) {
-                    left += OVERLAP_OFFSET;
-                }
-            }
-
-            layoutDecorated(view, left, top, left + getWidth(), top + height);
-            overlappingViews.add(view);
-        }
-    }
-
-
-    private int convertTimeToMinutes(String time) {
-        String[] parts = time.split(":");
-        return Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1]);
+    public void scrollToPosition(int position) {
+        super.scrollToPosition(position);
     }
 }
