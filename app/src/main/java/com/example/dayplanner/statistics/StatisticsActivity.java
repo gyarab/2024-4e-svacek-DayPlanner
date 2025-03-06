@@ -242,22 +242,55 @@ public class StatisticsActivity extends AppCompatActivity {
         //TODO: fetch data for one habit
         Log.d("fetchAndStoreHabits", "Fetching data for habit: " + habitId);
 
+        String monthId = getCurrentMonthId(); // Get the current month ID
         DatabaseReference oneHabitRef = FirebaseHelper.getHabitsRef().child(habitId);
+
         oneHabitRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                String currentMonthId = getCurrentMonthId();
+
                 Habit habit = dataSnapshot.getValue(Habit.class);
                 if (habit != null) {
-                    Log.d("fetchAndStoreHabits", "Fetched Habit: " + habit.toString());
+                    Log.d("fetchAndStoreHabits - v", "Fetched Habit for: " + currentMonthId + " is:" + habit.toString());
+
+                    // Get all entries from the habit
+                    Map<String, HabitEntry> entries = habit.getEntries();
+
+                    // Clear the previous entries (assuming you're using a Map to store them)
+                    Map<String, HabitEntry> currentEntries = new LinkedHashMap<>();
+
+                    // Iterate through each entry in the habit's entries map
+                    for (Map.Entry<String, HabitEntry> entry : entries.entrySet()) {
+                        String entryDate = entry.getKey();  // The key is the date of the entry (assumed to be in ddMMyyyy format)
+
+                        // Compare month part of the date (assuming it's in ddMMyyyy format)
+                        if (entryDate.substring(2, 8).equals(currentMonthId)) {
+                            // This entry matches the monthId, process it
+                            HabitEntry habitEntry = entry.getValue();
+                            Log.d("fetchAndStoreHabits", "Matching entry: " + habitEntry.toString());
+
+                            // Add matching entries to the currentEntries map or process as needed
+                            currentEntries.put(entryDate, habitEntry);
+                        }
+                    }
+
+                    // Now, currentEntries will only contain the habit entries for the current month
+                    // You can use currentEntries to update your UI, save to local storage, etc.
+                    Log.d("fetchAndStoreHabits", "Filtered entries for the current month: " + currentEntries);
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
+                // Handle possible errors
+                Log.e("fetchAndStoreHabits", "Error fetching habit: " + error.getMessage());
             }
         });
     }
+
+
+
 
     private void countPerfectDays(String monthId) {
         /** perfect day = all visible habits of the day are completed **/
