@@ -92,6 +92,12 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
             holder.taskDescriptionTextView.setVisibility(View.VISIBLE);
             holder.iconView.setOnClickListener(v -> showTaskDetail(item.getTaskId()));
 
+
+
+            holder.startTimeline.setText(item.getTaskStartTime());  // e.g., "08:00 AM"
+            holder.endTimeline.setText("taskEndTime");      // e.g., "09:00 AM" computed from duration
+
+
             holder.statusIcon.setVisibility(View.VISIBLE);
             if (item.getTask().isTaskCompleted()) {
                 holder.statusIcon.setImageResource(R.drawable.ic_chceck);
@@ -267,7 +273,7 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
 
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView taskTitleTextView, taskStartTimeTextView, taskDescriptionTextView, progressTextView;
+        TextView taskTitleTextView, taskStartTimeTextView, taskDescriptionTextView, progressTextView, startTimeline, endTimeline;
         ImageView iconView, statusIcon;
         View timelineTop, timelineBottom;
         SeekBar seekBar;
@@ -283,6 +289,9 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
             seekBar = itemView.findViewById(R.id.progress_bar);
             taskTitleTextView = itemView.findViewById(R.id.task_title_txt);
             progressTextView = itemView.findViewById(R.id.progress_txt);
+
+            startTimeline = itemView.findViewById(R.id.task_start_time_txt_timeline);
+            endTimeline = itemView.findViewById(R.id.task_end_time_txt_timeline);
         }
     }
 }

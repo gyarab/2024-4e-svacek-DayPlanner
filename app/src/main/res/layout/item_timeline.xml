@@ -6,13 +6,43 @@
     android:padding="8dp"
     android:gravity="center_vertical">
 
-    <!-- Timeline Line -->
-    <View
-        android:id="@+id/timeline_line"
-        android:layout_width="4dp"
+    <RelativeLayout
+        android:id="@+id/timeline_container"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:background="@color/gray"
-        android:layout_marginEnd="8dp" />
+        android:layout_marginEnd="8dp">
+
+        <!-- Timeline Line -->
+        <View
+            android:id="@+id/timeline_line"
+            android:layout_width="3dp"
+            android:layout_height="match_parent"
+            android:background="@color/gray" />
+
+        <!-- Task Start Time (displayed at the top and right to the timeline) -->
+        <TextView
+            android:id="@+id/task_start_time_txt_timeline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start"
+            android:textSize="12sp"
+            android:textColor="@color/black"
+            android:layout_alignTop="@id/timeline_line"
+            android:layout_toRightOf="@id/timeline_line"
+            android:layout_marginStart="4dp"/>
+
+        <!-- Task End Time (displayed at the bottom and right to the timeline) -->
+        <TextView
+            android:id="@+id/task_end_time_txt_timeline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="End"
+            android:textSize="12sp"
+            android:textColor="@color/black"
+            android:layout_alignBottom="@id/timeline_line"
+            android:layout_toRightOf="@id/timeline_line"
+            android:layout_marginStart="4dp"/>
+    </RelativeLayout>
 
     <!-- Icon representing the task/habit -->
     <ImageView
