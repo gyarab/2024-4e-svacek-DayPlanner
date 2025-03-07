@@ -153,6 +153,7 @@ public class StatisticsActivity extends AppCompatActivity {
                         habitList.add(habit);
                     }
                 }
+                Log.d("loadUserHabits", "Loaded habits: " + habitList.toString());
                 habitListAdapter.notifyDataSetChanged();
             }
 

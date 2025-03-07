@@ -9,10 +9,13 @@
     <color name="gray">#BDBDBD</color>
     <color name="green">#4CAF50</color> <!-- For the checkmark -->
 
-    <color name="progress_high">#4CAF50</color>
-    <color name="progress_medium">#FFC107</color>
-    <color name="progress_low">#FF9800</color>
-    <color name="progress_none">#F44336</color>
+    <color name="selected_habit">#B3E5FC</color>
+    <color name="default_habit">#E0F7FA</color>
+
+    <color name="progress_high">#00FF00</color> <!-- More intense green -->
+    <color name="progress_medium">#ff9a00</color> <!-- Stronger amber -->
+    <color name="progress_low">#ff7400</color> <!-- Brighter orange -->
+    <color name="progress_none">#ff1837</color> <!-- Deeper red -->
     <color name="progress_upcoming">#BDBDBD</color>
 
     <color name="colorPrimaryLight">#CE9932</color>
