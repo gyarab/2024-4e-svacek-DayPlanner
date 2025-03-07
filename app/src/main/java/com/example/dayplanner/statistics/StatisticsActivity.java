@@ -4,7 +4,6 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageButton;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -111,13 +110,13 @@ public class StatisticsActivity extends AppCompatActivity {
         //TODO: on click on habit element in UI
         fetchDataForOneHabit("-OKNMSZx8GHaqlG6ZxDp");
 
-        countPerfectDays(monthId);
+        countOverallPerfectDays(monthId);
     }
     private void changeMonth(int direction) {
         currentCalendar.add(Calendar.MONTH, direction);
         updateMonthDisplay();
         fetchAndStoreHabitsForMonth(getCurrentMonthId());
-        countPerfectDays(getCurrentMonthId());
+        countOverallPerfectDays(getCurrentMonthId());
     }
     private void updateMonthDisplay() {
         SimpleDateFormat displayFormat = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
@@ -290,7 +289,7 @@ public class StatisticsActivity extends AppCompatActivity {
 
                                 Log.d("fetchAndStoreHabits", "Progress for " + entryDate + " = " + habitEntry.getProgress() +
                                         "/" + habitEntry.getEntryGoalValue() + " -> " + percentage + "%");
-                            } else {
+                            } else if(habit.isHabitVisibleOnDate(entryDate)) {
                                 dailyCompletionPercentages.put(entryDate, 0f);
                                 Log.d("fetchAndStoreHabits", "No entry for " + entryDate + ", setting progress to 0%");
                             }
@@ -307,10 +306,43 @@ public class StatisticsActivity extends AppCompatActivity {
                     int overallMonthProgress = calculateMonthOverallProgress(dailyCompletionPercentages);
                     Log.d("fetchAndStoreHabits", "Overall month progress for " + currentMonthId + " = " + overallMonthProgress + "%");
 
+                    int perfectDaysCount = countPerfectDaysForHabit(dailyCompletionPercentages);
+
+                    LinkedHashMap<String, Boolean> dailyCompletionBooleans = new LinkedHashMap<>();
+
+                    for (Map.Entry<String, Float> entry : dailyCompletionPercentages.entrySet()) {
+                        if(entry.getValue() == 100) {
+                            dailyCompletionBooleans.put(entry.getKey(), true);
+                        } else {
+                            dailyCompletionBooleans.put(entry.getKey(), false);
+                        }
+                    }
+
+                    int longestStreak = countLongestStreak(dailyCompletionBooleans);
+
+                    Log.d("fetchAndStoreHabits", "Longest streak for " + currentMonthId + " = " + longestStreak);
+                    Log.d("fetchAndStoreHabits", "Perfect days for " + currentMonthId + " = " + perfectDaysCount);
+
                     // Update the UI
                     updateUIWithMonthOverallProgress(overallMonthProgress);
                     updateUIWithMonthlyProgress(dailyCompletionPercentages);
+                    updateUIWithLongestStreak(longestStreak);
+                    updateUIWithPerfectDays(perfectDaysCount);
                 }
+            }
+
+            private int countPerfectDaysForHabit(LinkedHashMap<String, Float> dailyCompletionPercentages) {
+                Log.d("fetchAndStoreHabits", "Counting perfect days for habit: " + dailyCompletionPercentages);
+
+                int perfectDays = 0;
+
+                for (Map.Entry<String, Float> entry : dailyCompletionPercentages.entrySet()) {
+                    if(entry.getValue() == 100) {
+                        perfectDays ++;
+                    }
+                }
+
+                return perfectDays;
             }
 
             @Override
@@ -320,10 +352,7 @@ public class StatisticsActivity extends AppCompatActivity {
         });
     }
 
-
-
-
-    private void countPerfectDays(String monthId) {
+    private void countOverallPerfectDays(String monthId) {
         /** perfect day = all visible habits of the day are completed **/
 
         habitsRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -419,7 +448,7 @@ public class StatisticsActivity extends AppCompatActivity {
     }
 
     private void updateUIWithLongestStreak(int longestStreak) {
-        runOnUiThread(() -> longestStreakTextView.setText("Longest Streak: " + longestStreak + " days"));
+        runOnUiThread(() -> longestStreakTextView.setText("Longest Streak: " + longestStreak));
     }
 
 
