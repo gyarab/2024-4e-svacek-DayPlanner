@@ -59,8 +59,8 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
         timelineAdapter.setCurrentDate(selectedDate);
         timeLine.setAdapter(timelineAdapter);
 
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new TimelineItemTouchHelperCallback(timelineAdapter, getContext()));
-        itemTouchHelper.attachToRecyclerView(timeLine);
+        /*ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new TimelineItemTouchHelperCallback(timelineAdapter, getContext()));
+        itemTouchHelper.attachToRecyclerView(timeLine);*/
 
         fetchTasksAndHabits(selectedDate);
 

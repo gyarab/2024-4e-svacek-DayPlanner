@@ -63,7 +63,6 @@ public class StatisticsActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
         //TODO: fetch data for one habit to recycler view
         //TODO: Make calculation more dynamic => both month and habit could use them
 
@@ -108,7 +107,6 @@ public class StatisticsActivity extends AppCompatActivity {
         fetchAndStoreHabitsForMonth(monthId);
 
         //TODO: on click on habit element in UI
-        fetchDataForOneHabit("-OKNMSZx8GHaqlG6ZxDp");
 
         countOverallPerfectDays(monthId);
     }
@@ -196,12 +194,11 @@ public class StatisticsActivity extends AppCompatActivity {
                             String dateKey = sdf.format(calendar.getTime());
 
                             if (dateKey.substring(2, 8).equals(monthId)) {
-                                if (dateKey.compareTo(currentDateStr) > 0) {
-                                    break;
-                                }
-
+                                Log.d("fetchAnd", dateKey + " compare to " + currentDateStr + " = " + dateKey.compareTo(currentDateStr));
+                                Log.d("fetchAnd", "same month");
                                 // Ensure the habit is visible on this date
                                 if (habit.isHabitVisibleOnDate(dateKey)) {
+                                    Log.d("fetchAndStoreHabits", "Habit is visible on date: "+habit.toString());
                                     if (!dailyTotalPercentage.containsKey(dateKey)) {
                                         dailyTotalPercentage.put(dateKey, 0.0f);
                                         dailyEntryCount.put(dateKey, 0);
@@ -246,6 +243,7 @@ public class StatisticsActivity extends AppCompatActivity {
     }
 
     private void fetchDataForOneHabit(String habitId) {
+        //TODO: check the correct month
         Log.d("fetchAndStoreHabits", "Fetching data for habit: " + habitId);
 
         String currentMonthId = getCurrentMonthId(); // Get the current month ID
