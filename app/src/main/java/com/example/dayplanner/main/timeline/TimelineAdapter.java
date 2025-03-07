@@ -91,11 +91,10 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
             holder.taskStartTimeTextView.setText(getTimeRangeForTask(item));
             holder.taskDescriptionTextView.setVisibility(View.VISIBLE);
             holder.iconView.setOnClickListener(v -> showTaskDetail(item.getTaskId()));
+            holder.startTimeline.setText(item.getTaskStartTime());
 
-
-
-            holder.startTimeline.setText(item.getTaskStartTime());  // e.g., "08:00 AM"
-            holder.endTimeline.setText("taskEndTime");      // e.g., "09:00 AM" computed from duration
+            int endTime = item.getStartTimeInMinutes() + item.getDurationInMinutes();
+            holder.endTimeline.setText(formatTimeInMinutes(endTime));
 
 
             holder.statusIcon.setVisibility(View.VISIBLE);
