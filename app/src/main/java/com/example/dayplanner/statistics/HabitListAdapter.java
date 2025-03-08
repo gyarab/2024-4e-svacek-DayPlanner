@@ -2,6 +2,8 @@ package com.example.dayplanner.statistics;
 
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,12 +72,22 @@ public class HabitListAdapter extends RecyclerView.Adapter<HabitListAdapter.View
             habitNameTextView = itemView.findViewById(R.id.tvHabitName);
         }
     }
+    private void setTextColorBasedOnTheme(View view, Context context) {
+        // Get the current theme's text color (light or dark)
+        TypedArray a = context.getTheme().obtainStyledAttributes(new int[]{android.R.attr.colorPrimary});
+        int textColor = a.getColor(0, Color.BLACK); // Default to black if not found
+        a.recycle();  // Don't forget to recycle the TypedArray to avoid memory leaks
+
+        // Set the text color dynamically based on the theme
+        view.setBackgroundColor(textColor);
+    }
 
     // Update item UI
     private void updateItemView(View view, boolean isSelected) {
         Context context = view.getContext();
-        int bgColor = isSelected ? context.getResources().getColor(R.color.selected_habit) : context.getResources().getColor(R.color.default_habit);
-        view.setBackgroundColor(bgColor);
+
+        // Set text color based on theme
+        setTextColorBasedOnTheme(view, context);
 
         // Animate selection change
         float scale = isSelected ? 1.1f : 1.0f;

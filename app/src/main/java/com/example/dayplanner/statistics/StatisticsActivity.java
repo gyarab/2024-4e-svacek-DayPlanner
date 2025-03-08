@@ -1,5 +1,7 @@
 package com.example.dayplanner.statistics;
 
+import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
@@ -70,6 +72,7 @@ public class StatisticsActivity extends AppCompatActivity {
         perfectDaysTextView = findViewById(R.id.tvPerfectDays);
         longestStreakTextView = findViewById(R.id.tvLongestStreak);
         overallProgressPBar = findViewById(R.id.overallProgressBar);
+        setTextColorBasedOnTheme(overallProgressPBar);
         //MonthlyProgressRecyclerView = findViewById(R.id.rvMonthlyProgress);
 
         MonthlyProgressRecyclerView = findViewById(R.id.rvMonthlyProgress);
@@ -110,6 +113,16 @@ public class StatisticsActivity extends AppCompatActivity {
 
         countOverallPerfectDays(monthId);
     }
+    public void setTextColorBasedOnTheme(CustomCircularProgressBar progressBar) {
+        // Get the current theme's text color (light or dark)
+        TypedArray a = getTheme().obtainStyledAttributes(new int[]{android.R.attr.textColorPrimary});
+        int textColor = a.getColor(0, Color.BLACK); // Default to black if not found
+        a.recycle();  // Don't forget to recycle the TypedArray to avoid memory leaks
+
+        // Set the text color dynamically
+        progressBar.setTextColor(textColor);
+    }
+
     private void changeMonth(int direction) {
         currentCalendar.add(Calendar.MONTH, direction);
         updateMonthDisplay();

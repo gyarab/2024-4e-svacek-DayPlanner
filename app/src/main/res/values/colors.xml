@@ -18,28 +18,35 @@
     <color name="progress_none">#ff1837</color> <!-- Deeper red -->
     <color name="progress_upcoming">#BDBDBD</color>
 
-    <color name="colorPrimaryLight">#CE9932</color>
-    <color name="colorOnPrimaryLight">#000000</color>
-    <color name="colorPrimaryVariantLight">#FF9E66F4</color>
-    <color name="colorSecondaryLight">#00BCD4</color>
-    <color name="colorOnSecondaryLight">#2196F3</color>
-    <color name="colorSecondaryVariantLight">#FFEB3B</color>
-    <color name="colorSurfaceLight">#FF000000</color>
-    <color name="colorOnSurfaceLight">#FF000000</color>
-    <color name="colorBackgroundLight">#FF000000</color>
-    <color name="colorOnBackgroundLight">#FF000000</color>
-    <color name="colorErrorLight">#FF000000</color>
 
-    <color name="colorPrimaryDark">#FF000000</color>
-    <color name="colorOnPrimaryDark">#FF000000</color>
-    <color name="colorPrimaryVariantDark">#FF000000</color>
-    <color name="colorSecondaryDark">#FF000000</color>
-    <color name="colorOnSecondaryDark">#FF000000</color>
-    <color name="colorSecondaryVariantDark">#FF000000</color>
-    <color name="colorSurfaceDark">#FF000000</color>
-    <color name="colorOnSurfaceDark">#FF000000</color>
-    <color name="colorBackgroundDark">#FF000000</color>
-    <color name="colorOnBackgroundDark">#FFFFFF</color>
-    <color name="colorErrorDark">#FF000000</color>
+        <!-- Light Theme Colors -->
+        <color name="colorPrimaryLight">#CE9932</color> <!-- Elegant Gold -->
+        <color name="colorOnPrimaryLight">#000000</color> <!-- Black for contrast -->
+        <color name="colorPrimaryVariantLight">#9E66F4</color> <!-- Rich Purple -->
+        <color name="colorSecondaryLight">#00BCD4</color> <!-- Vibrant Cyan -->
+        <color name="colorOnSecondaryLight">#FFFFFF</color> <!-- White for readability -->
+        <color name="colorSecondaryVariantLight">#FFEB3B</color> <!-- Bright Yellow -->
+        <color name="colorSurfaceLight">#FFFFFF</color> <!-- Clean White Background -->
+        <color name="colorOnSurfaceLight">#000000</color> <!-- Black for text -->
+        <color name="colorBackgroundLight">#F5F5F5</color> <!-- Soft Light Gray -->
+        <color name="colorOnBackgroundLight">#000000</color> <!-- Black for text -->
+        <color name="colorErrorLight">#D32F2F</color> <!-- Deep Red for errors -->
 
+        <!-- Dark Theme Colors -->
+        <color name="colorPrimaryDark">#2F0385</color> <!-- Deep Purple -->
+        <color name="colorOnPrimaryDark">#FFFFFF</color> <!-- White for contrast -->
+        <color name="colorPrimaryVariantDark">#4B0082</color> <!-- Softer Purple -->
+        <color name="colorSecondaryDark">#00838F</color> <!-- Teal Accent -->
+        <color name="colorOnSecondaryDark">#FFFFFF</color> <!-- White for readability -->
+        <color name="colorSecondaryVariantDark">#FF7043</color> <!-- Warm Deep Orange -->
+        <color name="colorSurfaceDark">#121212</color> <!-- Standard Dark Background -->
+        <color name="colorOnSurfaceDark">#FFFFFF</color> <!-- White for text -->
+        <color name="colorBackgroundDark">#000000</color> <!-- True Black for AMOLED Screens -->
+        <color name="colorOnBackgroundDark">#E0E0E0</color> <!-- Light Gray for softer contrast -->
+        <color name="colorErrorDark">#E53935</color> <!-- Bright Red for errors -->
+
+        <color name="lavender">#8692f7</color>
+    <color name="grey">#AAAAAA</color>
+
+    <color name="darkGrey">#FF424242</color>
 </resources>

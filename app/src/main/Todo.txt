@@ -5,10 +5,10 @@ Bug opraven ale jeste:
 - update progress -> weird delay -> needs fixing DONE
 - Display dates instead of indexes & date 1 extra? & Calculate for non-existing entries if(nee <= currentadate) DONE
 
-- add manual add for progress noT only seekbar
+- //TODO: add manual add for progress noT only seekbar
 - save habits locally or notify user that he is not connected to internet and cant access firebase
 - Warnings in UI
-- Setting activity
+- //TODO: Setting activity
 - Share habits with friends
 - Archive habits
 - Count statistics from task and implement karma points system

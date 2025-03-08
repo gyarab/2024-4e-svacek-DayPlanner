@@ -15,6 +15,6 @@
         android:textStyle="bold"
         android:gravity="center"
         android:padding="8dp"
-        />
+        android:textColor="?attr/colorOnBackground"/>
 
 </LinearLayout>

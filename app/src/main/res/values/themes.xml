@@ -2,9 +2,9 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.DayPlanner" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <item name="colorPrimary">@color/colorPrimaryLight</item>
+        <item name="colorPrimary">@color/lavender</item>
         <item name="colorOnPrimary">@color/colorOnPrimaryLight</item>
-        <item name="colorPrimaryVariant">@color/colorPrimaryVariantLight</item>
+        <item name="colorPrimaryVariant">@color/lavender</item>
         <item name="colorSecondary">@color/colorSecondaryLight</item>
         <item name="colorOnSecondary">@color/colorOnSecondaryLight</item>
         <item name="colorSecondaryVariant">@color/colorSecondaryVariantLight</item>
@@ -16,4 +16,8 @@
     </style>
 
     <style name="Theme.DayPlanner" parent="Base.Theme.DayPlanner" />
+
+    <style name="ScreenBackground"><item name="android:background">@color/white</item></style>
+    <style name="CardBackground"><item name="android:background">@color/white</item></style>
+    <style name="TextColor"><item name="android:background">@color/lavender</item></style>
 </resources>

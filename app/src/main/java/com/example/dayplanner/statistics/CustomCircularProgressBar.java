@@ -134,6 +134,12 @@ public class CustomCircularProgressBar extends View {
         invalidate(); // Redraw the view with the new text
     }
 
+    // Method to set the text color dynamically
+    public void setTextColor(int color) {
+        textPaint.setColor(color);  // Update the text color
+        invalidate();  // Redraw the view with the new text color
+    }
+
     // Set the text size in the center of the progress bar
     public void setTextSize(float textSize) {
         textPaint.setTextSize(textSize); // Set the text size for the progress text
