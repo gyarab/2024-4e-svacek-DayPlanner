@@ -268,12 +268,15 @@ public class StatisticsActivity extends AppCompatActivity {
                     // Get the first day of the month
                     String firstDayOfMonth = "01" + currentMonthId;
 
+                    String lastDayOfMonth = getLastDayOfMonth(currentMonthId);
+                    Log.d("LastDay", "Last day of March 2025: " + lastDayOfMonth);
+
                     // Loop from the first day of the month to today
                     Calendar calendar = Calendar.getInstance();
                     try {
                         SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy", Locale.getDefault());
                         Date startDate = sdf.parse(firstDayOfMonth);
-                        Date endDate = sdf.parse(todayDate);
+                        Date endDate = sdf.parse(lastDayOfMonth);
 
                         calendar.setTime(startDate);
 
@@ -349,6 +352,28 @@ public class StatisticsActivity extends AppCompatActivity {
                 Log.e("fetchAndStoreHabits", "Error fetching habit: " + error.getMessage());
             }
         });
+    }
+
+    public String getLastDayOfMonth(String monthId) {
+        try {
+            // Parse monthId to get year and month
+            int month = Integer.parseInt(monthId.substring(0, 2)) - 1; // Convert "03" to 2 (March, 0-based index)
+            int year = Integer.parseInt(monthId.substring(2, 6)); // Get year "2025"
+
+            // Set up the calendar
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.YEAR, year);
+            calendar.set(Calendar.MONTH, month);
+            calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH)); // Last day of month
+
+            // Format as ddMMyyyy
+            SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy", Locale.getDefault());
+            return sdf.format(calendar.getTime());
+
+        } catch (Exception e) {
+            Log.e("getLastDayOfMonth", "Invalid monthId format: " + monthId, e);
+            return null;
+        }
     }
 
     private void countOverallPerfectDays(String monthId) {
