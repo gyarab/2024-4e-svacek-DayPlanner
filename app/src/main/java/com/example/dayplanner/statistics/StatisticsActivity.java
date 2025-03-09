@@ -279,6 +279,8 @@ public class StatisticsActivity extends AppCompatActivity {
                     Map<String, HabitEntry> entries = habit.getEntries();
                     LinkedHashMap<String, Float> dailyCompletionPercentages = new LinkedHashMap<>();
 
+                    int totalMetric = 0;
+
                     // Get today's date
                     String todayDate = new SimpleDateFormat("ddMMyyyy", Locale.getDefault()).format(new Date());
 
@@ -317,6 +319,7 @@ public class StatisticsActivity extends AppCompatActivity {
                                 HabitEntry habitEntry = entries.get(entryDate);
                                 float percentage = (float) habitEntry.getProgress() / habitEntry.getEntryGoalValue() * 100;
                                 dailyCompletionPercentages.put(entryDate, percentage);
+                                totalMetric += habitEntry.getProgress();
 
                                 Log.d("fetchAndStoreHabits", "Progress for " + entryDate + " = " + habitEntry.getProgress() +
                                         "/" + habitEntry.getEntryGoalValue() + " -> " + percentage + "%");
@@ -359,6 +362,8 @@ public class StatisticsActivity extends AppCompatActivity {
                     updateUIWithMonthlyProgress(dailyCompletionPercentages);
                     updateUIWithLongestStreak(longestStreak);
                     updateUIWithPerfectDays(perfectDaysCount);
+
+                    updateUIWithTotalMetric(totalMetric, habit.getMetric());
                 }
             }
 
@@ -536,4 +541,7 @@ public class StatisticsActivity extends AppCompatActivity {
         runOnUiThread(() -> perfectDaysTextView.setText("Perfect Days: " + perfectDaysCount));
     }
 
+    private void updateUIWithTotalMetric(int totalMetric, String metric) {
+        Log.d("Monthly Progress", "Updating UI with total metric: " + totalMetric + " / " + metric);
+    }
 }
