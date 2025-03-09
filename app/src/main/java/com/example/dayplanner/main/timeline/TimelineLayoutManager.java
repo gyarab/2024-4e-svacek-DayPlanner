@@ -55,6 +55,13 @@ public class TimelineLayoutManager extends LinearLayoutManager {
                     ViewGroup.LayoutParams params = iconView.getLayoutParams();
                     params.height = iconHeightPx;
                     iconView.setLayoutParams(params);
+                } else if(item != null && !item.isTask()) {
+                    int iconHeightDp = minHeightDp;
+                    int iconHeightPx = (int) (iconHeightDp * density);
+
+                    ViewGroup.LayoutParams params = iconView.getLayoutParams();
+                    params.height = iconHeightPx;
+                    iconView.setLayoutParams(params);
                 }
             }
         }

@@ -136,6 +136,10 @@ public class StatisticsActivity extends AppCompatActivity {
     private String getCurrentMonthId() {
         return monthFormat.format(currentCalendar.getTime());
     }
+    private String getActualCurrentMonthId() {
+        SimpleDateFormat sdf = new SimpleDateFormat("MMyyyy", Locale.getDefault());
+        return sdf.format(new Date());
+    }
     public int calculateMonthOverallProgress(HashMap<String, Float> dailyCompletionPercentages) {
         Float sumOfAllPercentages = 0.0f;
         int numberOfRecords = 0;
@@ -289,7 +293,19 @@ public class StatisticsActivity extends AppCompatActivity {
                     try {
                         SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy", Locale.getDefault());
                         Date startDate = sdf.parse(firstDayOfMonth);
-                        Date endDate = sdf.parse(lastDayOfMonth);
+
+                        // Determine the correct end date
+                        String lastAvailableDate;
+                        if (currentMonthId.equals(getActualCurrentMonthId())) {
+                            Log.d("LastDay", "Same month " +  "-> " + todayDate + " " + getActualCurrentMonthId() + " = "  + currentMonthId);
+                            lastAvailableDate = todayDate; // Limit to today if it's the current month
+                        } else {
+                            Log.d("LastDay", "Different month " +  "-> " + lastDayOfMonth + " " + getActualCurrentMonthId() + " = "  + currentMonthId);
+                            lastAvailableDate = lastDayOfMonth; // Use the month's last day otherwise
+                        }
+
+                        Date endDate = sdf.parse(lastAvailableDate);
+
 
                         calendar.setTime(startDate);
 
