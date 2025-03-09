@@ -1,6 +1,7 @@
 package com.example.dayplanner.statistics;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -57,6 +58,8 @@ public class CustomCircularProgressBar extends View {
         textPaint.setTextSize(50);
         textPaint.setTextAlign(Paint.Align.CENTER);
         textPaint.setAntiAlias(true);
+
+        setTextColorBasedOnTheme(this, getContext());
     }
 
     @Override
@@ -152,9 +155,15 @@ public class CustomCircularProgressBar extends View {
         textPaint.setTypeface(Typeface.defaultFromStyle(style)); // Use default style (bold, italic, etc.)
         invalidate(); // Redraw the view with the updated text style
     }
+    public void setTextColorBasedOnTheme(CustomCircularProgressBar progressBar, Context context) {
+        // Get the current theme's text color (light or dark)
+        TypedArray a = context.obtainStyledAttributes(new int[]{android.R.attr.textColorPrimary});
+        int textColor = a.getColor(0, Color.BLACK); // Default to black if not found
+        a.recycle();  // Avoid memory leaks
 
-
-
+        // Set the text color dynamically
+        progressBar.setTextColor(textColor);
+    }
     // Check if the text is in day number format
     public boolean isDayText() {
         return isDayText;

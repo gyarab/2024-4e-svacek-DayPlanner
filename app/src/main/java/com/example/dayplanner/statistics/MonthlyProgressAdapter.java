@@ -76,17 +76,6 @@ public class MonthlyProgressAdapter extends RecyclerView.Adapter<MonthlyProgress
             circularProgressBar = itemView.findViewById(R.id.circularProgressBar);  // Updated to use CustomCircularProgressBar
         }
 
-        private void setTextColorBasedOnTheme(CustomCircularProgressBar progressBar, Context context) {
-            // Get the current theme's text color (light or dark)
-            TypedArray a = context.getTheme().obtainStyledAttributes(new int[]{android.R.attr.textColorPrimary});
-            int textColor = a.getColor(0, Color.BLACK); // Default to black if not found
-            a.recycle();  // Don't forget to recycle the TypedArray to avoid memory leaks
-
-            // Set the text color dynamically based on the theme
-            progressBar.setTextColor(textColor);
-        }
-
-
         public void bind(DailyProgress progress, Context context, boolean isUpcoming) {
             // Set the progress based on the completion percentage
             circularProgressBar.setProgress(progress.getCompletionPercentage(), String.valueOf(progress.getDay()));
@@ -94,8 +83,6 @@ public class MonthlyProgressAdapter extends RecyclerView.Adapter<MonthlyProgress
             // Set a thinner width for the progress bar
             circularProgressBar.setProgressWidth(10); // Change this value to make it thinner
             circularProgressBar.setBackgroundWidth(10); // Similarly adjust background width if necessary
-
-            setTextColorBasedOnTheme(circularProgressBar, context);
 
             if (isUpcoming) {
                 // Gray for upcoming days

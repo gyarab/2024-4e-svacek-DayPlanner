@@ -2,6 +2,8 @@ package com.example.dayplanner.main.timeline;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -11,7 +13,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import com.example.dayplanner.R;
 import com.example.dayplanner.main.habits.Habit;
+import com.example.dayplanner.main.habits.HabitEntry;
 import com.example.dayplanner.statistics.CustomCircularProgressBar;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import java.text.SimpleDateFormat;
@@ -25,23 +30,34 @@ public class ProgressUpdateDialog extends Dialog {
     private CustomCircularProgressBar progressBar;
     private TextView habitNameText;
     private EditText progressInput;
-    private float currentProgress;
-    private float maxProgress;
+    private int currentProgress;
+    private int goal;
+    DatabaseReference habitsRef;
+    FirebaseAuth auth;
+
+    public interface OnProgressUpdatedListener {
+        void onProgressUpdated();
+    }
+
+    private OnProgressUpdatedListener progressUpdatedListener;
+
+    public void setOnProgressUpdatedListener(OnProgressUpdatedListener listener) {
+        this.progressUpdatedListener = listener;
+    }
 
     public ProgressUpdateDialog(@NonNull Context context, Habit habit, String currentDate) {
         super(context);
         this.habit = habit;
         this.currentDate = currentDate;
         databaseReference = FirebaseDatabase.getInstance().getReference("habits");
+        currentProgress = habit.getEntryForDate(currentDate).getProgress();
+        goal = habit.getEntryForDate(currentDate).getEntryGoalValue();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.dialog_progress_update);
-
-        int goal = habit.getEntryForDate(currentDate).getEntryGoalValue();
-        int progress = habit.getEntryForDate(currentDate).getProgress();
 
         progressBar = findViewById(R.id.circularProgressBar);
         habitNameText = findViewById(R.id.habitNameText);
@@ -52,14 +68,8 @@ public class ProgressUpdateDialog extends Dialog {
 
         habitNameText.setText(habit.getName()); // Set habit name
         progressBar.setMaxProgress(goal);
-
-        float percentage = (float) progress / goal;
-        int percentageInt = Math.round(percentage * 100);
-
-        progressBar.setProgress(percentageInt);
-        progressBar.setText(progress + "/" + goal + "  " + habit.getMetric());
-
-        Log.d("ProgressUpdateDialog", "percentage: " + percentage + ", Goal: " + goal + ", Progress: " + progress);
+        progressBar.setProgress(currentProgress);
+        progressBar.setText(currentProgress + "/" + goal + "  " + habit.getMetric());
 
         addButton.setOnClickListener(view -> updateProgress(true));
         setButton.setOnClickListener(view -> updateProgress(false));
@@ -77,22 +87,45 @@ public class ProgressUpdateDialog extends Dialog {
         if (isAdding) {
             currentProgress += inputProgress;
         } else {
-            currentProgress = inputProgress;
+            currentProgress = (int) inputProgress;
         }
 
-        if (currentProgress > maxProgress) {
-            currentProgress = maxProgress;
+        if (currentProgress > goal) {
+            currentProgress = goal;
         }
 
-        progressBar.setProgress(currentProgress);
+        saveHabit();
+        progressBar.setProgress(currentProgress, currentProgress + "/" + goal + "  " + habit.getMetric());
         saveProgressToFirebase();
     }
 
+    private void saveHabit() {
+        HabitEntry newHabitEntry = new HabitEntry(currentDate, goal, currentProgress, currentProgress >= goal);
+        habit.setEntryForDate(currentDate, newHabitEntry);
+    }
+
     private void saveProgressToFirebase() {
-        databaseReference.child(habit.getId()).child("progress").child(currentDate)
+        auth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = auth.getCurrentUser();
+
+        if (currentUser != null) {
+            habitsRef = FirebaseDatabase.getInstance()
+                    .getReference("users")
+                    .child(currentUser.getUid())
+                    .child("habits");
+        } else {
+            habitsRef = null; // Handle this case to avoid null pointer exceptions
+            Log.e("Firebase", "User not logged in, habitsRef is null");
+        }
+
+        habitsRef.child(habit.getId()).child("entries").child(currentDate).child("progress")
                 .setValue(currentProgress)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(getContext(), "Progress updated!", Toast.LENGTH_SHORT).show();
+                    // Notify the parent that progress has changed
+                    if (progressUpdatedListener != null) {
+                        progressUpdatedListener.onProgressUpdated();
+                    }
                     dismiss();
                 })
                 .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to update", Toast.LENGTH_SHORT).show());

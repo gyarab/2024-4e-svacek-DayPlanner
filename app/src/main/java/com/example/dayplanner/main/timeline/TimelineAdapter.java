@@ -169,6 +169,10 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
 
                     // Open the progress dialog
                     ProgressUpdateDialog dialog = new ProgressUpdateDialog(context, habit, currentDate);
+                    dialog.setOnProgressUpdatedListener(() -> {
+                        // Notify the adapter that the dataset has changed
+                        notifyDataSetChanged();
+                    });
                     dialog.show();
                 }
             });

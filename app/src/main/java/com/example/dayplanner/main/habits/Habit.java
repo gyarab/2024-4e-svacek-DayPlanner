@@ -5,6 +5,7 @@ import android.util.Log;
 import com.google.firebase.database.IgnoreExtraProperties;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.text.ParseException;
@@ -77,11 +78,19 @@ public class Habit {
 
     public Map<String, HabitEntry> getEntries() { return entries; }
     public void setEntries(Map<String, HabitEntry> entries) { this.entries = entries; }
+
     public HabitEntry getEntryForDate(String date) {
         if (entries != null) {
             return entries.get(date);
         }
         return null;
+    }
+
+    public void setEntryForDate(String date, HabitEntry entry) {
+        if (entries == null) {
+            entries = new HashMap<>();
+        }
+        entries.put(date, entry);
     }
 
     public boolean isHabitVisibleOnDate(String dateToCheck) {
