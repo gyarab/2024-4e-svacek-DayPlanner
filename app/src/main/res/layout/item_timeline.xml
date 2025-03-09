@@ -26,10 +26,9 @@
             android:layout_height="wrap_content"
             android:text="Start"
             android:textSize="12sp"
-            android:textColor="@color/black"
             android:layout_alignTop="@id/timeline_line"
             android:layout_toRightOf="@id/timeline_line"
-            android:layout_marginStart="4dp"/>
+            android:layout_marginStart="4dp" />
 
         <!-- Task End Time (displayed at the bottom and right to the timeline) -->
         <TextView
@@ -38,7 +37,6 @@
             android:layout_height="wrap_content"
             android:text="End"
             android:textSize="12sp"
-            android:textColor="@color/black"
             android:layout_alignBottom="@id/timeline_line"
             android:layout_toRightOf="@id/timeline_line"
             android:layout_marginStart="4dp"/>

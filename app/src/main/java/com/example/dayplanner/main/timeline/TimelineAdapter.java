@@ -107,6 +107,8 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
             holder.seekBar.setVisibility(View.GONE);
             holder.progressTextView.setVisibility(View.GONE);
             holder.taskDescriptionTextView.setText(item.getTaskDescription());
+            holder.startTimeline.setVisibility(View.VISIBLE);
+            holder.endTimeline.setVisibility(View.VISIBLE);
 
             holder.statusIcon.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -143,6 +145,8 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
 
             Log.d("TimelineAdapter", "Binding habit item: " + item.getHabit().toString());
 
+            holder.startTimeline.setVisibility(View.GONE);
+            holder.endTimeline.setVisibility(View.GONE);
             holder.taskStartTimeTextView.setText(getTimeRangeForHabit(item));
             holder.taskDescriptionTextView.setVisibility(View.GONE);
             holder.seekBar.setVisibility(View.VISIBLE);
