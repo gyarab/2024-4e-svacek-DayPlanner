@@ -19,7 +19,7 @@
             android:layout_height="match_parent"
             android:background="@color/gray" />
 
-        <!-- Task Start Time (displayed at the top and right to the timeline) -->
+        <!-- Task Start Time -->
         <TextView
             android:id="@+id/task_start_time_txt_timeline"
             android:layout_width="wrap_content"
@@ -30,7 +30,7 @@
             android:layout_toRightOf="@id/timeline_line"
             android:layout_marginStart="4dp" />
 
-        <!-- Task End Time (displayed at the bottom and right to the timeline) -->
+        <!-- Task End Time -->
         <TextView
             android:id="@+id/task_end_time_txt_timeline"
             android:layout_width="wrap_content"
@@ -117,6 +117,14 @@
         android:layout_width="30dp"
         android:layout_height="30dp"
         android:src="@drawable/ic_circle"
+        android:layout_marginStart="8dp"/>
+
+    <!-- Small Elegant Plus Icon -->
+    <ImageView
+        android:id="@+id/add_task_icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_plus"
         android:layout_marginStart="8dp"/>
 
     <!-- Timeline Top & Bottom for connecting lines -->

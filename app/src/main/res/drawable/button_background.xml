@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Button pressed state -->
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <corners android:radius="10dp"/>
+            <solid android:color="#FF8800"/> <!-- Darker shade for press effect -->
+        </shape>
+    </item>
+
+    <!-- Default button state -->
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="10dp"/>
+            <solid android:color="#FFA500"/> <!-- Orange color -->
+            <stroke android:width="2dp" android:color="#FF8C00"/> <!-- Slightly darker stroke -->
+        </shape>
+    </item>
+
+</selector>

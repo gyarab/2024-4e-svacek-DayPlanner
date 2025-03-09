@@ -92,6 +92,7 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
             holder.taskDescriptionTextView.setVisibility(View.VISIBLE);
             holder.iconView.setOnClickListener(v -> showTaskDetail(item.getTaskId()));
             holder.startTimeline.setText(item.getTaskStartTime());
+            holder.addProgress.setVisibility(View.GONE);
 
             int endTime = item.getStartTimeInMinutes() + item.getDurationInMinutes();
             holder.endTimeline.setText(formatTimeInMinutes(endTime));
@@ -160,6 +161,18 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
                     dialogFragment.show(((AppCompatActivity) context).getSupportFragmentManager(), "EditHabitDialog");
                 }
             });
+            holder.addProgress.setVisibility(View.VISIBLE);
+            holder.addProgress.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.d("Add progress", habit.toString() + " currentDate: " + currentDate);
+
+                    // Open the progress dialog
+                    ProgressUpdateDialog dialog = new ProgressUpdateDialog(context, habit, currentDate);
+                    dialog.show();
+                }
+            });
+
 
             fetchHabitProgress(item.getHabit(), currentDate, holder.seekBar);
 
@@ -277,7 +290,7 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView taskTitleTextView, taskStartTimeTextView, taskDescriptionTextView, progressTextView, startTimeline, endTimeline;
-        ImageView iconView, statusIcon;
+        ImageView iconView, statusIcon, addProgress;
         View timelineTop, timelineBottom;
         SeekBar seekBar;
 
@@ -295,6 +308,7 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
 
             startTimeline = itemView.findViewById(R.id.task_start_time_txt_timeline);
             endTimeline = itemView.findViewById(R.id.task_end_time_txt_timeline);
+            addProgress = itemView.findViewById(R.id.add_task_icon);
         }
     }
 }

@@ -279,6 +279,8 @@ public class StatisticsActivity extends AppCompatActivity {
                     Map<String, HabitEntry> entries = habit.getEntries();
                     LinkedHashMap<String, Float> dailyCompletionPercentages = new LinkedHashMap<>();
 
+                    List<HabitProgressEntry> habitProgressData = new ArrayList<>();//for chart
+
                     int totalMetric = 0;
 
                     // Get today's date
@@ -320,6 +322,8 @@ public class StatisticsActivity extends AppCompatActivity {
                                 float percentage = (float) habitEntry.getProgress() / habitEntry.getEntryGoalValue() * 100;
                                 dailyCompletionPercentages.put(entryDate, percentage);
                                 totalMetric += habitEntry.getProgress();
+
+                                habitProgressData.add(new HabitProgressEntry(entryDate, habitEntry.getProgress(), habitEntry.getEntryGoalValue()));
 
                                 Log.d("fetchAndStoreHabits", "Progress for " + entryDate + " = " + habitEntry.getProgress() +
                                         "/" + habitEntry.getEntryGoalValue() + " -> " + percentage + "%");
@@ -364,6 +368,8 @@ public class StatisticsActivity extends AppCompatActivity {
                     updateUIWithPerfectDays(perfectDaysCount);
 
                     updateUIWithTotalMetric(totalMetric, habit.getMetric());
+                    updateChartWithData(habitProgressData);
+
                 }
             }
 
@@ -531,6 +537,7 @@ public class StatisticsActivity extends AppCompatActivity {
     private void updateUIWithMonthOverallProgress(int overallMonthProgress) {
         runOnUiThread(() -> {
             overallProgressPBar.setProgress(overallMonthProgress);
+            Log.d("PPP", String.valueOf(overallMonthProgress));
             overallProgressPBar.setTextStyle(Typeface.NORMAL);
             overallProgressPBar.setTextSize(80f);
         });
@@ -543,5 +550,11 @@ public class StatisticsActivity extends AppCompatActivity {
 
     private void updateUIWithTotalMetric(int totalMetric, String metric) {
         Log.d("Monthly Progress", "Updating UI with total metric: " + totalMetric + " / " + metric);
+    }
+    private void updateChartWithData(List<HabitProgressEntry> habitProgressData) {
+        runOnUiThread(() -> {
+            //TODO: update chart
+            Log.d("Chart Data", "Updating chart with data: " + habitProgressData.toString());
+        });
     }
 }
