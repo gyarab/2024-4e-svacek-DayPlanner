@@ -1,25 +1,16 @@
 package com.example.dayplanner.settings;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Switch;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.SwitchCompat;
-
 import com.example.dayplanner.R;
 
 public class SettingsActivity extends AppCompatActivity {
-
     SwitchCompat switchMode;
+    ThemePreferencesHelper dbHelper;
     boolean nightMode;
-    SharedPreferences sharedPreferences;
-    SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,26 +19,27 @@ public class SettingsActivity extends AppCompatActivity {
 
         /** THEMES **/
         switchMode = findViewById(R.id.switchMode);
-        sharedPreferences =getSharedPreferences("MODE", Context.MODE_PRIVATE);
-        nightMode = sharedPreferences.getBoolean("nightMode", false);
+        dbHelper = new ThemePreferencesHelper(this);
 
-        if(nightMode) {
+        // Load saved theme
+        nightMode = dbHelper.getThemePreference().equals("dark");
+
+        if (nightMode) {
             switchMode.setChecked(true);
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         }
+
         switchMode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(nightMode){
+                if (nightMode) {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                    editor =sharedPreferences.edit();
-                    editor.putBoolean("nightMode", false);
+                    dbHelper.setThemePreference("light");
                 } else {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                    editor =sharedPreferences.edit();
-                    editor.putBoolean("nightMode", true);
+                    dbHelper.setThemePreference("dark");
                 }
-                editor.apply();
+                nightMode = !nightMode;
             }
         });
     }

@@ -33,6 +33,8 @@ import com.example.dayplanner.main.habits.Habit;
 import com.example.dayplanner.main.tasks.TaskDialogFragment;
 import com.example.dayplanner.main.timeline.TimelineFragment;
 import com.example.dayplanner.settings.SettingsActivity;
+import com.example.dayplanner.settings.ThemeManager;
+import com.example.dayplanner.settings.ThemePreferencesHelper;
 import com.example.dayplanner.statistics.StatisticsActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -65,9 +67,13 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //TODO: Logout Button in setting activity
-        /** logs user out**/
-        //logout();
+        // Apply saved theme before setting the content view
+        ThemePreferencesHelper dbHelper = new ThemePreferencesHelper(this);
+        if (dbHelper.getThemePreference().equals("dark")) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        }
 
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
