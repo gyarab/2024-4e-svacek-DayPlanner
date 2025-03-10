@@ -49,13 +49,13 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
         if (position >= 0 && position < items.size()) {
             return items.get(position);
         }
-        return null; // Return null if index is out of bounds
+        return null;
     }
 
 
     public void setCurrentDate(String date) {
         this.currentDate = date;
-        Log.d("TimelineAdapter", "Date set to: " + currentDate);  // Debugging log
+        Log.d("TimelineAdapter", "Date set to: " + currentDate);
         notifyDataSetChanged();
     }
 
@@ -167,10 +167,8 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
                 public void onClick(View v) {
                     Log.d("Add progress", habit.toString() + " currentDate: " + currentDate);
 
-                    // Open the progress dialog
                     ProgressUpdateDialog dialog = new ProgressUpdateDialog(context, habit, currentDate);
                     dialog.setOnProgressUpdatedListener(() -> {
-                        // Notify the adapter that the dataset has changed
                         notifyDataSetChanged();
                     });
                     dialog.show();
@@ -270,7 +268,6 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
                 .getReference("users").child(userId).child("habits")
                 .child(habit.getId()).child("entries").child(date);
 
-        // Create a map with the progress, completed, and goal values to update the Firebase entry
         Map<String, Object> updates = new HashMap<>();
         updates.put("progress", progress);
         updates.put("completed", progress >= goal);  // Automatically update 'completed' status based on progress and goal

@@ -36,7 +36,7 @@ public class TimelineItemTouchHelperCallback extends ItemTouchHelper.Callback {
 
     @Override
     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-        // Handle item swipe if needed
+        // Handle item swipe
     }
 
     @Override

@@ -48,7 +48,6 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
 
         timeLine = view.findViewById(R.id.timeLine);
 
-        // Apply TimelineLayoutManager to the RecyclerView
         TimelineLayoutManager layoutManager = new TimelineLayoutManager(getContext());
         timeLine.setLayoutManager(layoutManager);
 

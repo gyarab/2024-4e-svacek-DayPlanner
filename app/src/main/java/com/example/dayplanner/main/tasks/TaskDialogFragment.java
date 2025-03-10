@@ -27,7 +27,7 @@ import java.util.Calendar;
 public class TaskDialogFragment extends DialogFragment {
 
     private boolean isEditMode;
-    private Task task;  // Use Task model instead of multiple parameters
+    private Task task;
 
     public TaskDialogFragment(boolean isEditMode, Task task) {
         this.isEditMode = isEditMode;
@@ -79,7 +79,7 @@ public class TaskDialogFragment extends DialogFragment {
             String taskStartTime = editTaskTime.getText().toString();
 
             Task newTask = new Task(
-                    isEditMode ? task.getTaskId() : null, // Keep existing ID or generate a new one TODO: Not allow null
+                    isEditMode ? task.getTaskId() : null,
                     taskTitle,
                     taskDescription,
                     taskDate,
@@ -89,12 +89,31 @@ public class TaskDialogFragment extends DialogFragment {
             );
 
             TasksDBHelper dbHelper = new TasksDBHelper(getContext());
+
             if (isEditMode) {
                 dbHelper.editTask(newTask);
-                Log.d("edit task", newTask.toString());
             } else {
                 dbHelper.addTask(newTask);
-                Log.d("add task", newTask.toString());
+            }
+
+            String lastTaskId = dbHelper.getLastInsertedTaskId();
+
+            if (lastTaskId != null) {
+                Task savedTask = dbHelper.getTaskById(lastTaskId);
+
+                if (savedTask != null) {
+                    // Schedule the notification using the saved task's details
+                    Calendar taskCalendar = Calendar.getInstance();
+                    taskCalendar.set(Calendar.YEAR, Integer.parseInt(savedTask.getTaskDate().substring(4))); // YYYY
+                    taskCalendar.set(Calendar.MONTH, Integer.parseInt(savedTask.getTaskDate().substring(2, 4)) - 1); // MM (zero-based)
+                    taskCalendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(savedTask.getTaskDate().substring(0, 2))); // DD
+                    taskCalendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(savedTask.getTaskStartTime().substring(0, 2))); // HH
+                    taskCalendar.set(Calendar.MINUTE, Integer.parseInt(savedTask.getTaskStartTime().substring(3))); // mm
+                    taskCalendar.set(Calendar.SECOND, 0);
+
+                    long taskTimeMillis = taskCalendar.getTimeInMillis();
+                    TaskNotificationHelper.scheduleNotification(getContext(), savedTask.getTaskId(), savedTask.getTaskTitle(), taskTimeMillis);
+                }
             }
 
             if (getActivity() instanceof TaskDialogListener) {

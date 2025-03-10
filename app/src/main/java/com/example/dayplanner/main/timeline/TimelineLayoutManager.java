@@ -26,13 +26,11 @@ public class TimelineLayoutManager extends LinearLayoutManager {
 
         if (getItemCount() == 0) return;
 
-        // Get display density for converting dp to pixels
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         float density = displayMetrics.density;
 
-        // Define min and max height in DP
-        int minHeightDp = 50;  // Minimum height (e.g., 24dp)
-        int maxHeightDp = 250; // Maximum height (e.g., 100dp)
+        int minHeightDp = 50;
+        int maxHeightDp = 250;
 
         for (int i = 0; i < getChildCount(); i++) {
             View view = getChildAt(i);
@@ -47,10 +45,9 @@ public class TimelineLayoutManager extends LinearLayoutManager {
             if (adapter instanceof TimelineAdapter) {
                 TimelineItem item = ((TimelineAdapter) adapter).getItemAt(i);
 
-                if (item != null && item.isTask()) { // Only apply to tasks
-                    // Scale height based on duration, but keep within min/max limits
+                if (item != null && item.isTask()) {
                     int iconHeightDp = Math.max(minHeightDp, Math.min(24 + (item.getDurationInMinutes() / 2), maxHeightDp));
-                    int iconHeightPx = (int) (iconHeightDp * density); // Convert dp to pixels
+                    int iconHeightPx = (int) (iconHeightDp * density);
 
                     ViewGroup.LayoutParams params = iconView.getLayoutParams();
                     params.height = iconHeightPx;

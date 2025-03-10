@@ -47,6 +47,18 @@ public class TasksDBHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
+    public String getLastInsertedTaskId() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT MAX(" + COLUMN_ID + ") FROM " + TABLE_TASKS, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            String taskId = cursor.getString(0);
+            cursor.close();
+            return taskId;
+        }
+
+        return null;
+    }
 
     public void addTask(Task task) {
         SQLiteDatabase db = this.getWritableDatabase();

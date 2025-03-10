@@ -3,8 +3,10 @@ package com.example.dayplanner.main;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,16 +16,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlarmManager;
+import android.Manifest;
 import com.example.dayplanner.R;
 import com.example.dayplanner.auth.AuthenticationActivity;
 import com.example.dayplanner.auth.signin.EmailSignInActivity;
@@ -62,6 +70,8 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
     Button register;
     private FirebaseAuth mAuth;
     private TaskDialogFragment.TaskDialogListener listener;
+    private static final int NOTIFICATION_PERMISSION_CODE = 1;
+    private static final int REQUEST_CODE_PERMISSION = 1001; // or any unique integer value
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +87,22 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
 
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+
+        // Request notification permission for API level 33 (Android 13) and above
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestNotificationPermission();
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // Android 12 or above
+            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+            if (alarmManager != null && !alarmManager.canScheduleExactAlarms()) {
+                Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
+                startActivityForResult(intent, REQUEST_CODE_PERMISSION);
+            }
+        } else {
+            // For lower API levels, permission is not required
+            //TODO: set the alarm manager
+        }
 
         /** For databases outside of USA I need an url as an argument for getInstance*/
         FirebaseDatabase database = FirebaseDatabase.getInstance("https://dayplanner-18a02-default-rtdb.europe-west1.firebasedatabase.app");
@@ -251,6 +277,40 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
         Intent intent = new Intent(MainActivity.this, EmailSignInActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
+    private void requestNotificationPermission() {
+        // Check if the notification permission is already granted
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // If not granted, request permission
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                    NOTIFICATION_PERMISSION_CODE);
+        } else {
+            // If already granted, you can proceed with any logic you need
+            Log.d("MainActivity", "Notification permission already granted");
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == NOTIFICATION_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted
+                Log.d("MainActivity", "Notification permission granted");
+                // You can proceed with notifications now
+            } else {
+                // Permission denied
+                Log.d("MainActivity", "Notification permission denied");
+                // Optionally show a message explaining why the permission is needed
+                Toast.makeText(this, "Notification permission is required for task reminders", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     /** Function for showing a popup menu when the profile button is clicked **/

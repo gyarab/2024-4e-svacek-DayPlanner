@@ -66,7 +66,7 @@ public class ProgressUpdateDialog extends Dialog {
         Button setButton = findViewById(R.id.setButton);
         Button cancelButton = findViewById(R.id.cancelButton);
 
-        habitNameText.setText(habit.getName()); // Set habit name
+        habitNameText.setText(habit.getName());
         progressBar.setMaxProgress(goal);
         progressBar.setProgress(currentProgress);
         progressBar.setText(currentProgress + "/" + goal + "  " + habit.getMetric());
@@ -114,7 +114,7 @@ public class ProgressUpdateDialog extends Dialog {
                     .child(currentUser.getUid())
                     .child("habits");
         } else {
-            habitsRef = null; // Handle this case to avoid null pointer exceptions
+            habitsRef = null;
             Log.e("Firebase", "User not logged in, habitsRef is null");
         }
 
@@ -122,7 +122,6 @@ public class ProgressUpdateDialog extends Dialog {
                 .setValue(currentProgress)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(getContext(), "Progress updated!", Toast.LENGTH_SHORT).show();
-                    // Notify the parent that progress has changed
                     if (progressUpdatedListener != null) {
                         progressUpdatedListener.onProgressUpdated();
                     }
