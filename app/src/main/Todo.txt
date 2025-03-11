@@ -12,3 +12,11 @@ Bug opraven ale jeste:
 - Share habits with friends
 - Archive habits
 - Count statistics from task and implement karma points system
+
+-More stats in statistics:
+    -
+    -
+Logout button fucnionality
+Change password
+Forgot password when logging in
+Double check signing with email

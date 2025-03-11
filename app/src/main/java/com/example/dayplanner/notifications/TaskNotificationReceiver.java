@@ -1,4 +1,4 @@
-package com.example.dayplanner.main.tasks;
+package com.example.dayplanner.notifications;
 
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
@@ -37,7 +37,7 @@ public class TaskNotificationReceiver extends BroadcastReceiver {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, TaskNotificationHelper.CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle("Task Reminder")
-                .setContentText("Your task: " + taskTitle + " is about to start!")
+                .setContentText("Your task: " + taskTitle + " starts in 5 minutes")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true); // Notification will disappear once tapped
 

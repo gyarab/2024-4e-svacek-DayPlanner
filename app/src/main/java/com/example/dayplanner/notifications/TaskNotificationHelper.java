@@ -1,4 +1,4 @@
-package com.example.dayplanner.main.tasks;
+package com.example.dayplanner.notifications;
 
 import android.app.AlarmManager;
 import android.app.NotificationChannel;
