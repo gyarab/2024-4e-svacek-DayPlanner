@@ -1,22 +1,33 @@
-Bug opraven ale jeste:
 - udelat edit habitu DONE
 - udelat spravne zakladani habitu DONE
 - fetch goal for seekbar DONE
 - update progress -> weird delay -> needs fixing DONE
 - Display dates instead of indexes & date 1 extra? & Calculate for non-existing entries if(nee <= currentadate) DONE
+- add manual add for progress noT only seekbar DONE
+- Setting activity Done
 
-- //TODO: add manual add for progress noT only seekbar
-- save habits locally or notify user that he is not connected to internet and cant access firebase
-- Warnings in UI
-- //TODO: Setting activity
+
+
+- More stats in statistics:
+    - Total metric
+    - Progress chart over time
+- Logout button functionality
+- delete register button from main activity
+- better design for authentication activity
+- Change password
+- Forgot password when logging in
+- Double check signing with email
+- Count statistics from task and implement karma points system
+- notify user when he is not connected to wifi
+- when task or habit completed made it a little bit darker
+- days for 100 years
+- specific day picker using calendar for weeklyHeaderFragment
+/* Extra */
 - Share habits with friends
 - Archive habits
-- Count statistics from task and implement karma points system
-
--More stats in statistics:
-    -
-    -
-Logout button fucnionality
-Change password
-Forgot password when logging in
-Double check signing with email
+- offline first
+- create custom notifications:
+    - user is able to set how many notifications will he receive for each task and can set trigger time for the notifications(one 60 minutes before and second 5 minutes before)
+    - user is able to create notifications for habits -> can pick specific time and quote for the notification, only show the notification if the habit is incomplete
+- set icons for tasks
+- set icons for habits
