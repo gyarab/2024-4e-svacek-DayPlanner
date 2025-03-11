@@ -1,5 +1,6 @@
 package com.example.dayplanner.settings;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,9 +9,11 @@ import androidx.appcompat.widget.SwitchCompat;
 import com.example.dayplanner.R;
 
 public class SettingsActivity extends AppCompatActivity {
-    SwitchCompat switchMode;
+    SwitchCompat switchMode, switchNotifications;
     ThemePreferencesHelper dbHelper;
     boolean nightMode;
+    SharedPreferences preferences;
+    SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +44,20 @@ public class SettingsActivity extends AppCompatActivity {
                 }
                 nightMode = !nightMode;
             }
+        });
+
+        /** NOTIFICATIONS **/
+        switchNotifications = findViewById(R.id.switchNotifications);
+        preferences = getSharedPreferences("settings", MODE_PRIVATE);
+        editor = preferences.edit();
+
+        // Load saved preference
+        boolean notificationsEnabled = preferences.getBoolean("notifications_enabled", true);
+        switchNotifications.setChecked(notificationsEnabled);
+
+        switchNotifications.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            editor.putBoolean("notifications_enabled", isChecked);
+            editor.apply();
         });
     }
 }

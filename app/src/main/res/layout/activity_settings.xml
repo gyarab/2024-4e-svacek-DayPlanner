@@ -7,7 +7,6 @@
     android:padding="16dp"
     tools:context=".settings.SettingsActivity">
 
-    <!-- Dark Mode Switch -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -34,7 +33,28 @@
             app:track="@drawable/track" />
     </LinearLayout>
 
-    <!-- Username Field -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="10dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Enable Notifications"
+            android:textSize="16sp"
+            android:textColor="?attr/colorOnSurface"/>
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switchNotifications"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="30dp"/>
+    </LinearLayout>
+
     <EditText
         android:id="@+id/editUsername"
         android:layout_width="match_parent"
@@ -43,7 +63,6 @@
         android:padding="10dp"
         android:background="?attr/colorSurface"/>
 
-    <!-- Change Password -->
     <Button
         android:id="@+id/btnChangePassword"
         android:layout_width="match_parent"
@@ -51,7 +70,6 @@
         android:text="Change Password"
         android:layout_marginTop="10dp"/>
 
-    <!-- Logout Button -->
     <Button
         android:id="@+id/btnLogout"
         android:layout_width="match_parent"
