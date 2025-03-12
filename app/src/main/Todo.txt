@@ -5,20 +5,19 @@
 - Display dates instead of indexes & date 1 extra? & Calculate for non-existing entries if(nee <= currentadate) ✅
 - add manual add for progress noT only seekbar ✅
 - Setting activity ✅
-- More stats in statistics:
-    - Total metric
-    - Progress chart over time
 - Logout button functionality ✅
 - delete register button from main activity ✅
-- better design for authentication activity ✅
-- Change password
-- Forgot password when logging in
-- Double check signing with email
-- Count statistics from task and implement karma points system
 - notify user when he is not connected to wifi ✅
-- when task or habit completed made it a little bit darker
-- days for 100 years
-- specific day picker using calendar for weeklyHeaderFragment
+- when task or habit completed made it a little bit darker ✅
+1 Change password
+2 Forgot password when logging in
+3 Double check signing with email
+4 Count statistics from task and implement karma points system
+- More stats in statistics:
+    5 Total metric
+    6 Progress chart over time
+7 days for 100 years
+8 specific day picker using calendar for weeklyHeaderFragment
 /* Extra */
 - Share habits with friends
 - Archive habits
