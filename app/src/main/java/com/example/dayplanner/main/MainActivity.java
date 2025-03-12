@@ -38,6 +38,7 @@ import com.example.dayplanner.auth.signin.EmailSignInActivity;
 import com.example.dayplanner.main.dayslist.DayAdapter;
 import com.example.dayplanner.main.dayslist.WeeklyHeaderFragment;
 import com.example.dayplanner.main.habits.Habit;
+import com.example.dayplanner.main.tasks.Task;
 import com.example.dayplanner.main.tasks.TaskDialogFragment;
 import com.example.dayplanner.main.timeline.TimelineFragment;
 import com.example.dayplanner.settings.SettingsActivity;
@@ -56,7 +57,11 @@ import com.example.dayplanner.main.habits.HabitDialogFragment;
 import java.text.DateFormatSymbols;
 import java.util.Calendar;
 
-import com.example.dayplanner.main.tasks.Task;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.os.Build;
 
 public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragment.OnDaySelectedListener, TaskDialogFragment.TaskDialogListener {
 
@@ -117,6 +122,10 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
             return;
         }
         Log.d("USR", currentUser.toString());
+
+        if(!isConnectedToWifi(MainActivity.this)) {
+            Toast.makeText(MainActivity.this, "No internet connection", Toast.LENGTH_SHORT).show();
+        }
 
         DatabaseReference userReference = database.getReference("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("info");
         userReference.setValue(FirebaseAuth.getInstance().getCurrentUser().getEmail());
@@ -301,6 +310,28 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
         }
     }
 
+    public boolean isConnectedToWifi(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // For API 23 and above
+            Network activeNetwork = connectivityManager.getActiveNetwork();
+            NetworkCapabilities networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork);
+
+            if (networkCapabilities != null) {
+                return networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
+            }
+        } else {
+            // For below API 23
+            android.net.NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+            if (activeNetworkInfo != null && activeNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+                return true; // Connected to Wi-Fi
+            }
+        }
+
+        return false; // Not connected to Wi-Fi
+    }
+
     /** Function for showing a popup menu when the profile button is clicked **/
     void popupMenu() {
         profileButton = findViewById(R.id.ProfileButton);
@@ -327,9 +358,14 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
                             startActivity(intent);
                             return true;
                         } else if (id == R.id.statistics) {
-                            Toast.makeText(MainActivity.this, "Statistics clicked", Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(MainActivity.this, StatisticsActivity.class);
-                            startActivity(intent);
+                            if(isConnectedToWifi(MainActivity.this)) {
+                                Toast.makeText(MainActivity.this, "Statistics clicked", Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(MainActivity.this, StatisticsActivity.class);
+                                startActivity(intent);
+                            } else {
+                                Toast.makeText(MainActivity.this, "Connect to wifi in order to view statistics", Toast.LENGTH_SHORT).show();
+                                return false;
+                            }
                             return true;
                         } else if (id == R.id.archive) {
                             Toast.makeText(MainActivity.this, "Archive clicked", Toast.LENGTH_SHORT).show();

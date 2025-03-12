@@ -3,6 +3,9 @@ package com.example.dayplanner.main.timeline;
 import static java.security.AccessController.getContext;
 
 import android.content.Context;
+import android.graphics.RenderEffect;
+import android.graphics.Shader;
+import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +17,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dayplanner.R;
@@ -101,6 +105,11 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
             holder.statusIcon.setVisibility(View.VISIBLE);
             if (item.getTask().isTaskCompleted()) {
                 holder.statusIcon.setImageResource(R.drawable.ic_chceck);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    holder.taskContainer.setRenderEffect(RenderEffect.createBlurEffect(1.5f, 1.5f, Shader.TileMode.CLAMP));
+                }
+                holder.iconView.setBackground(ContextCompat.getDrawable(context, R.drawable.finished_item_bg));
+                holder.iconView.setImageResource(R.drawable.finished_item_icon);
             } else {
                 holder.statusIcon.setImageResource(R.drawable.ic_circle);
             }
@@ -118,14 +127,33 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
                     if(!task.isTaskCompleted()) {
                         Log.d("Task clicked", task.toString());
                         task.setTaskCompleted(true);
-                        Log.d("Task clicked", task.toString());
 
                         TasksDBHelper dbHelper = new TasksDBHelper(context);
                         dbHelper.editTask(task);
 
                         holder.statusIcon.setImageResource(R.drawable.ic_chceck);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                            holder.taskContainer.setRenderEffect(RenderEffect.createBlurEffect(1.5f, 1.5f, Shader.TileMode.CLAMP));
+                        }
+
+                        holder.iconView.setBackground(ContextCompat.getDrawable(context, R.drawable.finished_item_bg));
+                        holder.iconView.setImageResource(R.drawable.finished_item_icon);
+
                     } else {
                         Log.d("Task clicked", "already completed");
+
+                        task.setTaskCompleted(false);
+
+                        TasksDBHelper dbHelper = new TasksDBHelper(context);
+                        dbHelper.editTask(task);
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                            holder.taskContainer.setRenderEffect(RenderEffect.createBlurEffect(0f, 0f, Shader.TileMode.CLAMP));
+                        }
+
+                        holder.iconView.setBackground(ContextCompat.getDrawable(context, R.drawable.circle_background));
+                        holder.iconView.setImageResource(R.drawable.ic_task);
+                        holder.statusIcon.setImageResource(R.drawable.ic_circle);
                     }
                 }
             });
@@ -294,7 +322,7 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
         ImageView iconView, statusIcon, addProgress;
         View timelineTop, timelineBottom;
         SeekBar seekBar;
-
+        LinearLayout taskContainer;
         public ViewHolder(View itemView) {
             super(itemView);
             taskStartTimeTextView = itemView.findViewById(R.id.task_start_time_txt);
@@ -310,6 +338,8 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
             startTimeline = itemView.findViewById(R.id.task_start_time_txt_timeline);
             endTimeline = itemView.findViewById(R.id.task_end_time_txt_timeline);
             addProgress = itemView.findViewById(R.id.add_task_icon);
+
+            taskContainer = itemView.findViewById(R.id.task_container);
         }
     }
 }

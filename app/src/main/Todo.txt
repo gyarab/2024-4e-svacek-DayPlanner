@@ -5,9 +5,6 @@
 - Display dates instead of indexes & date 1 extra? & Calculate for non-existing entries if(nee <= currentadate) ✅
 - add manual add for progress noT only seekbar ✅
 - Setting activity ✅
-
-
-
 - More stats in statistics:
     - Total metric
     - Progress chart over time
@@ -18,7 +15,7 @@
 - Forgot password when logging in
 - Double check signing with email
 - Count statistics from task and implement karma points system
-- notify user when he is not connected to wifi
+- notify user when he is not connected to wifi ✅
 - when task or habit completed made it a little bit darker
 - days for 100 years
 - specific day picker using calendar for weeklyHeaderFragment
