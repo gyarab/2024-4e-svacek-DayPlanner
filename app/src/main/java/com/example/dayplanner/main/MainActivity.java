@@ -67,7 +67,6 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
     LinearLayoutCompat addTaskContainer, addHabitContainer;
     View blurOverlay;
     boolean isOptionsVisible = false;
-    Button register;
     private FirebaseAuth mAuth;
     private TaskDialogFragment.TaskDialogListener listener;
     private static final int NOTIFICATION_PERMISSION_CODE = 1;
@@ -121,17 +120,6 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
 
         DatabaseReference userReference = database.getReference("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("info");
         userReference.setValue(FirebaseAuth.getInstance().getCurrentUser().getEmail());
-
-        /** Register Button Temporary Design**/
-        //TODO: Move to settings activity
-        register = findViewById(R.id.RegisterPage);
-        register.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, AuthenticationActivity.class);
-                startActivity(intent);
-            }
-        });
 
         if (savedInstanceState == null) {
             // Add TimelineFragment to the activity

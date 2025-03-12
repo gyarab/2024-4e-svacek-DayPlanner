@@ -1,19 +1,19 @@
-- udelat edit habitu DONE
-- udelat spravne zakladani habitu DONE
-- fetch goal for seekbar DONE
-- update progress -> weird delay -> needs fixing DONE
-- Display dates instead of indexes & date 1 extra? & Calculate for non-existing entries if(nee <= currentadate) DONE
-- add manual add for progress noT only seekbar DONE
-- Setting activity Done
+- udelat edit habitu ✅
+- udelat spravne zakladani habitu ✅
+- fetch goal for seekbar ✅
+- update progress -> weird delay -> needs fixing ✅
+- Display dates instead of indexes & date 1 extra? & Calculate for non-existing entries if(nee <= currentadate) ✅
+- add manual add for progress noT only seekbar ✅
+- Setting activity ✅
 
 
 
 - More stats in statistics:
     - Total metric
     - Progress chart over time
-- Logout button functionality
-- delete register button from main activity
-- better design for authentication activity
+- Logout button functionality ✅
+- delete register button from main activity ✅
+- better design for authentication activity ✅
 - Change password
 - Forgot password when logging in
 - Double check signing with email

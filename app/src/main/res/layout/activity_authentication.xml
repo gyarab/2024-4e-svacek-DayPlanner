@@ -6,58 +6,39 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="35dp"
+    android:background="@drawable/gradient_bg"
     tools:context=".auth.AuthenticationActivity">
 
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/facebook_button"
+        android:layout_marginTop="140dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
     <Button
-        android:id="@+id/facebook_button"
-        style="@style/CustomButtonStyle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Continue with Facebook"
-        android:textColor="@android:color/black"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_container"
-        tools:layout_editor_absoluteX="35dp" />
-
-    <com.facebook.login.widget.LoginButton
-        android:id="@+id/login_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textview_login"
-        tools:ignore="MissingConstraints" />
-
-    <Button
-        style="@style/CustomButtonStyle"
         android:id="@+id/email_button"
-        android:backgroundTint="@null"
-        android:layout_width="match_parent"
+        style="@null"
+        android:layout_width="280sp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:height="55sp"
+        android:background="@drawable/email_button_background"
+        android:backgroundTint="@null"
+        android:drawableLeft="@drawable/baseline_email_24"
+        android:drawablePadding="8dp"
+        android:gravity="center_vertical|center_horizontal"
         android:text="Sign up with Email"
-        android:drawableLeft="@drawable/email_outlince_icon"
         android:textColor="@android:color/black"
         android:textSize="16sp"
-        android:drawablePadding="8dp"
-        android:background="@drawable/email_button_background"
-        android:gravity="center_vertical|center_horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.491"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/facebook_button" />
+        app:layout_constraintTop_toBottomOf="@+id/fragment_container"
+        app:layout_constraintVertical_bias="0.051" />
 
     <TextView
         android:id="@+id/textview_login"

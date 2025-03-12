@@ -9,8 +9,8 @@
 
     <com.google.android.gms.common.SignInButton
         android:id="@+id/signIn"
-        android:layout_width="200sp"
-        android:layout_height="wrap_content"
+        android:layout_width="290sp"
+        android:layout_height="60sp"
         android:layout_centerHorizontal="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

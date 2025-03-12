@@ -2,6 +2,7 @@ package com.example.dayplanner.auth;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -48,29 +49,13 @@ public class AuthenticationActivity extends AppCompatActivity {
                     .commit();
         }
 
-        facebookButton = findViewById(R.id.facebook_button);
         emailButton = findViewById(R.id.email_button);
-        Button facebookButton2 = findViewById(R.id.login_button);
 
-        facebookButton2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(AuthenticationActivity.this, FacebookActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        //Login not done
+        emailButton.setBackgroundResource(R.drawable.email_button_background);
+        emailButton.setBackgroundTintList(null);
+        emailButton.setTextColor(Color.BLACK);
 
         GoogleLoginActivity googleLoginActivity = new GoogleLoginActivity();
-
-        facebookButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(AuthenticationActivity.this, GoogleLoginActivity.class);
-                startActivity(intent);
-            }
-        });
 
         emailButton.setOnClickListener(new View.OnClickListener() {
             @Override

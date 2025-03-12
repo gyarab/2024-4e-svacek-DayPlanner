@@ -1,12 +1,19 @@
 package com.example.dayplanner.settings;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.SwitchCompat;
 import com.example.dayplanner.R;
+import com.example.dayplanner.auth.AuthenticationActivity;
+import com.example.dayplanner.auth.signin.EmailSignInActivity;
+import com.example.dayplanner.main.MainActivity;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class SettingsActivity extends AppCompatActivity {
     SwitchCompat switchMode, switchNotifications;
@@ -14,6 +21,7 @@ public class SettingsActivity extends AppCompatActivity {
     boolean nightMode;
     SharedPreferences preferences;
     SharedPreferences.Editor editor;
+    Button logOutButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,5 +67,20 @@ public class SettingsActivity extends AppCompatActivity {
             editor.putBoolean("notifications_enabled", isChecked);
             editor.apply();
         });
+
+        logOutButton = findViewById(R.id.btnLogout);
+        logOutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                logout();
+            }
+        });
+    }
+
+    private void logout() {
+        FirebaseAuth.getInstance().signOut();
+        Intent intent = new Intent(SettingsActivity.this, AuthenticationActivity.class);
+        startActivity(intent);
+        finish();
     }
 }
