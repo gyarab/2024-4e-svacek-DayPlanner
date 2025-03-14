@@ -31,6 +31,7 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -38,6 +39,8 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -63,6 +66,7 @@ public class StatisticsActivity extends AppCompatActivity {
     private RecyclerView habitsRecyclerView;
     private HabitListAdapter habitListAdapter;
     private List<Habit> habitList = new ArrayList<>();
+    private LineChart lineChart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,10 +110,7 @@ public class StatisticsActivity extends AppCompatActivity {
         habitsRecyclerView.setAdapter(habitListAdapter);
 
         // Find the LineChart from XML
-        LineChart lineChart = findViewById(R.id.testLineChart);
-
-        // Setup chart with dummy data
-        setupLineChart(lineChart);
+        lineChart = findViewById(R.id.testLineChart);
 
         /*RecyclerView recyclerView = findViewById(R.id.rvHabitsList);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
@@ -126,27 +127,43 @@ public class StatisticsActivity extends AppCompatActivity {
 
         countOverallPerfectDays(monthId);
     }
-    private void setupLineChart(LineChart lineChart) {
+    private void setupLineChart(LineChart lineChart, List<HabitProgressEntry> habitProgressData) {
         Context context = lineChart.getContext();
 
         // Fetch theme colors using TypedArray
         int[] attrs = new int[]{android.R.attr.colorPrimary, android.R.attr.colorSecondary, android.R.attr.textColorPrimary, android.R.attr.colorSecondary};
         TypedArray ta = context.obtainStyledAttributes(attrs);
 
-        int lineColor = ta.getColor(0, Color.BLUE);         // Default: Blue
-        int circleColor = ta.getColor(1, Color.RED);        // Default: Red
-        int textColor = ta.getColor(2, Color.BLACK);        // Default: Black
-        int fillColor = ta.getColor(3, Color.LTGRAY);       // Default: Light Gray
+        int lineColor = ta.getColor(0, Color.BLUE);
+        int circleColor = ta.getColor(1, Color.RED);
+        int textColor = ta.getColor(2, Color.BLACK);
+        int fillColor = ta.getColor(3, Color.LTGRAY);
 
-        ta.recycle();  // Avoid memory leaks
+        ta.recycle(); // Avoid memory leaks
 
-        // Create dummy data points (X-Axis = Index, Y-Axis = Value)
         List<Entry> entries = new ArrayList<>();
-        entries.add(new Entry(0, 2));
-        entries.add(new Entry(1, 3));
-        entries.add(new Entry(2, 5));
-        entries.add(new Entry(3, 7));
-        entries.add(new Entry(4, 8));
+        List<String> xLabels = new ArrayList<>(); // Stores formatted dates for X-axis
+
+        // Define date formatter
+        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("ddMMyyyy", Locale.ENGLISH);
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("d MMMM", Locale.ENGLISH);
+
+        for (int i = 0; i < habitProgressData.size(); i++) {
+            HabitProgressEntry entry = habitProgressData.get(i);
+
+            // Convert "02032025" to "2 March"
+            String rawDate = entry.getDate();
+            String formattedDate;
+            try {
+                LocalDate date = LocalDate.parse(rawDate, inputFormatter);
+                formattedDate = date.format(outputFormatter);
+            } catch (Exception e) {
+                formattedDate = rawDate; // Fallback in case of parsing issues
+            }
+
+            entries.add(new Entry(i, entry.getGoalValue()));  // X-axis = index, Y-axis = Goal Value
+            xLabels.add(formattedDate);  // Store formatted date for X-axis labels
+        }
 
         // Create dataset for the chart
         LineDataSet dataSet = new LineDataSet(entries, "Progress Over Time");
@@ -157,41 +174,30 @@ public class StatisticsActivity extends AppCompatActivity {
         dataSet.setCircleRadius(5f);
         dataSet.setDrawFilled(true);
         dataSet.setFillColor(fillColor);
+        dataSet.setValueTextSize(12f); // Make values larger
 
         // Create LineData and set it to chart
         LineData lineData = new LineData(dataSet);
         lineChart.setData(lineData);
 
-        lineChart.getDescription().setTextColor(textColor);
-        //lineChart.getDescription().setEnabled(false);
-
-        Legend legend = lineChart.getLegend();
-        legend.setTextColor(textColor);
-
-
         // Customize X-Axis
         XAxis xAxis = lineChart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setGranularity(1f);
-        xAxis.setDrawGridLines(false);
         xAxis.setTextColor(textColor);
-
-        dataSet.setValueTextSize(12f);  // Increase this value as needed
+        xAxis.setTextSize(14f);
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(xLabels)); // Set formatted labels
 
         // Customize Y-Axis
         YAxis leftAxis = lineChart.getAxisLeft();
         leftAxis.setTextColor(textColor);
+        leftAxis.setTextSize(14f);
         lineChart.getAxisRight().setEnabled(false); // Hide right Y-axis
-
-        // Set the size of the X-axis labels
-        xAxis.setTextSize(14f);  // Adjust the text size of the X-axis labels
-
-        // Set the size of the Y-axis labels
-        leftAxis.setTextSize(14f);  // Adjust the text size of the Y-axis labels
 
         // Refresh chart
         lineChart.invalidate();
     }
+
     private void changeMonth(int direction) {
         currentCalendar.add(Calendar.MONTH, direction);
         updateMonthDisplay();
@@ -624,7 +630,7 @@ public class StatisticsActivity extends AppCompatActivity {
         runOnUiThread(() -> {
             List<HabitProgressEntry> formatedHabitProgressData = formatHabitProgressDataForChart(habitProgressData);
 
-
+            setupLineChart(lineChart, formatedHabitProgressData);
 
             Log.d("Chart Data", "Updating chart with data: " + formatedHabitProgressData.toString());
         });
