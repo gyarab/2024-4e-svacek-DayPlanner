@@ -11,13 +11,15 @@
 - when task or habit completed made it a little bit darker ✅
 1 Change password ✅
 2 Forgot password when logging in
-3 Double check signing with email
+3 Double check signing with email ✅
 4 Count statistics from task and implement karma points system
 - More stats in statistics:
     5 Total metric
     6 Progress chart over time
 7 days for 100 years
 8 specific day picker using calendar for weeklyHeaderFragment
+9 design for logging and signing in ✅
+10 resend verification link
 /* Extra */
 - Share habits with friends
 - Archive habits

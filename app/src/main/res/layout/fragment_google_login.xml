@@ -7,14 +7,19 @@
     android:layout_height="match_parent"
     tools:context=".auth.google.GoogleLoginActivity">
 
-    <com.google.android.gms.common.SignInButton
+    <Button
         android:id="@+id/signIn"
-        android:layout_width="290sp"
-        android:layout_height="60sp"
-        android:layout_centerHorizontal="true"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:text="Continue with Google"
+        android:textSize="16sp"
+        android:drawableLeft="@drawable/ic_google"
+        android:drawablePadding="8dp"
+        android:background="@drawable/email_button_background"
+        android:backgroundTint="@null"
+        android:textColor="@android:color/black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

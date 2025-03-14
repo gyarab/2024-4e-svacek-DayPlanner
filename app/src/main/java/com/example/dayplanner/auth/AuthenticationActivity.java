@@ -12,19 +12,14 @@ import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.dayplanner.R;
-import com.example.dayplanner.auth.google.GoogleLoginActivity;
 import com.example.dayplanner.auth.google.GoogleLoginFragment;
 import com.example.dayplanner.auth.login.EmailLoginActivity;
 import com.example.dayplanner.auth.signin.EmailSignInActivity;
 
-import com.facebook.FacebookActivity;
-import com.facebook.FacebookSdk;
-import com.facebook.appevents.AppEventsLogger;
-
 
 public class AuthenticationActivity extends AppCompatActivity {
 
-    Button googleButton, facebookButton, emailButton;
+    Button emailButton;
     TextView textViewLogin;
 
     @SuppressLint("MissingInflatedId")
@@ -53,9 +48,8 @@ public class AuthenticationActivity extends AppCompatActivity {
 
         emailButton.setBackgroundResource(R.drawable.email_button_background);
         emailButton.setBackgroundTintList(null);
-        emailButton.setTextColor(Color.BLACK);
 
-        GoogleLoginActivity googleLoginActivity = new GoogleLoginActivity();
+        //GoogleLoginActivity googleLoginActivity = new GoogleLoginActivity();
 
         emailButton.setOnClickListener(new View.OnClickListener() {
             @Override
