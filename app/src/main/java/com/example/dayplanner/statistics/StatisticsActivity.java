@@ -1,10 +1,12 @@
 package com.example.dayplanner.statistics;
 
+import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -22,6 +24,13 @@ import com.example.dayplanner.R;
 import com.example.dayplanner.main.habits.FirebaseHelper;
 import com.example.dayplanner.main.habits.Habit;
 import com.example.dayplanner.main.habits.HabitEntry;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -96,10 +105,15 @@ public class StatisticsActivity extends AppCompatActivity {
         habitListAdapter = new HabitListAdapter(habitList, this::fetchDataForOneHabit);
         habitsRecyclerView.setAdapter(habitListAdapter);
 
+        // Find the LineChart from XML
+        LineChart lineChart = findViewById(R.id.testLineChart);
+
+        // Setup chart with dummy data
+        setupLineChart(lineChart);
+
         /*RecyclerView recyclerView = findViewById(R.id.rvHabitsList);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(layoutManager);*/
-
 
         loadUserHabits();
 
@@ -111,6 +125,72 @@ public class StatisticsActivity extends AppCompatActivity {
         //TODO: on click on habit element in UI
 
         countOverallPerfectDays(monthId);
+    }
+    private void setupLineChart(LineChart lineChart) {
+        Context context = lineChart.getContext();
+
+        // Fetch theme colors using TypedArray
+        int[] attrs = new int[]{android.R.attr.colorPrimary, android.R.attr.colorSecondary, android.R.attr.textColorPrimary, android.R.attr.colorSecondary};
+        TypedArray ta = context.obtainStyledAttributes(attrs);
+
+        int lineColor = ta.getColor(0, Color.BLUE);         // Default: Blue
+        int circleColor = ta.getColor(1, Color.RED);        // Default: Red
+        int textColor = ta.getColor(2, Color.BLACK);        // Default: Black
+        int fillColor = ta.getColor(3, Color.LTGRAY);       // Default: Light Gray
+
+        ta.recycle();  // Avoid memory leaks
+
+        // Create dummy data points (X-Axis = Index, Y-Axis = Value)
+        List<Entry> entries = new ArrayList<>();
+        entries.add(new Entry(0, 2));
+        entries.add(new Entry(1, 3));
+        entries.add(new Entry(2, 5));
+        entries.add(new Entry(3, 7));
+        entries.add(new Entry(4, 8));
+
+        // Create dataset for the chart
+        LineDataSet dataSet = new LineDataSet(entries, "Progress Over Time");
+        dataSet.setColor(lineColor);
+        dataSet.setValueTextColor(textColor);
+        dataSet.setLineWidth(2f);
+        dataSet.setCircleColor(circleColor);
+        dataSet.setCircleRadius(5f);
+        dataSet.setDrawFilled(true);
+        dataSet.setFillColor(fillColor);
+
+        // Create LineData and set it to chart
+        LineData lineData = new LineData(dataSet);
+        lineChart.setData(lineData);
+
+        lineChart.getDescription().setTextColor(textColor);
+        //lineChart.getDescription().setEnabled(false);
+
+        Legend legend = lineChart.getLegend();
+        legend.setTextColor(textColor);
+
+
+        // Customize X-Axis
+        XAxis xAxis = lineChart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setGranularity(1f);
+        xAxis.setDrawGridLines(false);
+        xAxis.setTextColor(textColor);
+
+        dataSet.setValueTextSize(12f);  // Increase this value as needed
+
+        // Customize Y-Axis
+        YAxis leftAxis = lineChart.getAxisLeft();
+        leftAxis.setTextColor(textColor);
+        lineChart.getAxisRight().setEnabled(false); // Hide right Y-axis
+
+        // Set the size of the X-axis labels
+        xAxis.setTextSize(14f);  // Adjust the text size of the X-axis labels
+
+        // Set the size of the Y-axis labels
+        leftAxis.setTextSize(14f);  // Adjust the text size of the Y-axis labels
+
+        // Refresh chart
+        lineChart.invalidate();
     }
     private void changeMonth(int direction) {
         currentCalendar.add(Calendar.MONTH, direction);
@@ -357,8 +437,8 @@ public class StatisticsActivity extends AppCompatActivity {
                     updateUIWithPerfectDays(perfectDaysCount);
 
                     updateUIWithTotalMetric(totalMetric, habit.getMetric());
-                    updateChartWithData(habitProgressData);
 
+                    updateChartWithData(habitProgressData);
                 }
             }
 
@@ -542,8 +622,29 @@ public class StatisticsActivity extends AppCompatActivity {
     }
     private void updateChartWithData(List<HabitProgressEntry> habitProgressData) {
         runOnUiThread(() -> {
-            //TODO: update chart
-            Log.d("Chart Data", "Updating chart with data: " + habitProgressData.toString());
+            List<HabitProgressEntry> formatedHabitProgressData = formatHabitProgressDataForChart(habitProgressData);
+
+
+
+            Log.d("Chart Data", "Updating chart with data: " + formatedHabitProgressData.toString());
         });
+    }
+
+    private List<HabitProgressEntry> formatHabitProgressDataForChart(List<HabitProgressEntry> habitProgressData) {
+        List<HabitProgressEntry> formattedData = new ArrayList<>();
+
+        if (habitProgressData.isEmpty()) return formattedData;
+
+        int lastGoalValue = -1;
+
+        // Loop through data and detect changes in Goal Value
+        for (HabitProgressEntry habitProgressEntry:habitProgressData) {
+            if(lastGoalValue != habitProgressEntry.getGoalValue()) {
+                formattedData.add(habitProgressEntry);
+                lastGoalValue = habitProgressEntry.getGoalValue();
+            }
+        }
+
+        return formattedData;
     }
 }

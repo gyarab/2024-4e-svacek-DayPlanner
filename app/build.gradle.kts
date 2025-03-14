@@ -69,5 +69,5 @@ dependencies {
     /** design **/
     implementation("com.mikhaellopez:circularprogressbar:3.1.0")
 
-    //implementation("com.github.PhilJay:MPAndroidChart:V3.1.0")
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 }
