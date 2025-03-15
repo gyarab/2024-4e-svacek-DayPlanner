@@ -203,6 +203,12 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
                 }
             });
 
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                holder.taskContainer.setRenderEffect(RenderEffect.createBlurEffect(0f, 0f, Shader.TileMode.CLAMP));
+            }
+
+            holder.iconView.setBackground(ContextCompat.getDrawable(context, R.drawable.circle_background));
+            holder.iconView.setImageResource(R.drawable.ic_task);
 
             fetchHabitProgress(item.getHabit(), currentDate, holder.seekBar);
 

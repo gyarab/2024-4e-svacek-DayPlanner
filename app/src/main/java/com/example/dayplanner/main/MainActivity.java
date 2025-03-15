@@ -56,6 +56,7 @@ import com.example.dayplanner.main.habits.HabitDialogFragment;
 
 import java.text.DateFormatSymbols;
 import java.util.Calendar;
+import java.util.Locale;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -132,20 +133,16 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
 
         if (savedInstanceState == null) {
             // Add TimelineFragment to the activity
-            FragmentTransaction timelineTransaction = getSupportFragmentManager().beginTransaction();
-            timelineTransaction.replace(R.id.fragment_container_timeline, new TimelineFragment());
-            timelineTransaction.commit();
-
-            // Adding a Tag to the Timeline fragment so that I can access its methods later
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.fragment_container_timeline, new TimelineFragment(), "TIMELINE_FRAGMENT_TAG")
                     .commit();
 
             // Add WeeklyHeaderFragment to the activity
-            FragmentTransaction transaction2 = getSupportFragmentManager().beginTransaction();
-            transaction2.replace(R.id.fragment_container_header, new WeeklyHeaderFragment());
-            transaction2.commit();
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container_header, new WeeklyHeaderFragment(), "WEEKLY_HEADER_FRAGMENT_TAG")
+                    .commit();
         }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -162,7 +159,6 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
         int currentYear = calendar.get(Calendar.YEAR);
         int currentMonth = calendar.get(Calendar.MONTH);
         String currentMonthName = new DateFormatSymbols().getMonths()[currentMonth]; // convert month number to name
-        ((TextView) findViewById(R.id.monthYearTextView)).setText(currentMonthName + " " + currentYear);
 
         addButton = findViewById(R.id.AddTaskButton);
         addTaskFab = findViewById(R.id.addTaskFab);
@@ -228,44 +224,72 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
     }
 
 
+    @Override
     public void onDaySelected(String dateId) {
+        // Update timeline fragment
         TimelineFragment timelineFragment = (TimelineFragment) getSupportFragmentManager().findFragmentByTag("TIMELINE_FRAGMENT_TAG");
         if (timelineFragment != null) {
             timelineFragment.onDaySelected(dateId);
         } else {
             Log.e("MainActivity", "TimelineFragment not found");
         }
-    }
 
-    public void onTaskDataChanged(String dateId) {
-        TimelineFragment timelineFragment = (TimelineFragment) getSupportFragmentManager().findFragmentByTag("TIMELINE_FRAGMENT_TAG");
-        if (timelineFragment != null) {
-            timelineFragment.fetchTasksAndHabits(dateId); // Refresh timeline with tasks and habits
-
-            RecyclerView weeklyRecyclerView = findViewById(R.id.weeklyRecyclerView);
-            DayAdapter adapter = (DayAdapter) weeklyRecyclerView.getAdapter();
-            if (adapter != null) {
-                adapter.setActiveDotByDateId(dateId); // Update the dot in the weekly view
-            }
-        } else {
-            Log.e("MainActivity", "TimelineFragment not found");
+        // Update weekly header fragment dot
+        WeeklyHeaderFragment weeklyFragment = (WeeklyHeaderFragment) getSupportFragmentManager().findFragmentByTag("WEEKLY_HEADER_FRAGMENT_TAG");
+        if (weeklyFragment != null) {
+            weeklyFragment.dayAdapter.setActiveDotByDateId(dateId);
         }
     }
 
-    public void onHabitDataChanged(String dateId) {
-        //TODO: needs to be used
+    public void navigateToDate(int year, int month, int day) {
+        // Format the dateId
+        String dateId = String.format(Locale.US, "%02d%02d%d", day, month, year);
 
+        // Update the WeeklyHeaderFragment
+        WeeklyHeaderFragment weeklyFragment = (WeeklyHeaderFragment) getSupportFragmentManager().findFragmentByTag("WEEKLY_HEADER_FRAGMENT_TAG");
+        if (weeklyFragment != null) {
+            weeklyFragment.navigateToDate(year, month, day);
+        }
+
+        // Update the TimelineFragment
         TimelineFragment timelineFragment = (TimelineFragment) getSupportFragmentManager().findFragmentByTag("TIMELINE_FRAGMENT_TAG");
         if (timelineFragment != null) {
-            timelineFragment.fetchTasksAndHabits(dateId); // Refresh timeline with both tasks and habits
+            timelineFragment.onDaySelected(dateId);
+        }
+    }
 
-            RecyclerView weeklyRecyclerView = findViewById(R.id.weeklyRecyclerView);
-            DayAdapter adapter = (DayAdapter) weeklyRecyclerView.getAdapter();
-            if (adapter != null) {
-                adapter.setActiveDotByDateId(dateId);
-            }
-        } else {
-            Log.e("MainActivity", "TimelineFragment not found");
+    // Update onTaskDataChanged and onHabitDataChanged methods to use the fragment reference
+    public void onTaskDataChanged(String dateId) {
+        TimelineFragment timelineFragment = (TimelineFragment) getSupportFragmentManager().findFragmentByTag("TIMELINE_FRAGMENT_TAG");
+        if (timelineFragment != null) {
+            timelineFragment.fetchTasksAndHabits(dateId);
+        }
+
+        WeeklyHeaderFragment weeklyFragment = (WeeklyHeaderFragment) getSupportFragmentManager().findFragmentByTag("WEEKLY_HEADER_FRAGMENT_TAG");
+        if (weeklyFragment != null) {
+            weeklyFragment.dayAdapter.setActiveDotByDateId(dateId);
+        }
+
+        if (dateId != null && dateId.length() == 8) {
+            int day = Integer.parseInt(dateId.substring(0, 2));
+            int month = Integer.parseInt(dateId.substring(2, 4));
+            int year = Integer.parseInt(dateId.substring(4));
+
+            // Navigate to the extracted date
+            navigateToDate(year, month, day);
+        }
+    }
+
+    // Similarly update onHabitDataChanged
+    public void onHabitDataChanged(String dateId) {
+        TimelineFragment timelineFragment = (TimelineFragment) getSupportFragmentManager().findFragmentByTag("TIMELINE_FRAGMENT_TAG");
+        if (timelineFragment != null) {
+            timelineFragment.fetchTasksAndHabits(dateId);
+        }
+
+        WeeklyHeaderFragment weeklyFragment = (WeeklyHeaderFragment) getSupportFragmentManager().findFragmentByTag("WEEKLY_HEADER_FRAGMENT_TAG");
+        if (weeklyFragment != null) {
+            weeklyFragment.dayAdapter.setActiveDotByDateId(dateId);
         }
     }
 
@@ -341,7 +365,6 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
             public void onClick(View v) {
                 PopupMenu popupMenu = new PopupMenu(MainActivity.this, v);
                 popupMenu.getMenuInflater().inflate(R.menu.popup_menu, popupMenu.getMenu());
-
                 // Force icons to be shown in the PopupMenu
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     // by default the icons are hidden, idk why
