@@ -19,10 +19,8 @@ public class DaysList {
         ArrayList<ArrayList<DayModel>> weeksList = new ArrayList<>();
         Calendar calendar = Calendar.getInstance();
 
-        // Set to January 1st of START_YEAR and make sure it's the first day of the week
         calendar.set(START_YEAR, Calendar.JANUARY, 1);
 
-        // Set calendar to the first day of the week containing January 1st
         int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
         int offset = dayOfWeek - Calendar.SUNDAY;
         calendar.add(Calendar.DAY_OF_YEAR, -offset);
@@ -50,7 +48,6 @@ public class DaysList {
 
             weeksList.add(week);
 
-            // Check if we've passed the end year
             if (calendar.get(Calendar.YEAR) > END_YEAR) {
                 break;
             }
@@ -62,22 +59,27 @@ public class DaysList {
 
     public ArrayList<DayModel> getWeek(int index) {
         if (index >= 0 && index < weeksList.size()) {
-            return weeksList.get(index);
+            ArrayList<DayModel> week = weeksList.get(index);
+            Log.d("DaysList", "Returning week " + index + " with " + week.size() + " days");
+            return week;
         }
-        return new ArrayList<>(); // Return empty list if index is out of range
+        Log.w("DaysList", "Week index " + index + " out of range (0-" + (weeksList.size()-1) + ")");
+        return new ArrayList<>();
+    }
+
+    public int getCurrentWeekIndex() {
+        Calendar today = Calendar.getInstance();
+        int year = today.get(Calendar.YEAR);
+        int month = today.get(Calendar.MONTH) + 1;
+        int day = today.get(Calendar.DAY_OF_MONTH);
+
+        return findWeekIndex(year, month, day);
     }
 
     public int getTotalWeeks() {
         return weeksList.size();
     }
 
-    /**
-     * Find the week index containing a specific date
-     * @param year Year (e.g., 2024)
-     * @param month Month (1-12)
-     * @param day Day (1-31)
-     * @return Week index or -1 if not found
-     */
     public int findWeekIndex(int year, int month, int day) {
         if (year < START_YEAR || year > END_YEAR) {
             return -1;

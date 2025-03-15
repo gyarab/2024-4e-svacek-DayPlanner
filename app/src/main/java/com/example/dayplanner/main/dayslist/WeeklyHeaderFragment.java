@@ -47,10 +47,8 @@ public class WeeklyHeaderFragment extends Fragment {
         daysList = new DaysList();
         totalWeeks = daysList.getTotalWeeks();
 
-        // Find current week based on today's date
         setCurrentWeekToToday();
 
-        // Initialize adapter with the current week's data
         dayAdapter = new DayAdapter(getContext(), daysList.getWeek(currentWeekIndex), new DayAdapter.OnDayClickListener() {
             @Override
             public void onDayClick(String dateId) {
@@ -67,43 +65,26 @@ public class WeeklyHeaderFragment extends Fragment {
         weeklyRecyclerView.setLayoutManager(layoutManager);
         weeklyRecyclerView.setAdapter(dayAdapter);
 
-        // Enables snapping to a full week view when swiping
         SnapHelper snapHelper = new PagerSnapHelper();
         snapHelper.attachToRecyclerView(weeklyRecyclerView);
 
-        // Set up swipe detection
         setupSwipeDetection();
 
-        // Set up navigation buttons
         setupNavigationButtons();
 
-        // Update the month-year display based on initial week
         updateMonthYearDisplay();
 
-        // Select today's date by default
         selectTodayByDefault();
 
         return view;
     }
 
     private void setCurrentWeekToToday() {
-        Calendar calendar = Calendar.getInstance();
-        int currentYear = calendar.get(Calendar.YEAR);
-        int currentWeek = calendar.get(Calendar.WEEK_OF_YEAR);
+        currentWeekIndex = daysList.getCurrentWeekIndex();
 
-        // Calculate the index based on year and week
-        if (currentYear >= 2024 && currentYear <= 2100) {
-            // Calculate weeks since 2024-01-01
-            int yearOffset = currentYear - 2024;
-            int weekOffset = currentWeek - 1; // Weeks are 0-indexed in our list
-
-            // Approximate index (may need adjustment based on how your weeks are structured)
-            currentWeekIndex = yearOffset * 52 + weekOffset;
-
-            // Ensure within bounds
-            currentWeekIndex = Math.max(0, Math.min(currentWeekIndex, totalWeeks - 1));
-        } else {
-            currentWeekIndex = 0; // Default to first week if outside range
+        if (currentWeekIndex == -1) {
+            currentWeekIndex = 0;
+            Log.e("WeeklyHeaderFragment", "Could not find current week in DaysList");
         }
     }
 
@@ -116,8 +97,7 @@ public class WeeklyHeaderFragment extends Fragment {
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
                     int firstVisibleItemPosition = layoutManager.findFirstCompletelyVisibleItemPosition();
                     if (firstVisibleItemPosition != RecyclerView.NO_POSITION) {
-                        // Calculate new week index based on the first visible item position
-                        // Since we show a full week (7 days) at once, we need to handle it accordingly
+                        //TODO: not done
                         int newWeekIndex = firstVisibleItemPosition / 7;
 
                         if (newWeekIndex != currentWeekIndex) {
@@ -169,7 +149,6 @@ public class WeeklyHeaderFragment extends Fragment {
     }
 
     private void scrollToCurrentWeek() {
-        // Calculate position to scroll to (beginning of current week)
         int scrollPosition = currentWeekIndex * 7;
         layoutManager.scrollToPositionWithOffset(scrollPosition, 0);
         Log.d("WeeklyHeaderFragment", "Scroll Position: " + scrollPosition);
@@ -177,15 +156,15 @@ public class WeeklyHeaderFragment extends Fragment {
 
     private void updateWeek() {
         ArrayList<DayModel> newWeek = daysList.getWeek(currentWeekIndex);
-        dayAdapter.updateDays(newWeek);
         Log.d("WeeklyHeaderFragment", "New Week Data: " + newWeek.toString());
+        dayAdapter.updateDays(newWeek);
     }
 
     private void updateMonthYearDisplay() {
         if (monthYearTextView != null) {
             ArrayList<DayModel> currentWeek = daysList.getWeek(currentWeekIndex);
             if (!currentWeek.isEmpty()) {
-                DayModel middleDay = currentWeek.get(3); // Thursday (middle of week)
+                DayModel middleDay = currentWeek.get(3);
                 String month = middleDay.getMonth();
                 String year = middleDay.getYear();
 
@@ -209,32 +188,26 @@ public class WeeklyHeaderFragment extends Fragment {
         String todayDateId = date + month + year;
         dayAdapter.setActiveDotByDateId(todayDateId);
 
-        // Notify activity about the selected day
         if (getActivity() instanceof OnDaySelectedListener) {
             ((OnDaySelectedListener) getActivity()).onDaySelected(todayDateId);
         }
     }
 
-    // Method to navigate to a specific date (can be called from parent activity)
     public void navigateToDate(int year, int month, int day) {
         if (year < 2024 || year > 2100) {
             Log.e("WeeklyHeaderFragment", "Year out of supported range (2024-2100)");
             return;
         }
 
-        // Create a calendar instance and set it to the specified date
         Calendar targetCalendar = Calendar.getInstance();
-        targetCalendar.set(year, month - 1, day); // Month is 0-based in Calendar
+        targetCalendar.set(year, month - 1, day);
 
-        // Calculate weeks since start (2024-01-01)
         Calendar startCalendar = Calendar.getInstance();
-        startCalendar.set(2024, 0, 1); // January 1, 2024
+        startCalendar.set(2024, 0, 1);
 
-        // Calculate the difference in weeks
         long diffInMillis = targetCalendar.getTimeInMillis() - startCalendar.getTimeInMillis();
         int diffInWeeks = (int)(diffInMillis / (7 * 24 * 60 * 60 * 1000));
 
-        // Set current week index and update UI
         currentWeekIndex = diffInWeeks;
         currentWeekIndex = Math.max(0, Math.min(currentWeekIndex, totalWeeks - 1));
 
@@ -242,11 +215,9 @@ public class WeeklyHeaderFragment extends Fragment {
         updateWeek();
         updateMonthYearDisplay();
 
-        // Select the specific day
         String dateId = String.format(Locale.US, "%02d%02d%d", day, month, year);
         dayAdapter.setActiveDotByDateId(dateId);
 
-        // Notify activity about the selected day
         if (getActivity() instanceof OnDaySelectedListener) {
             ((OnDaySelectedListener) getActivity()).onDaySelected(dateId);
         }

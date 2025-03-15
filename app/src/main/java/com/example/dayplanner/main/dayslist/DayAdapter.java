@@ -16,7 +16,6 @@ import com.example.dayplanner.R;
 import java.text.DateFormatSymbols;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Locale;
 
 public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayViewHolder> {
     private Context context;
@@ -52,11 +51,9 @@ public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayViewHolder> {
     }
 
     public void updateDays(ArrayList<DayModel> newDays) {
-        this.days.clear();
-        this.days.addAll(newDays);
+        this.days = new ArrayList<>(newDays);
         buildDateIdToPositionMap();
 
-        // Reset selection when updating days
         selectedPosition = -1;
 
         notifyDataSetChanged();
@@ -71,8 +68,6 @@ public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayViewHolder> {
             setActiveDot(position);
             Log.d(TAG, "Found position for dateID " + dateID + ": " + position);
         } else {
-            // If date not found in current week, try to find just by day number
-            // This is a fallback for when switching weeks but wanting to maintain same day number
             String dayNumber = dateID.substring(0, 2);
             for (int i = 0; i < days.size(); i++) {
                 if (days.get(i).getDate().equals(dayNumber)) {
@@ -96,34 +91,25 @@ public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayViewHolder> {
     public void onBindViewHolder(@NonNull DayAdapter.DayViewHolder holder, int position) {
         DayModel dayModel = days.get(position);
 
-        // Set day name
         holder.dayTextView.setText(dayModel.getDayName());
 
-        // Set date number
         holder.dateTextView.setText(dayModel.getDate());
 
-        // Get month name
         String monthName = new DateFormatSymbols().getMonths()[Integer.parseInt(dayModel.getMonth()) - 1];
 
-        // Show or hide active dot
         holder.activeDot.setVisibility(position == selectedPosition ? View.VISIBLE : View.GONE);
 
-        // Set click listener
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 int adapterPosition = holder.getAdapterPosition();
                 if (adapterPosition != RecyclerView.NO_POSITION) {
-                    // Update active dot
                     setActiveDot(adapterPosition);
 
-                    // Get selected day model
                     DayModel selectedDay = days.get(adapterPosition);
 
-                    // Update month-year text view if available
                     updateMonthYearTextView(selectedDay, monthName);
 
-                    // Notify listener with date ID
                     String dateId = formatDateId(selectedDay);
                     onDayClickListener.onDayClick(dateId);
                     Log.d(TAG, "Day clicked: " + dateId);
@@ -155,17 +141,14 @@ public class DayAdapter extends RecyclerView.Adapter<DayAdapter.DayViewHolder> {
 
         Log.d(TAG, "Setting active dot at position: " + position);
 
-        // Update selected position
         int oldPosition = selectedPosition;
         selectedPosition = position;
 
-        // Notify specific items that changed to avoid full redraw
         if (oldPosition >= 0 && oldPosition < days.size()) {
             notifyItemChanged(oldPosition);
         }
         notifyItemChanged(selectedPosition);
 
-        // Optional: Scroll to make the selected item visible
         Activity activity = (Activity) context;
         if (activity != null) {
             RecyclerView recyclerView = activity.findViewById(R.id.weeklyRecyclerView);
