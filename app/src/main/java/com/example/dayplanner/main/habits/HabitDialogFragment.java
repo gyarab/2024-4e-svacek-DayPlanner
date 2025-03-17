@@ -24,6 +24,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.example.dayplanner.R;
+import com.example.dayplanner.main.dayslist.WeeklyHeaderFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
@@ -49,6 +50,7 @@ public class HabitDialogFragment extends DialogFragment {
     private GoalManager goalManager;
     private String currentDate;
     private String formattedDate;
+    private WeeklyHeaderFragment weeklyHeaderFragment;
 
 
     public HabitDialogFragment(boolean isEditMode, Habit habit) {
@@ -107,6 +109,7 @@ public class HabitDialogFragment extends DialogFragment {
         pickTimeButton = view.findViewById(R.id.pick_habit_time_button);
         pickDateButton = view.findViewById(R.id.pick_habit_date_button);
         goalManager = new GoalManager();
+        weeklyHeaderFragment = new WeeklyHeaderFragment();
 
         auth = FirebaseAuth.getInstance();
         habitsRef = FirebaseDatabase.getInstance().getReference("users").child(auth.getCurrentUser().getUid()).child("habits");
@@ -118,11 +121,27 @@ public class HabitDialogFragment extends DialogFragment {
         }
 
         saveHabitButton.setOnClickListener(v -> {
+            int year = selectedDate.get(Calendar.YEAR);
+            int month = selectedDate.get(Calendar.MONTH) + 1;
+            int day = selectedDate.get(Calendar.DAY_OF_MONTH);
+
+            Log.d("NAVIAGTE", year + " " + month + " " + day);
+
             if (isEditMode) {
                 updateHabitInFirebase();
             } else {
                 saveNewHabitToFirebase();
             }
+
+            WeeklyHeaderFragment weeklyHeaderFragment = (WeeklyHeaderFragment) getParentFragmentManager()
+                    .findFragmentByTag("WEEKLY_HEADER_FRAGMENT_TAG");
+
+            if (weeklyHeaderFragment != null) {
+                weeklyHeaderFragment.navigateToDate(year, month, day);
+            } else {
+                Log.e("NAVIGATE", "WeeklyHeaderFragment not found!");
+            }
+
         });
 
 

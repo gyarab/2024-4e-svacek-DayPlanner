@@ -217,6 +217,7 @@ public class WeeklyHeaderFragment extends Fragment {
     }
 
     public void navigateToDate(int year, int month, int day) {
+        Log.d("Navigate", year + " " + month + " " + day);
         if (year < 2024 || year > 2100) {
             Log.e("WeeklyHeaderFragment", "Year out of supported range (2024-2100)");
             return;
