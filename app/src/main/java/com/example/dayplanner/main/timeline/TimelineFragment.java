@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -138,24 +137,40 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
                                 int goalValue = getGoalValueForDate(habit.getGoalHistory(), dateId);
                                 HabitEntry newEntry = new HabitEntry(dateId, goalValue, 0, false);
 
-                                // Set the new entry in history
-                                habit.setEntryForDate(dateId, newEntry);
+                                entries.put(dateId, newEntry);
+                                habit.setEntries(entries);
+
                                 habitSnapshot.getRef().child("entries").child(dateId).setValue(newEntry)
-                                        .addOnSuccessListener(aVoid -> Log.d("FirebaseHelper", "New entry uploaded: " + newEntry))
+                                        .addOnSuccessListener(aVoid -> {
+                                            Log.d("FirebaseHelper", "entryy New entry uploaded: " + newEntry);
+                                            habit.setEntries(entries);
+                                            Log.d("FirebaseHelper", "entryy habit " + habit.toString());
+                                            timelineItems.add(new TimelineItem(habit));
+                                            fetchComplete();
+                                        })
                                         .addOnFailureListener(e -> Log.e("FirebaseHelper", "Failed to upload entry: " + e.getMessage()));
+                            } else {
+                                habit.setEntries(entries);
                             }
                         } else {
                             Log.d("FirebaseHelper", "No entries found, creating default entry");
                             HabitEntry newEntry = new HabitEntry(dateId, habit.getGoalValue(), 0, false);
+
                             entries.put(dateId, newEntry);
+                            habit.setEntries(entries);
+
                             habitSnapshot.getRef().child("entries").child(dateId).setValue(newEntry)
-                                    .addOnSuccessListener(aVoid -> Log.d("FirebaseHelper", "New entry uploaded: " + newEntry))
+                                    .addOnSuccessListener(aVoid -> {
+                                        Log.d("entryy", "New entry uploaded: " + newEntry);
+                                        habit.setEntries(entries); // Ensure entries are set after upload
+                                        Log.d("FirebaseHelper", "entryy habit " + habit.toString());
+                                        timelineItems.add(new TimelineItem(habit));
+                                        fetchComplete();
+                                    })
                                     .addOnFailureListener(e -> Log.e("FirebaseHelper", "Failed to upload entry: " + e.getMessage()));
                         }
 
-                        habit.setEntries(entries);
-                        Log.d("FirebaseHelper", "Fetched Habit: " + habit.toString());
-
+                        Log.d("FirebaseHelper", "entryy habit " + habit.toString());
                         timelineItems.add(new TimelineItem(habit));
                         fetchComplete();
                     }
@@ -163,18 +178,18 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                fetchComplete();
-                Log.e("FirebaseHelper", "Database Error: " + error.getMessage());
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e("FirebaseHelper", "Failed to fetch habits: " + databaseError.getMessage());
             }
         });
     }
+
 
     private void fetchComplete() {
         pendingFetches--;
         if (pendingFetches == 0) {
             timelineAdapter.notifyDataSetChanged();
-            Log.d("TimelineFragment", "Final timeline list: " + timelineItems);
+            Log.d("TimelineFragment", "Final timeline list: " + timelineItems.size());
         }
     }
 
@@ -193,7 +208,7 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
                 }
             }
         } catch (ParseException e) {
-            e.printStackTrace(); // Handle incorrect date format
+            e.printStackTrace();
         }
 
         return goalValue;

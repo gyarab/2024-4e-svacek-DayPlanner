@@ -26,7 +26,7 @@ public class Habit {
     private int currentStreak;
     private int longestStreak;
     private Map<String, HabitEntry> entries;
-    private Map<String, Integer> goalHistory; // New map to store goal history with dates
+    private Map<String, Integer> goalHistory;
 
     // Required no-argument constructor for Firebase
     public Habit() {}
@@ -42,7 +42,7 @@ public class Habit {
         this.goalValue = goalValue;
         this.currentStreak = 0;
         this.longestStreak = 0;
-        this.goalHistory = new HashMap<>(); // Initialize goal history
+        this.goalHistory = new HashMap<>();
         this.entries = new HashMap<>();
     }
 
@@ -83,16 +83,13 @@ public class Habit {
     public Map<String, Integer> getGoalHistory() { return goalHistory; }
     public void setGoalHistory(Map<String, Integer> goalHistory) { this.goalHistory = goalHistory; }
 
-    // Fetch goal value for a specific date
     public int getGoalValueForDate(String date) {
         if (goalHistory != null && goalHistory.containsKey(date)) {
             return goalHistory.get(date);
         }
-        return goalValue;  // fallback to the default goal value
+        return goalValue;
     }
 
-
-    // Add a new goal entry to the goalHistory map
     public void addGoalHistory(String date, int goalValue) {
         goalHistory.put(date, goalValue);
     }

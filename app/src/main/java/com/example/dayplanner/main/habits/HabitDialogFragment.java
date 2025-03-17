@@ -45,7 +45,7 @@ public class HabitDialogFragment extends DialogFragment {
     private FirebaseAuth auth;
     private Habit habit;
     private boolean isEditMode;
-    private Calendar selectedDate = Calendar.getInstance(); // Store selected date for the date picker
+    private Calendar selectedDate = Calendar.getInstance();
     private GoalManager goalManager;
     private String currentDate;
     private String formattedDate;
@@ -59,7 +59,7 @@ public class HabitDialogFragment extends DialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Set the dialog style to enable custom animations and full width
+
         if (getArguments() != null) {
             currentDate = getArguments().getString("currentDate");
         }
@@ -80,10 +80,8 @@ public class HabitDialogFragment extends DialogFragment {
             params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
             window.setAttributes(params);
 
-            // Apply animation to the dialog
             window.setWindowAnimations(R.style.BottomDialogAnimation);
 
-            // Apply animation to the view
             View view = getDialog().findViewById(R.id.habit_dialog_root);
             if (view != null) {
                 Animation slideUp = AnimationUtils.loadAnimation(getContext(), R.anim.slide_up);
@@ -97,10 +95,8 @@ public class HabitDialogFragment extends DialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_habit_dialog, container, false);
 
-        //TODO: delete the habit length from xml
         editHabitName = view.findViewById(R.id.edit_habit_name);
         editHabitDescription = view.findViewById(R.id.edit_habit_description);
-        //editHabitLength = view.findViewById(R.id.edit_habit_length);
         editStartTime = view.findViewById(R.id.edit_start_time);
         editStartDate = view.findViewById(R.id.edit_start_date);
         editGoalValue = view.findViewById(R.id.edit_goal_value);
@@ -140,7 +136,7 @@ public class HabitDialogFragment extends DialogFragment {
                 selectedDate.set(selectedYear, selectedMonth, selectedDay);
                 SimpleDateFormat dateFormat = new SimpleDateFormat("ddMMyyyy", Locale.getDefault());
                 formattedDate = dateFormat.format(selectedDate.getTime());
-                editStartDate.setText(formattedDate); // Update TextView
+                editStartDate.setText(formattedDate);
             }, year, month, day).show();
         });
 
@@ -149,7 +145,7 @@ public class HabitDialogFragment extends DialogFragment {
             Calendar calendar = Calendar.getInstance();
             TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(), (view12, hourOfDay, minute) -> {
                 String selectedTime = String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute);
-                editStartTime.setText(selectedTime); // Update TextView with selected time
+                editStartTime.setText(selectedTime);
             }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true);
             timePickerDialog.show();
         });
@@ -161,7 +157,6 @@ public class HabitDialogFragment extends DialogFragment {
         if (habit != null) {
             editHabitName.setText(habit.getName());
             editHabitDescription.setText(habit.getDescription());
-            //editHabitLength.setText(String.valueOf(habit.getLength()));
             editStartTime.setText(habit.getStartTime());
             editStartDate.setText(habit.getStartDate());
             editGoalValue.setText(String.valueOf(habit.getGoalValue()));
@@ -195,7 +190,7 @@ public class HabitDialogFragment extends DialogFragment {
         Log.d("savehb", "date " + formattedDate + " goal value " + goalValue);
 
         Habit newHabit = new Habit(habitId, name, description, frequency, startDate, startTime, metric, goalValue);
-        newHabit.setGoalHistory(new HashMap<>());  // Ensure goalHistory is empty initially
+        newHabit.setGoalHistory(new HashMap<>());
         newHabit.addGoalHistory(formattedDate, goalValue);
 
         habitsRef.child(habitId).setValue(newHabit)
@@ -232,7 +227,6 @@ public class HabitDialogFragment extends DialogFragment {
                 .addOnSuccessListener(aVoid -> {
                     Log.d("updateHabitInFirebase", "Habit updated successfully");
 
-                    // ✅ Call GoalManager to update goal values in future entries and history
                     goalManager.updateGoalValue(habit.getId(), newGoalValue, currentDate);
 
                     dismiss();

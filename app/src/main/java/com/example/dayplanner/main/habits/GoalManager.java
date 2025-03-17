@@ -7,10 +7,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
 public class GoalManager {
     private final DatabaseReference habitsRef;
 
@@ -28,7 +24,7 @@ public class GoalManager {
                 .addOnFailureListener(e -> Log.e("GoalManager", "Failed to update goal value", e));
 
         updateFutureEntriesGoalValue(habitId, clickedDate, newGoalValue);
-        logGoalHistory(habitId, newGoalValue, clickedDate);  // Pass clickedDate to log history
+        logGoalHistory(habitId, newGoalValue, clickedDate);
     }
 
     private void updateFutureEntriesGoalValue(String habitId, String clickedDate, int newGoalValue) {
@@ -60,24 +56,21 @@ public class GoalManager {
                     String entryDate = entrySnapshot.getKey();
 
                     Log.d("entry", "entrydate " + entryDate);
-                    // ✅ If the same date exists, update it
                     if (entryDate.equals(clickedDate)) {
                         Log.d("entry", "date exists");
-                        entrySnapshot.getRef().setValue(newGoalValue);  // Update directly
+                        entrySnapshot.getRef().setValue(newGoalValue);
                         dateExists = true;
                     }
 
-                    // 🗑️ Delete future records if clicked date is in the past
                     if (clickedDate.compareTo(entryDate) < 0) {
                         entrySnapshot.getRef().removeValue();
                     }
                 }
             }
 
-            // ✅ If the date doesn't exist, add a new record
             if (!dateExists) {
                 Log.d("entry", "date does not exist");
-                goalHistoryRef.child(clickedDate).setValue(newGoalValue);  // Direct key-value pair
+                goalHistoryRef.child(clickedDate).setValue(newGoalValue);
             }
 
             Log.d("GoalManager", "Goal history updated successfully.");
