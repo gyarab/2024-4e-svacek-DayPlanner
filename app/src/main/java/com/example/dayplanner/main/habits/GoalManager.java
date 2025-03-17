@@ -49,16 +49,19 @@ public class GoalManager {
 
     private void logGoalHistory(String habitId, int newGoalValue, String clickedDate) {
         DatabaseReference goalHistoryRef = habitsRef.child(habitId).child("goalHistory");
-
+        Log.d("entry", "clickeddate " + clickedDate);
         goalHistoryRef.get().addOnSuccessListener(snapshot -> {
             boolean dateExists = false;
 
             if (snapshot.exists()) {
+                Log.d("entry", "clickeddate " + clickedDate);
                 for (DataSnapshot entrySnapshot : snapshot.getChildren()) {
                     String entryDate = entrySnapshot.getKey();
 
+                    Log.d("entry", "entrydate " + entryDate);
                     // ✅ If the same date exists, update it
                     if (entryDate.equals(clickedDate)) {
+                        Log.d("entry", "date exists");
                         entrySnapshot.getRef().child("goalValue").setValue(newGoalValue);
                         dateExists = true;
                     }
@@ -72,6 +75,7 @@ public class GoalManager {
 
             // ✅ If the date doesn't exist, add a new record
             if (!dateExists) {
+                Log.d("entry", "date does not exist");
                 goalHistoryRef.child(clickedDate).child("goalValue").setValue(newGoalValue);
             }
 

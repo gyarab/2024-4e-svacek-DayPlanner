@@ -208,7 +208,7 @@ public class HabitDialogFragment extends DialogFragment {
         String startTime = editStartTime.getText().toString().trim();
         String metric = metricSpinner.getSelectedItem().toString();
 
-        int goalValue = editGoalValue.getText().toString().trim().isEmpty() ? 0 :
+        int newGoalValue = editGoalValue.getText().toString().trim().isEmpty() ? 0 :
                 Integer.parseInt(editGoalValue.getText().toString().trim());
 
         Map<String, Object> updateMap = new HashMap<>();
@@ -218,12 +218,21 @@ public class HabitDialogFragment extends DialogFragment {
         updateMap.put("startDate", startDate);
         updateMap.put("startTime", startTime);
         updateMap.put("metric", metric);
-        updateMap.put("goalValue", goalValue);
+        updateMap.put("goalValue", newGoalValue);
 
         habitsRef.child(habit.getId()).updateChildren(updateMap)
-                .addOnSuccessListener(aVoid -> dismiss())
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("updateHabitInFirebase", "Habit updated successfully");
+
+                    // ✅ Call GoalManager to update goal values in future entries and history
+                    goalManager.updateGoalValue(habit.getId(), newGoalValue, currentDate);
+
+                    dismiss();
+                })
                 .addOnFailureListener(e -> Log.e("updateHabitInFirebase", "Failed to update habit", e));
     }
+
+
 
 
     private void updateFutureEntriesGoalValue(String habitId, String startDate, int newGoalValue) {
