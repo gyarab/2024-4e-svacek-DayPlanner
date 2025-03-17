@@ -3,7 +3,6 @@ package com.example.dayplanner.main.habits;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -42,6 +41,14 @@ public class HabitDialogFragment extends DialogFragment {
     public HabitDialogFragment(boolean isEditMode, Habit habit) {
         this.isEditMode = isEditMode;
         this.habit = habit;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (getDialog() != null && getDialog().getWindow() != null) {
+            getDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
     }
 
     @Nullable

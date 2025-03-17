@@ -1,27 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="?attr/colorSurface">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="8dp">
 
         <!-- Habit Name -->
-        <EditText
-            android:id="@+id/edit_habit_name"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Habit Name" />
+            android:hint="Habit Name">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_habit_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Habit Description -->
-        <EditText
-            android:id="@+id/edit_habit_description"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Description" />
+            android:hint="Description">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_habit_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Start Date -->
         <TextView
@@ -30,20 +42,28 @@
             android:layout_height="wrap_content"
             android:text="Select Start Date"
             android:textSize="16sp"
-            android:paddingTop="8dp" />
+            android:textStyle="bold"
+            android:paddingTop="8dp"
+            android:paddingBottom="4dp" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/pick_habit_date_button"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            style="@style/Widget.MaterialComponents.Button"
             android:text="Pick Date" />
 
         <!-- Frequency Spinner -->
-        <Spinner
-            android:id="@+id/spinner_frequency"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:entries="@array/habit_frequencies" />
+            android:hint="Frequency">
+            <Spinner
+                android:id="@+id/spinner_frequency"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/habit_frequencies" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Start Time -->
         <TextView
@@ -52,96 +72,69 @@
             android:layout_height="wrap_content"
             android:text="Select Start Time"
             android:textSize="16sp"
-            android:paddingTop="8dp" />
+            android:textStyle="bold"
+            android:paddingTop="8dp"
+            android:paddingBottom="4dp" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/pick_habit_time_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            style="@style/Widget.MaterialComponents.Button"
             android:text="Pick Time" />
 
-        <!-- Duration -->
-        <EditText
-            android:id="@+id/edit_habit_length"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Duration (e.g., 30 min)" />
-
         <!-- Metric Selection -->
-        <Spinner
-            android:id="@+id/spinner_metric"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:entries="@array/habit_metrics" />
+            android:hint="Metric">
+            <Spinner
+                android:id="@+id/spinner_metric"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/habit_metrics" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Custom Metric -->
-        <EditText
-            android:id="@+id/edit_custom_metric"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Custom Metric"
-            android:visibility="gone" />
+            android:visibility="gone">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_custom_metric"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Goal Value -->
-        <EditText
-            android:id="@+id/edit_goal_value"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Goal Value (e.g., 10km, 15 min)" />
-
-        <!-- Streak Tracking -->
-        <TextView
-            android:id="@+id/text_current_streak"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Current Streak: 0"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:paddingTop="8dp" />
-
-        <TextView
-            android:id="@+id/text_longest_streak"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Longest Streak: 0"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:paddingBottom="8dp" />
-
-        <!-- Daily Progress Section -->
-        <TextView
-            android:id="@+id/text_daily_entries"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Daily Progress:"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:paddingTop="8dp" />
-
-        <LinearLayout
-            android:id="@+id/daily_entries_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <!-- Dynamic Entries Here -->
-        </LinearLayout>
+            android:hint="Goal Value (e.g., 10km, 15 min)">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_goal_value"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Save Habit Button -->
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/save_habit_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Save Habit"
-            android:layout_marginTop="16dp" />
+            android:layout_marginTop="16dp"
+            style="?attr/materialButtonOutlinedStyle"/>
 
         <!-- Delete Habit Button (Hidden by Default) -->
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/delete_habit_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Delete Habit"
             android:visibility="gone"
-            android:layout_marginTop="8dp" />
-
+            android:layout_marginTop="8dp"
+            style="?attr/materialButtonOutlinedStyle"/>
     </LinearLayout>
 </ScrollView>

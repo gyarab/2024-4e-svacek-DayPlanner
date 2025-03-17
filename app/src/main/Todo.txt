@@ -23,7 +23,7 @@
 8 specific day picker using calendar for weeklyHeaderFragment
 9 design for logging and signing in ✅
 10 resend verification link
-11 Only show chart when it makes sense
+11 Only show chart when it makes sense ✅
 12 If I update a habit dont loose progress
 13 I should be able to update the entry goal for targeted and all upcoming entries
 14 Allow overflow progress

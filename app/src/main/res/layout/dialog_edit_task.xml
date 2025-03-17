@@ -3,29 +3,49 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="?attr/colorSurface">
 
-    <EditText
-        android:id="@+id/edit_task_title"
+    <!-- Task Title -->
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Task Title"
-        android:inputType="text" />
+        android:layout_marginBottom="8dp">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edit_task_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <EditText
-        android:id="@+id/edit_task_description"
+    <!-- Task Description -->
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Task Description"
-        android:inputType="text" />
+        android:layout_marginBottom="8dp">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edit_task_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <EditText
-        android:id="@+id/edit_task_length"
+    <!-- Task Length -->
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Task Length (minutes)"
-        android:inputType="number" />
+        android:layout_marginBottom="8dp">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edit_task_length"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number" />
+    </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- Select Date -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -38,15 +58,20 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Select Date"
-            android:hint="Date" />
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="16sp" />
 
         <Button
             android:id="@+id/pick_date_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Pick Date" />
+            android:text="Pick Date"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"/>
     </LinearLayout>
 
+    <!-- Select Time -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -59,38 +84,46 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Select Time"
-            android:hint="Time" />
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="16sp" />
 
         <Button
             android:id="@+id/pick_time_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Pick Time" />
+            android:text="Pick Time"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"/>
     </LinearLayout>
 
+    <!-- Buttons (Save and Delete) -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginTop="16dp">
 
+        <!-- Save Task Button -->
         <Button
             android:id="@+id/save_task_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Save Task" />
+            android:text="Save Task"
+            style="@style/Widget.MaterialComponents.Button" />
 
+        <!-- Delete Task Button (Hidden by Default) -->
         <Button
             android:id="@+id/delete_task_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
             android:background="?attr/selectableItemBackground"
             android:drawableStart="@drawable/delete_icon"
             android:drawablePadding="8dp"
             android:text="Delete"
+            android:textColor="?attr/colorError"
             android:visibility="gone" />
     </LinearLayout>
 
