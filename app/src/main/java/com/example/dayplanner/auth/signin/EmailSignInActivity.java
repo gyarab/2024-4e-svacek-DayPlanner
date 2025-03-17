@@ -36,7 +36,7 @@ public class EmailSignInActivity extends AppCompatActivity {
 
         editEmail = findViewById(R.id.edit_email);
         editPassword = findViewById(R.id.edit_password);
-        editConfirmPassword = findViewById(R.id.edit_confirm_password); // Add this field in your XML layout
+        editConfirmPassword = findViewById(R.id.edit_confirm_password);
         btnRegister = findViewById(R.id.btn_register);
 
         firebaseAuth = FirebaseAuth.getInstance();

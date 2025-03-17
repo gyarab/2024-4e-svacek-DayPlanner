@@ -59,7 +59,7 @@ public class StatisticsActivity extends AppCompatActivity {
     private SimpleDateFormat monthFormat = new SimpleDateFormat("MMyyyy", Locale.getDefault());
 
     /** UI **/
-    private TextView overallProgressTextView, perfectDaysTextView, longestStreakTextView, tvMonthYear, totalMetricTextView;
+    private TextView perfectDaysTextView, longestStreakTextView, tvMonthYear, totalMetricTextView;
     private CustomCircularProgressBar overallProgressPBar;
     private RecyclerView MonthlyProgressRecyclerView;
     private ImageButton btnPreviousMonth, btnNextMonth;
@@ -79,17 +79,13 @@ public class StatisticsActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        //TODO: fetch data for one habit to recycler view
-        //TODO: Make calculation more dynamic => both month and habit could use them
 
-        //overallProgressTextView = findViewById(R.id.tvOverallProgress);
         perfectDaysTextView = findViewById(R.id.tvPerfectDays);
         longestStreakTextView = findViewById(R.id.tvLongestStreak);
         overallProgressPBar = findViewById(R.id.overallProgressBar);
         totalMetricTextView = findViewById(R.id.totalMetric);
         totalMetricLayout = findViewById(R.id.totalMetricLayout);
 
-        //MonthlyProgressRecyclerView = findViewById(R.id.rvMonthlyProgress);
 
         lineChart = findViewById(R.id.testLineChart);
 
@@ -115,25 +111,17 @@ public class StatisticsActivity extends AppCompatActivity {
         habitListAdapter = new HabitListAdapter(habitList, this::fetchDataForOneHabit);
         habitsRecyclerView.setAdapter(habitListAdapter);
 
-        /*RecyclerView recyclerView = findViewById(R.id.rvHabitsList);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        recyclerView.setLayoutManager(layoutManager);*/
-
         loadUserHabits();
 
         String monthId = "032025";
 
-        //TODO: fetch for current date
         fetchAndStoreHabitsForMonth(monthId);
-
-        //TODO: on click on habit element in UI
 
         countOverallPerfectDays(monthId);
     }
     private void setupLineChart(LineChart lineChart, List<HabitProgressEntry> habitProgressData) {
         Context context = lineChart.getContext();
 
-        // Fetch theme colors using TypedArray
         int[] attrs = new int[]{android.R.attr.colorPrimary, android.R.attr.colorSecondary, android.R.attr.textColorPrimary, android.R.attr.colorSecondary};
         TypedArray ta = context.obtainStyledAttributes(attrs);
 
@@ -142,33 +130,30 @@ public class StatisticsActivity extends AppCompatActivity {
         int textColor = ta.getColor(2, Color.BLACK);
         int fillColor = ta.getColor(3, Color.LTGRAY);
 
-        ta.recycle(); // Avoid memory leaks
+        ta.recycle();
 
         List<Entry> entries = new ArrayList<>();
-        List<String> xLabels = new ArrayList<>(); // Stores formatted dates for X-axis
+        List<String> xLabels = new ArrayList<>();
 
-        // Define date formatter
         DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("ddMMyyyy", Locale.ENGLISH);
         DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("d MMMM", Locale.ENGLISH);
 
         for (int i = 0; i < habitProgressData.size(); i++) {
             HabitProgressEntry entry = habitProgressData.get(i);
 
-            // Convert "02032025" to "2 March"
             String rawDate = entry.getDate();
             String formattedDate;
             try {
                 LocalDate date = LocalDate.parse(rawDate, inputFormatter);
                 formattedDate = date.format(outputFormatter);
             } catch (Exception e) {
-                formattedDate = rawDate; // Fallback in case of parsing issues
+                formattedDate = rawDate;
             }
 
-            entries.add(new Entry(i, entry.getGoalValue()));  // X-axis = index, Y-axis = Goal Value
-            xLabels.add(formattedDate);  // Store formatted date for X-axis labels
+            entries.add(new Entry(i, entry.getGoalValue()));
+            xLabels.add(formattedDate);
         }
 
-        // Create dataset for the chart
         LineDataSet dataSet = new LineDataSet(entries, "Progress Over Time");
         dataSet.setColor(lineColor);
         dataSet.setValueTextColor(textColor);
@@ -177,27 +162,23 @@ public class StatisticsActivity extends AppCompatActivity {
         dataSet.setCircleRadius(5f);
         dataSet.setDrawFilled(true);
         dataSet.setFillColor(fillColor);
-        dataSet.setValueTextSize(12f); // Make values larger
+        dataSet.setValueTextSize(12f);
 
-        // Create LineData and set it to chart
         LineData lineData = new LineData(dataSet);
         lineChart.setData(lineData);
 
-        // Customize X-Axis
         XAxis xAxis = lineChart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setGranularity(1f);
         xAxis.setTextColor(textColor);
         xAxis.setTextSize(14f);
-        xAxis.setValueFormatter(new IndexAxisValueFormatter(xLabels)); // Set formatted labels
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(xLabels));
 
-        // Customize Y-Axis
         YAxis leftAxis = lineChart.getAxisLeft();
         leftAxis.setTextColor(textColor);
         leftAxis.setTextSize(14f);
-        lineChart.getAxisRight().setEnabled(false); // Hide right Y-axis
+        lineChart.getAxisRight().setEnabled(false);
 
-        // Refresh chart
         lineChart.invalidate();
     }
 
@@ -345,7 +326,7 @@ public class StatisticsActivity extends AppCompatActivity {
         //TODO: check the correct month
         Log.d("fetchAndStoreHabits", "Fetching data for habit: " + habitId);
 
-        String currentMonthId = getCurrentMonthId(); // Get the current month ID
+        String currentMonthId = getCurrentMonthId();
         DatabaseReference oneHabitRef = FirebaseHelper.getHabitsRef().child(habitId);
 
         oneHabitRef.addValueEventListener(new ValueEventListener() {
@@ -357,7 +338,6 @@ public class StatisticsActivity extends AppCompatActivity {
                 if (habit != null) {
                     Log.d("fetchAndStoreHabits", "Fetched Habit for: " + currentMonthId + " -> " + habit.toString());
 
-                    // Get all entries from the habit
                     Map<String, HabitEntry> entries = habit.getEntries();
                     LinkedHashMap<String, Float> dailyCompletionPercentages = new LinkedHashMap<>();
 
@@ -365,16 +345,13 @@ public class StatisticsActivity extends AppCompatActivity {
 
                     int totalMetric = 0;
 
-                    // Get today's date
                     String todayDate = new SimpleDateFormat("ddMMyyyy", Locale.getDefault()).format(new Date());
 
-                    // Get the first day of the month
                     String firstDayOfMonth = "01" + currentMonthId;
 
                     String lastDayOfMonth = getLastDayOfMonth(currentMonthId);
                     Log.d("LastDay", "Last day of March 2025: " + lastDayOfMonth);
 
-                    // Loop from the first day of the month to today
                     Calendar calendar = Calendar.getInstance();
                     try {
                         SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy", Locale.getDefault());
@@ -387,7 +364,7 @@ public class StatisticsActivity extends AppCompatActivity {
                             lastAvailableDate = todayDate; // Limit to today if it's the current month
                         } else {
                             Log.d("LastDay", "Different month " +  "-> " + lastDayOfMonth + " " + getActualCurrentMonthId() + " = "  + currentMonthId);
-                            lastAvailableDate = lastDayOfMonth; // Use the month's last day otherwise
+                            lastAvailableDate = lastDayOfMonth;
                         }
 
                         Date endDate = sdf.parse(lastAvailableDate);
@@ -414,7 +391,6 @@ public class StatisticsActivity extends AppCompatActivity {
                                 Log.d("fetchAndStoreHabits", "No entry for " + entryDate + ", setting progress to 0%");
                             }
 
-                            // Move to the next day
                             calendar.add(Calendar.DAY_OF_MONTH, 1);
                         }
 
@@ -422,7 +398,6 @@ public class StatisticsActivity extends AppCompatActivity {
                         Log.e("fetchAndStoreHabits", "Date parsing error: " + e.getMessage());
                     }
 
-                    // Calculate overall progress for the month
                     int overallMonthProgress = calculateMonthOverallProgress(dailyCompletionPercentages);
                     Log.d("fetchAndStoreHabits", "Overall month progress for " + currentMonthId + " = " + overallMonthProgress + "%");
 
@@ -443,7 +418,6 @@ public class StatisticsActivity extends AppCompatActivity {
                     Log.d("fetchAndStoreHabits", "Longest streak for " + currentMonthId + " = " + longestStreak);
                     Log.d("fetchAndStoreHabits", "Perfect days for " + currentMonthId + " = " + perfectDaysCount);
 
-                    // Update the UI
                     updateUIWithMonthOverallProgress(overallMonthProgress);
                     updateUIWithMonthlyProgress(dailyCompletionPercentages);
                     updateUIWithLongestStreak(longestStreak);
@@ -480,16 +454,14 @@ public class StatisticsActivity extends AppCompatActivity {
     public String getLastDayOfMonth(String monthId) {
         try {
             // Parse monthId to get year and month
-            int month = Integer.parseInt(monthId.substring(0, 2)) - 1; // Convert "03" to 2 (March, 0-based index)
-            int year = Integer.parseInt(monthId.substring(2, 6)); // Get year "2025"
+            int month = Integer.parseInt(monthId.substring(0, 2)) - 1;
+            int year = Integer.parseInt(monthId.substring(2, 6));
 
-            // Set up the calendar
             Calendar calendar = Calendar.getInstance();
             calendar.set(Calendar.YEAR, year);
             calendar.set(Calendar.MONTH, month);
-            calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH)); // Last day of month
+            calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
 
-            // Format as ddMMyyyy
             SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy", Locale.getDefault());
             return sdf.format(calendar.getTime());
 
@@ -505,8 +477,7 @@ public class StatisticsActivity extends AppCompatActivity {
         habitsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                LinkedHashMap<String, Boolean> perfectDays = new LinkedHashMap<>(); // Track perfect days
-
+                LinkedHashMap<String, Boolean> perfectDays = new LinkedHashMap<>();
                 long currentDateMillis = System.currentTimeMillis();
                 SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy", Locale.getDefault());
                 String currentDateStr = sdf.format(new Date(currentDateMillis));
@@ -533,7 +504,6 @@ public class StatisticsActivity extends AppCompatActivity {
                         }
 
                         if (dateKey.substring(2, 8).equals(monthId) && habit.isHabitVisibleOnDate(dateKey)) {
-                            // Initialize the day as perfect (true) if not already present
                             if (!perfectDays.containsKey(dateKey)) {
                                 perfectDays.put(dateKey, true);
                             }
@@ -545,12 +515,11 @@ public class StatisticsActivity extends AppCompatActivity {
                             }
                         }
 
-                        calendar.add(Calendar.DAY_OF_MONTH, 1); // Move to next day
+                        calendar.add(Calendar.DAY_OF_MONTH, 1);
                         if (dateKey.equals(currentDateStr)) break;
                     }
                 }
 
-                // Count the number of perfect days in the given month
                 int perfectDaysCount = 0;
                 for (String date : perfectDays.keySet()) {
                     if (date.substring(2, 8).equals(monthId) && perfectDays.get(date)) {
@@ -558,7 +527,6 @@ public class StatisticsActivity extends AppCompatActivity {
                     }
                 }
 
-                // Calculate longest streak
                 int longestStreak = countLongestStreak(perfectDays);
 
                 Log.d("countPerfectDays", "Perfect days in " + monthId + ": " + perfectDaysCount);
@@ -575,9 +543,6 @@ public class StatisticsActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Counts the longest streak of consecutive perfect days in the given month.
-     */
     private int countLongestStreak(LinkedHashMap<String, Boolean> perfectDays) {
         int longestStreak = 0;
         int currentStreak = 0;
@@ -587,7 +552,7 @@ public class StatisticsActivity extends AppCompatActivity {
                 currentStreak++;
                 longestStreak = Math.max(longestStreak, currentStreak);
             } else {
-                currentStreak = 0; // Reset streak if there's a break
+                currentStreak = 0;
             }
         }
 
@@ -659,7 +624,6 @@ public class StatisticsActivity extends AppCompatActivity {
 
         int lastGoalValue = -1;
 
-        // Loop through data and detect changes in Goal Value
         for (HabitProgressEntry habitProgressEntry:habitProgressData) {
             if(lastGoalValue != habitProgressEntry.getGoalValue()) {
                 formattedData.add(habitProgressEntry);

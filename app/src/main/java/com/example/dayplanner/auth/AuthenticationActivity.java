@@ -28,14 +28,6 @@ public class AuthenticationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_authentication);
-        /*ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });*/
-
-        /*FacebookSdk.sdkInitialize(getApplicationContext());
-        AppEventsLogger.activateApp(this.getApplication());*/
 
         if (savedInstanceState == null) {
             getSupportFragmentManager()
@@ -48,8 +40,6 @@ public class AuthenticationActivity extends AppCompatActivity {
 
         emailButton.setBackgroundResource(R.drawable.email_button_background);
         emailButton.setBackgroundTintList(null);
-
-        //GoogleLoginActivity googleLoginActivity = new GoogleLoginActivity();
 
         emailButton.setOnClickListener(new View.OnClickListener() {
             @Override

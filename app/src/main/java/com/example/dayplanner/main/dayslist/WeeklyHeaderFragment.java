@@ -108,18 +108,18 @@ public class WeeklyHeaderFragment extends Fragment {
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        startX = event.getX(); // Capture start X position
-                        return false; // Let RecyclerView handle scrolling
+                        startX = event.getX();
+                        return false;
 
                     case MotionEvent.ACTION_UP:
-                        float endX = event.getX(); // Capture end X position
-                        float deltaX = startX - endX; // Determine swipe direction
+                        float endX = event.getX();
+                        float deltaX = startX - endX;
 
-                        if (Math.abs(deltaX) > 100) { // Minimum threshold to avoid accidental swipes
+                        if (Math.abs(deltaX) > 100) {
                             if (deltaX > 0) {
-                                navigateToNextWeek(); // Swiped left → next week
+                                navigateToNextWeek();
                             } else {
-                                navigateToPreviousWeek(); // Swiped right → previous week
+                                navigateToPreviousWeek();
                             }
                             return true;
                         }
