@@ -12,9 +12,10 @@
 1 Change password ✅
 
 LAST:
-- decrease blur
+- decrease blur ✅
 - duplicate spawns in timeline
-- statistics wont load (idk too much data) -> needs fixing
+- statistics wont load (idk too much data) -> needs fixing ✅
+- check if month stats check year
 - test file for teachers
 
 3 Double check signing with email ✅

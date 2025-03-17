@@ -107,7 +107,7 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
             if (item.getTask().isTaskCompleted()) {
                 holder.statusIcon.setImageResource(R.drawable.ic_chceck);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    holder.taskContainer.setRenderEffect(RenderEffect.createBlurEffect(1.5f, 1.5f, Shader.TileMode.CLAMP));
+                    holder.taskContainer.setRenderEffect(RenderEffect.createBlurEffect(0.35f, 0.35f, Shader.TileMode.CLAMP));
                 }
                 holder.iconView.setBackground(ContextCompat.getDrawable(context, R.drawable.finished_item_bg));
                 holder.iconView.setImageResource(R.drawable.finished_item_icon);
@@ -134,7 +134,7 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
 
                         holder.statusIcon.setImageResource(R.drawable.ic_chceck);
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                            holder.taskContainer.setRenderEffect(RenderEffect.createBlurEffect(1.5f, 1.5f, Shader.TileMode.CLAMP));
+                            holder.taskContainer.setRenderEffect(RenderEffect.createBlurEffect(0.35f, 0.35f, Shader.TileMode.CLAMP));
                         }
 
                         holder.iconView.setBackground(ContextCompat.getDrawable(context, R.drawable.finished_item_bg));
