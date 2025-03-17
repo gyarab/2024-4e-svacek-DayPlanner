@@ -5,9 +5,14 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -36,17 +41,41 @@ public class TaskDialogFragment extends DialogFragment {
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Set the dialog style to enable custom animations and full width
+        setStyle(DialogFragment.STYLE_NO_TITLE, R.style.BottomSheetDialogTheme);
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
         if (getDialog() != null && getDialog().getWindow() != null) {
-            getDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            Window window = getDialog().getWindow();
+
+            // Set the dialog to appear at the bottom
+            WindowManager.LayoutParams params = window.getAttributes();
+            params.gravity = Gravity.BOTTOM;
+            params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            window.setAttributes(params);
+
+            // Apply animation to the dialog
+            window.setWindowAnimations(R.style.BottomDialogAnimation);
+
+            // Apply animation to the view
+            View view = getDialog().findViewById(R.id.task_dialog_root);
+            if (view != null) {
+                Animation slideUp = AnimationUtils.loadAnimation(getContext(), R.anim.slide_up);
+                view.startAnimation(slideUp);
+            }
         }
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.dialog_edit_task, container, false);
+        View view = inflater.inflate(R.layout.fragment_task_dialog, container, false);
 
         EditText editTaskTitle = view.findViewById(R.id.edit_task_title);
         EditText editTaskDescription = view.findViewById(R.id.edit_task_description);
@@ -205,6 +234,4 @@ public class TaskDialogFragment extends DialogFragment {
         Log.d("formattedDate", formattedDate);
         return formattedDate;
     }
-
 }
-

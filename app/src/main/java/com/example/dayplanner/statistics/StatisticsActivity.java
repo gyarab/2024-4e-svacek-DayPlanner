@@ -640,7 +640,8 @@ public class StatisticsActivity extends AppCompatActivity {
     private void updateChartWithData(List<HabitProgressEntry> habitProgressData) {
         runOnUiThread(() -> {
             List<HabitProgressEntry> formatedHabitProgressData = formatHabitProgressDataForChart(habitProgressData);
-
+            Log.d("Chart D", habitProgressData.toString());
+            Log.d("Chart D", formatedHabitProgressData.toString());
             if(formatedHabitProgressData.size() <= 1) {
                 lineChart.setVisibility(View.GONE);
             } else {

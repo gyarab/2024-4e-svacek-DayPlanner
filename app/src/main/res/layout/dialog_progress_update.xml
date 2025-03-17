@@ -2,9 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:padding="20dp"
+    android:padding="24dp"
     android:orientation="vertical"
-    android:gravity="center">
+    android:gravity="center"
+    android:elevation="4dp"
+    android:layout_margin="12dp">
 
     <!-- Habit Name -->
     <TextView
@@ -12,15 +14,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Habit Name"
-        android:textSize="18sp"
+        android:textSize="20sp"
         android:textStyle="bold"
-        android:paddingBottom="10dp" />
+        android:paddingBottom="12dp" />
 
     <!-- Custom Circular Progress Bar -->
     <com.example.dayplanner.statistics.CustomCircularProgressBar
         android:id="@+id/circularProgressBar"
-        android:layout_width="150dp"
-        android:layout_height="150dp"/>
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:layout_marginBottom="16dp" />
 
     <!-- Progress Input -->
     <EditText
@@ -29,9 +32,9 @@
         android:layout_height="wrap_content"
         android:hint="Enter progress"
         android:inputType="numberDecimal"
-        android:padding="10dp"
+        android:padding="12dp"
         android:textSize="16sp"
-        android:layout_marginTop="10dp" />
+        android:elevation="2dp" />
 
     <!-- Buttons -->
     <LinearLayout
@@ -39,31 +42,38 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:layout_marginTop="10dp">
+        android:layout_marginTop="12dp">
 
         <Button
             android:id="@+id/addButton"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:text="Add"
-            android:background="@drawable/button_background" />
+            android:textAllCaps="false"
+            android:textSize="16sp" />
+
+        <View
+            android:layout_width="8dp"
+            android:layout_height="match_parent" />
 
         <Button
             android:id="@+id/setButton"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:text="Set"
-            android:background="@drawable/button_background" />
+            android:textAllCaps="false"
+            android:textSize="16sp" />
     </LinearLayout>
 
     <Button
         android:id="@+id/cancelButton"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:text="Cancel"
-        android:background="@drawable/button_background"
-        android:layout_marginTop="5dp" />
+        android:textAllCaps="false"
+        android:textSize="16sp"
+        android:layout_marginTop="8dp" />
 
 </LinearLayout>

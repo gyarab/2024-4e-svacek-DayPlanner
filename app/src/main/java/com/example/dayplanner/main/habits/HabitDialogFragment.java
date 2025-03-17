@@ -5,9 +5,14 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -20,12 +25,15 @@ import androidx.fragment.app.DialogFragment;
 
 import com.example.dayplanner.R;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public class HabitDialogFragment extends DialogFragment {
     private EditText editHabitName, editHabitDescription, editHabitLength, editGoalValue;
@@ -37,6 +45,9 @@ public class HabitDialogFragment extends DialogFragment {
     private Habit habit;
     private boolean isEditMode;
     private Calendar selectedDate = Calendar.getInstance(); // Store selected date for the date picker
+    private GoalManager goalManager;
+    private String currentDate;
+
 
     public HabitDialogFragment(boolean isEditMode, Habit habit) {
         this.isEditMode = isEditMode;
@@ -44,10 +55,38 @@ public class HabitDialogFragment extends DialogFragment {
     }
 
     @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Set the dialog style to enable custom animations and full width
+        if (getArguments() != null) {
+            currentDate = getArguments().getString("currentDate");
+        }
+
+        setStyle(DialogFragment.STYLE_NO_TITLE, R.style.BottomSheetDialogTheme);
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
         if (getDialog() != null && getDialog().getWindow() != null) {
-            getDialog().getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            Window window = getDialog().getWindow();
+
+            // Set the dialog to appear at the bottom
+            WindowManager.LayoutParams params = window.getAttributes();
+            params.gravity = Gravity.BOTTOM;
+            params.width = ViewGroup.LayoutParams.MATCH_PARENT;
+            params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            window.setAttributes(params);
+
+            // Apply animation to the dialog
+            window.setWindowAnimations(R.style.BottomDialogAnimation);
+
+            // Apply animation to the view
+            View view = getDialog().findViewById(R.id.habit_dialog_root);
+            if (view != null) {
+                Animation slideUp = AnimationUtils.loadAnimation(getContext(), R.anim.slide_up);
+                view.startAnimation(slideUp);
+            }
         }
     }
 
@@ -69,6 +108,7 @@ public class HabitDialogFragment extends DialogFragment {
         deleteHabitButton = view.findViewById(R.id.delete_habit_button);
         pickTimeButton = view.findViewById(R.id.pick_habit_time_button);
         pickDateButton = view.findViewById(R.id.pick_habit_date_button);
+        goalManager = new GoalManager();
 
         auth = FirebaseAuth.getInstance();
         habitsRef = FirebaseDatabase.getInstance().getReference("users").child(auth.getCurrentUser().getUid()).child("habits");
@@ -79,7 +119,14 @@ public class HabitDialogFragment extends DialogFragment {
             deleteHabitButton.setOnClickListener(v -> showDeleteConfirmationDialog(habit.getId()));
         }
 
-        saveHabitButton.setOnClickListener(v -> saveHabitToFirebase());
+        saveHabitButton.setOnClickListener(v -> {
+            if (isEditMode) {
+                updateHabitInFirebase();
+            } else {
+                saveNewHabitToFirebase();
+            }
+        });
+
 
         /** Date Picker **/
         pickDateButton.setOnClickListener(v -> {
@@ -120,11 +167,37 @@ public class HabitDialogFragment extends DialogFragment {
         }
     }
 
-    private void saveHabitToFirebase() {
-        String habitId = isEditMode ? habit.getId() : habitsRef.push().getKey();
+    private void saveNewHabitToFirebase() {
+        String name = editHabitName.getText().toString().trim();
+        String description = editHabitDescription.getText().toString().trim();
+        String frequency = frequencySpinner.getSelectedItem().toString();
+        String startDate = editStartDate.getText().toString().trim();
+        String startTime = editStartTime.getText().toString().trim();
+        String metric = metricSpinner.getSelectedItem().toString();
 
+        int goalValue = editGoalValue.getText().toString().trim().isEmpty() ? 0 :
+                Integer.parseInt(editGoalValue.getText().toString().trim());
+
+        if (name.isEmpty() || startDate.isEmpty() || startTime.isEmpty()) {
+            Log.e("saveNewHabitToFirebase", "Missing required fields");
+            return;
+        }
+
+        String habitId = habitsRef.push().getKey();
         if (habitId == null) {
-            Log.e("saveHabitToFirebase", "Error: habitId is null");
+            Log.e("saveNewHabitToFirebase", "Failed to generate habit ID");
+            return;
+        }
+
+        Habit newHabit = new Habit(habitId, name, description, frequency, startDate, startTime, metric, goalValue);
+        habitsRef.child(habitId).setValue(newHabit)
+                .addOnSuccessListener(aVoid -> dismiss())
+                .addOnFailureListener(e -> Log.e("saveNewHabitToFirebase", "Error saving habit", e));
+    }
+
+    private void updateHabitInFirebase() {
+        if (habit == null || habit.getId() == null) {
+            Log.e("updateHabitInFirebase", "Habit ID is null");
             return;
         }
 
@@ -138,28 +211,39 @@ public class HabitDialogFragment extends DialogFragment {
         int goalValue = editGoalValue.getText().toString().trim().isEmpty() ? 0 :
                 Integer.parseInt(editGoalValue.getText().toString().trim());
 
-        Habit newHabit = new Habit(
-                habitId,
-                name,
-                description,
-                frequency,
-                startDate,
-                startTime,
-                metric,
-                goalValue
-        );
+        Map<String, Object> updateMap = new HashMap<>();
+        updateMap.put("name", name);
+        updateMap.put("description", description);
+        updateMap.put("frequency", frequency);
+        updateMap.put("startDate", startDate);
+        updateMap.put("startTime", startTime);
+        updateMap.put("metric", metric);
+        updateMap.put("goalValue", goalValue);
 
-        /** Save to Firebase **/
-        habitsRef.child(habitId).setValue(newHabit)
-                .addOnSuccessListener(aVoid -> {
-                    //TODO: NotifyDataSetChanged
-
-                    Log.d("saveHabitToFirebase", "Habit saved successfully");
-                    dismiss(); //dismiss() -> closes the dialog
-                })
-                .addOnFailureListener(e -> Log.e("saveHabitToFirebase", "Error saving habit", e));
-        dismiss();
+        habitsRef.child(habit.getId()).updateChildren(updateMap)
+                .addOnSuccessListener(aVoid -> dismiss())
+                .addOnFailureListener(e -> Log.e("updateHabitInFirebase", "Failed to update habit", e));
     }
+
+
+    private void updateFutureEntriesGoalValue(String habitId, String startDate, int newGoalValue) {
+        DatabaseReference entriesRef = habitsRef.child(habitId).child("entries");
+
+        entriesRef.get().addOnSuccessListener(snapshot -> {
+            if (snapshot.exists()) {
+                for (DataSnapshot entrySnapshot : snapshot.getChildren()) {
+                    String entryDate = entrySnapshot.getKey();
+
+                    // Only update future entries
+                    if (entryDate.compareTo(startDate) >= 0) {
+                        entrySnapshot.getRef().child("entryGoalValue").setValue(newGoalValue);
+                    }
+                }
+                Log.d("updateFutureEntries", "Future goal values updated successfully.");
+            }
+        }).addOnFailureListener(e -> Log.e("updateFutureEntries", "Error updating future entries", e));
+    }
+
 
     private void showDeleteConfirmationDialog(String habitId) {
         new AlertDialog.Builder(getContext())

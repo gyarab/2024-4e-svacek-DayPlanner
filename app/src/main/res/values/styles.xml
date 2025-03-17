@@ -18,5 +18,13 @@
             <item name="android:paddingTop">8dp</item>
             <item name="android:paddingBottom">8dp</item>
         </style>
+    <style name="BottomDialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/slide_up</item>
+        <item name="android:windowExitAnimation">@anim/slide_down</item>
+    </style>
 
+    <style name="BottomSheetDialogTheme" parent="Theme.MaterialComponents.DayNight.Dialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowSoftInputMode">adjustResize</item>
+    </style>
 </resources>

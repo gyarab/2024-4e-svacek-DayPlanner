@@ -2,11 +2,13 @@
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/habit_dialog_root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="16dp"
     android:background="?attr/colorSurface">
 
+    <!-- Rest of your layout remains the same -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

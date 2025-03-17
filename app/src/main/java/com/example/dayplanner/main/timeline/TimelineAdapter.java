@@ -6,6 +6,7 @@ import android.content.Context;
 import android.graphics.RenderEffect;
 import android.graphics.Shader;
 import android.os.Build;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -185,10 +186,20 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
                 @Override
                 public void onClick(View v) {
                     Log.d("Habit edit", item.toString());
+
+                    // Create a new instance of the HabitDialogFragment
                     HabitDialogFragment dialogFragment = new HabitDialogFragment(true, item.getHabit());
+
+                    // Pass the current date to the dialog fragment
+                    Bundle args = new Bundle();
+                    args.putString("currentDate", currentDate);  // Pass the current date
+                    dialogFragment.setArguments(args);
+
+                    // Show the dialog fragment
                     dialogFragment.show(((AppCompatActivity) context).getSupportFragmentManager(), "EditHabitDialog");
                 }
             });
+
             holder.addProgress.setVisibility(View.VISIBLE);
             holder.addProgress.setOnClickListener(new View.OnClickListener() {
                 @Override

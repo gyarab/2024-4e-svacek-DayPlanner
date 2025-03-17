@@ -1,14 +1,18 @@
 package com.example.dayplanner.main.dayslist;
 
+import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,7 +24,6 @@ import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
 
 public class WeeklyHeaderFragment extends Fragment {
@@ -29,11 +32,12 @@ public class WeeklyHeaderFragment extends Fragment {
     public DayAdapter dayAdapter;
     private DaysList daysList;
     private int currentWeekIndex = 0;
-    private LinearLayoutManager layoutManager;
+    private GridLayoutManager gridLayoutManager;
     private TextView monthYearTextView;
     private ImageButton prevWeekButton;
     private ImageButton nextWeekButton;
     private int totalWeeks;
+    SnapHelper snapHelper;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -49,6 +53,13 @@ public class WeeklyHeaderFragment extends Fragment {
 
         setCurrentWeekToToday();
 
+        monthYearTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDatePicker();
+            }
+        });
+
         dayAdapter = new DayAdapter(getContext(), daysList.getWeek(currentWeekIndex), new DayAdapter.OnDayClickListener() {
             @Override
             public void onDayClick(String dateId) {
@@ -60,12 +71,13 @@ public class WeeklyHeaderFragment extends Fragment {
                 }
             }
         });
+        gridLayoutManager = new GridLayoutManager(getContext(), 7, GridLayoutManager.VERTICAL, false);
+        weeklyRecyclerView.setLayoutManager(gridLayoutManager);
 
-        layoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
-        weeklyRecyclerView.setLayoutManager(layoutManager);
+        weeklyRecyclerView.setLayoutManager(gridLayoutManager);
         weeklyRecyclerView.setAdapter(dayAdapter);
 
-        SnapHelper snapHelper = new PagerSnapHelper();
+        snapHelper = new PagerSnapHelper();
         snapHelper.attachToRecyclerView(weeklyRecyclerView);
 
         setupSwipeDetection();
@@ -89,28 +101,37 @@ public class WeeklyHeaderFragment extends Fragment {
     }
 
     private void setupSwipeDetection() {
-        weeklyRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        weeklyRecyclerView.setOnTouchListener(new View.OnTouchListener() {
+            private float startX;
+
             @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        startX = event.getX(); // Capture start X position
+                        return false; // Let RecyclerView handle scrolling
 
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    int firstVisibleItemPosition = layoutManager.findFirstCompletelyVisibleItemPosition();
-                    if (firstVisibleItemPosition != RecyclerView.NO_POSITION) {
-                        //TODO: not done
-                        int newWeekIndex = firstVisibleItemPosition / 7;
+                    case MotionEvent.ACTION_UP:
+                        float endX = event.getX(); // Capture end X position
+                        float deltaX = startX - endX; // Determine swipe direction
 
-                        if (newWeekIndex != currentWeekIndex) {
-                            currentWeekIndex = newWeekIndex;
-                            updateWeek();
-                            updateMonthYearDisplay();
-                            Log.d("WeeklyHeaderFragment", "Swiped to Week Index: " + currentWeekIndex);
+                        if (Math.abs(deltaX) > 100) { // Minimum threshold to avoid accidental swipes
+                            if (deltaX > 0) {
+                                navigateToNextWeek(); // Swiped left → next week
+                            } else {
+                                navigateToPreviousWeek(); // Swiped right → previous week
+                            }
+                            return true;
                         }
-                    }
+                        break;
                 }
+                return false;
             }
         });
     }
+
+
+
 
     private void setupNavigationButtons() {
         prevWeekButton.setOnClickListener(new View.OnClickListener() {
@@ -131,6 +152,7 @@ public class WeeklyHeaderFragment extends Fragment {
     private void navigateToPreviousWeek() {
         if (currentWeekIndex > 0) {
             currentWeekIndex--;
+            weeklyRecyclerView.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.slide_in_left));
             scrollToCurrentWeek();
             updateWeek();
             updateMonthYearDisplay();
@@ -141,6 +163,7 @@ public class WeeklyHeaderFragment extends Fragment {
     private void navigateToNextWeek() {
         if (currentWeekIndex < totalWeeks - 1) {
             currentWeekIndex++;
+            weeklyRecyclerView.startAnimation(AnimationUtils.loadAnimation(getContext(), R.anim.slide_in_right));
             scrollToCurrentWeek();
             updateWeek();
             updateMonthYearDisplay();
@@ -150,7 +173,7 @@ public class WeeklyHeaderFragment extends Fragment {
 
     private void scrollToCurrentWeek() {
         int scrollPosition = currentWeekIndex * 7;
-        layoutManager.scrollToPositionWithOffset(scrollPosition, 0);
+        gridLayoutManager.scrollToPositionWithOffset(scrollPosition, 0);
         Log.d("WeeklyHeaderFragment", "Scroll Position: " + scrollPosition);
     }
 
@@ -225,5 +248,13 @@ public class WeeklyHeaderFragment extends Fragment {
 
     public interface OnDaySelectedListener {
         void onDaySelected(String dateId);
+    }
+
+    private void showDatePicker() {
+        Calendar calendar = Calendar.getInstance();
+        DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(), (view, year, month, dayOfMonth) -> {
+            navigateToDate(year, month+1, dayOfMonth);
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+        datePickerDialog.show();
     }
 }
