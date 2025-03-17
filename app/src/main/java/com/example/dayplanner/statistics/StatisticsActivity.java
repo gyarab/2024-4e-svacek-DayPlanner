@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -66,6 +67,7 @@ public class StatisticsActivity extends AppCompatActivity {
     private HabitListAdapter habitListAdapter;
     private List<Habit> habitList = new ArrayList<>();
     private LineChart lineChart;
+    private LinearLayout totalMetricLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +87,8 @@ public class StatisticsActivity extends AppCompatActivity {
         longestStreakTextView = findViewById(R.id.tvLongestStreak);
         overallProgressPBar = findViewById(R.id.overallProgressBar);
         totalMetricTextView = findViewById(R.id.totalMetric);
+        totalMetricLayout = findViewById(R.id.totalMetricLayout);
+
         //MonthlyProgressRecyclerView = findViewById(R.id.rvMonthlyProgress);
 
         lineChart = findViewById(R.id.testLineChart);
@@ -327,7 +331,7 @@ public class StatisticsActivity extends AppCompatActivity {
                 updateUIWithMonthlyProgress(dailyAveragePercentage);
                 updateUIWithMonthOverallProgress(calculateMonthOverallProgress(dailyAveragePercentage));
 
-                totalMetricTextView.setVisibility(View.GONE);
+                totalMetricLayout.setVisibility(View.GONE);
             }
 
             @Override
@@ -628,7 +632,10 @@ public class StatisticsActivity extends AppCompatActivity {
     }
 
     private void updateUIWithTotalMetric(int totalMetric, String metric) {
-        runOnUiThread(() -> totalMetricTextView.setText("In total: " + totalMetric + " " + metric));
+        runOnUiThread(() -> {
+            totalMetricLayout.setVisibility(View.VISIBLE);
+            totalMetricTextView.setText("In total: " + totalMetric + " " + metric);
+        });
     }
     private void updateChartWithData(List<HabitProgressEntry> habitProgressData) {
         runOnUiThread(() -> {
