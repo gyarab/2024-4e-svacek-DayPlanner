@@ -58,7 +58,7 @@ public class StatisticsActivity extends AppCompatActivity {
     private SimpleDateFormat monthFormat = new SimpleDateFormat("MMyyyy", Locale.getDefault());
 
     /** UI **/
-    private TextView overallProgressTextView, perfectDaysTextView, longestStreakTextView, tvMonthYear;
+    private TextView overallProgressTextView, perfectDaysTextView, longestStreakTextView, tvMonthYear, totalMetricTextView;
     private CustomCircularProgressBar overallProgressPBar;
     private RecyclerView MonthlyProgressRecyclerView;
     private ImageButton btnPreviousMonth, btnNextMonth;
@@ -84,6 +84,7 @@ public class StatisticsActivity extends AppCompatActivity {
         perfectDaysTextView = findViewById(R.id.tvPerfectDays);
         longestStreakTextView = findViewById(R.id.tvLongestStreak);
         overallProgressPBar = findViewById(R.id.overallProgressBar);
+        totalMetricTextView = findViewById(R.id.totalMetric);
         //MonthlyProgressRecyclerView = findViewById(R.id.rvMonthlyProgress);
 
         lineChart = findViewById(R.id.testLineChart);
@@ -325,6 +326,8 @@ public class StatisticsActivity extends AppCompatActivity {
 
                 updateUIWithMonthlyProgress(dailyAveragePercentage);
                 updateUIWithMonthOverallProgress(calculateMonthOverallProgress(dailyAveragePercentage));
+
+                totalMetricTextView.setVisibility(View.GONE);
             }
 
             @Override
@@ -444,14 +447,8 @@ public class StatisticsActivity extends AppCompatActivity {
 
                     updateUIWithTotalMetric(totalMetric, habit.getMetric());
 
-                    if (habitProgressData.size() <=  1*3) {
-                        Log.d("fetchAndStoreHabits", "No data to show + " + habitProgressData.size());
-                        lineChart.setVisibility(View.GONE);
-                    } else {
-                        Log.d("fetchAndStoreHabits", "Data to show + " + habitProgressData.size());
-                        lineChart.setVisibility(View.VISIBLE);
-                        updateChartWithData(habitProgressData);
-                    }
+                    updateChartWithData(habitProgressData);
+
                 }
             }
 
@@ -631,14 +628,18 @@ public class StatisticsActivity extends AppCompatActivity {
     }
 
     private void updateUIWithTotalMetric(int totalMetric, String metric) {
-        Log.d("Monthly Progress", "Updating UI with total metric: " + totalMetric + " / " + metric);
+        runOnUiThread(() -> totalMetricTextView.setText("In total: " + totalMetric + " " + metric));
     }
     private void updateChartWithData(List<HabitProgressEntry> habitProgressData) {
         runOnUiThread(() -> {
             List<HabitProgressEntry> formatedHabitProgressData = formatHabitProgressDataForChart(habitProgressData);
 
-            setupLineChart(lineChart, formatedHabitProgressData);
-
+            if(formatedHabitProgressData.size() <= 1) {
+                lineChart.setVisibility(View.GONE);
+            } else {
+                lineChart.setVisibility(View.VISIBLE);
+                setupLineChart(lineChart, formatedHabitProgressData);
+            }
             Log.d("Chart Data", "Updating chart with data: " + formatedHabitProgressData.toString());
         });
     }
