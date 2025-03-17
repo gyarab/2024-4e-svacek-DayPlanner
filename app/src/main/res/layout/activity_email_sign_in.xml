@@ -104,7 +104,7 @@
                 app:startIconDrawable="@drawable/ic_lock">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/edit_password2"
+                    android:id="@+id/edit_confirm_password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword" />
