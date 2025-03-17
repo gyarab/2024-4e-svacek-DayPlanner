@@ -10,7 +10,13 @@
 - notify user when he is not connected to wifi ✅
 - when task or habit completed made it a little bit darker ✅
 1 Change password ✅
-2 Forgot password when logging in
+
+LAST:
+- decrease blur
+- duplicate spawns in timeline
+- statistics wont load (idk too much data) -> needs fixing
+- test file for teachers
+
 3 Double check signing with email ✅
 - More stats in statistics:
     5 Total metric ✅
@@ -21,11 +27,11 @@
 - fix ondayclicked animation ✅
 8 specific day picker using calendar for weeklyHeaderFragment ✅
 9 design for logging and signing in ✅
-10 resend verification link
+10 resend verification link ✅
 11 Only show chart when it makes sense ✅
 12 If I update a habit dont loose progress ✅
-13 I should be able to update the entry goal for targeted and all upcoming entries - in progress
-14 Allow overflow progress
+13 I should be able to update the entry goal for targeted and all upcoming entries - in progress ✅
+14 Allow overflow progress ✅
 /* Extra */
 - Count statistics from task and implement karma points system
 - Share habits with friends
@@ -36,3 +42,4 @@
     - user is able to create notifications for habits -> can pick specific time and quote for the notification, only show the notification if the habit is incomplete
 - set icons for tasks
 - set icons for habits
+- Forgot password when logging in
