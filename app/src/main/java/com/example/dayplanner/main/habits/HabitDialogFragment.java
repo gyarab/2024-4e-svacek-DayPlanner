@@ -29,6 +29,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -47,6 +48,7 @@ public class HabitDialogFragment extends DialogFragment {
     private Calendar selectedDate = Calendar.getInstance(); // Store selected date for the date picker
     private GoalManager goalManager;
     private String currentDate;
+    private String formattedDate;
 
 
     public HabitDialogFragment(boolean isEditMode, Habit habit) {
@@ -137,7 +139,8 @@ public class HabitDialogFragment extends DialogFragment {
             new DatePickerDialog(getContext(), (DatePicker view1, int selectedYear, int selectedMonth, int selectedDay) -> {
                 selectedDate.set(selectedYear, selectedMonth, selectedDay);
                 SimpleDateFormat dateFormat = new SimpleDateFormat("ddMMyyyy", Locale.getDefault());
-                editStartDate.setText(dateFormat.format(selectedDate.getTime())); // Update TextView
+                formattedDate = dateFormat.format(selectedDate.getTime());
+                editStartDate.setText(formattedDate); // Update TextView
             }, year, month, day).show();
         });
 
@@ -189,7 +192,12 @@ public class HabitDialogFragment extends DialogFragment {
             return;
         }
 
+        Log.d("savehb", "date " + formattedDate + " goal value " + goalValue);
+
         Habit newHabit = new Habit(habitId, name, description, frequency, startDate, startTime, metric, goalValue);
+        newHabit.setGoalHistory(new HashMap<>());  // Ensure goalHistory is empty initially
+        newHabit.addGoalHistory(formattedDate, goalValue);
+
         habitsRef.child(habitId).setValue(newHabit)
                 .addOnSuccessListener(aVoid -> dismiss())
                 .addOnFailureListener(e -> Log.e("saveNewHabitToFirebase", "Error saving habit", e));

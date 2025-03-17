@@ -50,6 +50,7 @@ public class GoalManager {
     private void logGoalHistory(String habitId, int newGoalValue, String clickedDate) {
         DatabaseReference goalHistoryRef = habitsRef.child(habitId).child("goalHistory");
         Log.d("entry", "clickeddate " + clickedDate);
+
         goalHistoryRef.get().addOnSuccessListener(snapshot -> {
             boolean dateExists = false;
 
@@ -62,7 +63,7 @@ public class GoalManager {
                     // ✅ If the same date exists, update it
                     if (entryDate.equals(clickedDate)) {
                         Log.d("entry", "date exists");
-                        entrySnapshot.getRef().child("goalValue").setValue(newGoalValue);
+                        entrySnapshot.getRef().setValue(newGoalValue);  // Update directly
                         dateExists = true;
                     }
 
@@ -76,7 +77,7 @@ public class GoalManager {
             // ✅ If the date doesn't exist, add a new record
             if (!dateExists) {
                 Log.d("entry", "date does not exist");
-                goalHistoryRef.child(clickedDate).child("goalValue").setValue(newGoalValue);
+                goalHistoryRef.child(clickedDate).setValue(newGoalValue);  // Direct key-value pair
             }
 
             Log.d("GoalManager", "Goal history updated successfully.");

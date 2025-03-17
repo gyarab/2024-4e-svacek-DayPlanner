@@ -8,8 +8,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dayplanner.R;
@@ -19,7 +17,6 @@ import com.example.dayplanner.main.habits.HabitEntry;
 import com.example.dayplanner.main.tasks.Task;
 import com.example.dayplanner.main.tasks.TasksDBHelper;
 import com.example.dayplanner.main.dayslist.WeeklyHeaderFragment;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -38,7 +35,7 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
     private TimelineAdapter timelineAdapter;
     private DatabaseReference habitsRef;
     private int pendingFetches = 0; // Tracks unfinished fetch operations
-    private String selectedDate = "25022025"; //TODO: Dynamic
+    private String selectedDate = "25022025"; // TODO: Dynamic
 
     FirebaseHelper firebaseHelper = new FirebaseHelper();
 
@@ -57,9 +54,6 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
 
         timelineAdapter.setCurrentDate(selectedDate);
         timeLine.setAdapter(timelineAdapter);
-
-        /*ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new TimelineItemTouchHelperCallback(timelineAdapter, getContext()));
-        itemTouchHelper.attachToRecyclerView(timeLine);*/
 
         fetchTasksAndHabits(selectedDate);
 
@@ -83,7 +77,7 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
     public void fetchTasksAndHabits(String dateId) {
         Log.d("FetchTasksAndHabits", "Fetching tasks and habits for date: " + dateId);
         timelineItems.clear();
-        pendingFetches = 2; //ensures that habits and tasks show at the same time
+        pendingFetches = 2; // Ensures that habits and tasks show at the same time
 
         fetchTasks(dateId);
         fetchHabits(dateId);
@@ -102,7 +96,6 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
         }
         fetchComplete();
     }
-
 
     private void fetchHabits(String dateId) {
         Log.d("Fetching Habits", dateId);
@@ -134,10 +127,15 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
                                 }
                             }
 
+                            // If the date is not found in entries, create a new default entry and update history
                             if (!dateFound) {
                                 Log.d("FirebaseHelper", "Desired date not found, creating default entry");
-                                HabitEntry newEntry = new HabitEntry(dateId, habit.getGoalValue(), 0, false);
-                                entries.put(dateId, newEntry);
+
+                                int goalValue = getGoalValueForDate(habit.getGoalHistory(), dateId);
+                                HabitEntry newEntry = new HabitEntry(dateId, goalValue, 0, false);
+
+                                // Set the new entry in history
+                                habit.setEntryForDate(dateId, newEntry);
                                 habitSnapshot.getRef().child("entries").child(dateId).setValue(newEntry)
                                         .addOnSuccessListener(aVoid -> Log.d("FirebaseHelper", "New entry uploaded: " + newEntry))
                                         .addOnFailureListener(e -> Log.e("FirebaseHelper", "Failed to upload entry: " + e.getMessage()));
@@ -174,5 +172,15 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
             timelineAdapter.notifyDataSetChanged();
             Log.d("TimelineFragment", "Final timeline list: " + timelineItems);
         }
+    }
+
+    private int getGoalValueForDate(Map<String, Integer> goalHistory, String dateId) {
+        int goalValue = 0;
+        for (Map.Entry<String, Integer> entry : goalHistory.entrySet()) {
+            if (entry.getKey().compareTo(dateId) <= 0) {
+                goalValue = entry.getValue();
+            }
+        }
+        return goalValue;
     }
 }

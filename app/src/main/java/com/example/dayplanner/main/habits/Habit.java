@@ -26,11 +26,10 @@ public class Habit {
     private int currentStreak;
     private int longestStreak;
     private Map<String, HabitEntry> entries;
+    private Map<String, Integer> goalHistory; // New map to store goal history with dates
 
     // Required no-argument constructor for Firebase
-    public Habit() {
-
-    }
+    public Habit() {}
 
     public Habit(String id, String name, String description, String frequency, String startDate, String startTime, String metric, int goalValue) {
         this.id = id;
@@ -43,6 +42,8 @@ public class Habit {
         this.goalValue = goalValue;
         this.currentStreak = 0;
         this.longestStreak = 0;
+        this.goalHistory = new HashMap<>(); // Initialize goal history
+        this.entries = new HashMap<>();
     }
 
     /** Getters and setters **/
@@ -78,6 +79,23 @@ public class Habit {
 
     public Map<String, HabitEntry> getEntries() { return entries; }
     public void setEntries(Map<String, HabitEntry> entries) { this.entries = entries; }
+
+    public Map<String, Integer> getGoalHistory() { return goalHistory; }
+    public void setGoalHistory(Map<String, Integer> goalHistory) { this.goalHistory = goalHistory; }
+
+    // Fetch goal value for a specific date
+    public int getGoalValueForDate(String date) {
+        if (goalHistory != null && goalHistory.containsKey(date)) {
+            return goalHistory.get(date);
+        }
+        return goalValue;  // fallback to the default goal value
+    }
+
+
+    // Add a new goal entry to the goalHistory map
+    public void addGoalHistory(String date, int goalValue) {
+        goalHistory.put(date, goalValue);
+    }
 
     public HabitEntry getEntryForDate(String date) {
         if (entries != null) {
@@ -146,7 +164,6 @@ public class Habit {
         }
     }
 
-
     @Override
     public String toString() {
         StringBuilder entriesString = new StringBuilder();
@@ -173,7 +190,7 @@ public class Habit {
                 ", currentStreak=" + currentStreak +
                 ", longestStreak=" + longestStreak +
                 ", entries=" + entriesString.toString() +
+                ", goalHistory=" + goalHistory.toString() +  // Include goalHistory in the toString
                 '}';
     }
-
 }
