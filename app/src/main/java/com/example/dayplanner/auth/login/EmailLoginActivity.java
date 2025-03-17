@@ -23,6 +23,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class EmailLoginActivity extends AppCompatActivity {
 
@@ -31,6 +32,26 @@ public class EmailLoginActivity extends AppCompatActivity {
     Button loginButton, sendVerificationLink;
     FirebaseAuth mAuth;
     EmailSignInActivity emailSignInActivity;
+
+    private void sendVerificationEmail(FirebaseUser user) {
+        if (user != null) {
+            user.sendEmailVerification()
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                Toast.makeText(EmailLoginActivity.this,
+                                        "Verification email sent! Please check your inbox.",
+                                        Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(EmailLoginActivity.this,
+                                        "Failed to send verification email: " + task.getException().getMessage(),
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+        }
+    }
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -41,21 +62,6 @@ public class EmailLoginActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
-        /**Button for resending verification for user**/
-        sendVerificationLink = findViewById(R.id.btn_send_verification);
-        sendVerificationLink.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d("LINK", "sended");
-                emailSignInActivity = new EmailSignInActivity();
-                emailSignInActivity.handleEmailVerification(
-                        mAuth,
-                        "",
-                        "");
-            }
-        });
-
-
         ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("Loading");
         progressDialog.setMessage("Please wait...");
@@ -64,6 +70,42 @@ public class EmailLoginActivity extends AppCompatActivity {
         passwordEditText = findViewById(R.id.edit_password);
         loginButton = findViewById(R.id.btn_login);
         signInButton = findViewById(R.id.btn_signin);
+
+        /**Button for resending verification for user**/
+        sendVerificationLink = findViewById(R.id.btn_send_verification);
+        sendVerificationLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // First, check if there is a current user
+                if (mAuth.getCurrentUser() != null) {
+                    sendVerificationEmail(mAuth.getCurrentUser());
+                } else {
+                    // If no user is signed in, try to sign in using the email and password fields
+                    String email = emailEditText.getText().toString().trim();
+                    String password = passwordEditText.getText().toString().trim();
+
+                    if (email.isEmpty() || password.isEmpty()) {
+                        Toast.makeText(EmailLoginActivity.this, "Please enter email and password to resend verification.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    mAuth.signInWithEmailAndPassword(email, password)
+                            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> signInTask) {
+                                    if (signInTask.isSuccessful()) {
+                                        // Now that the user is signed in, send the verification email
+                                        sendVerificationEmail(mAuth.getCurrentUser());
+                                    } else {
+                                        Toast.makeText(EmailLoginActivity.this,
+                                                "Sign in failed: Please wait - " + signInTask.getException().getMessage(),
+                                                Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+                }
+            }
+        });
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
