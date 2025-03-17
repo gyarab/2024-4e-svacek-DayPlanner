@@ -89,10 +89,10 @@ public class ProgressUpdateDialog extends Dialog {
         } else {
             currentProgress = (int) inputProgress;
         }
-
+/*
         if (currentProgress > goal) {
             currentProgress = goal;
-        }
+        }*/
 
         saveHabit();
         progressBar.setProgress(currentProgress, currentProgress + "/" + goal + "  " + habit.getMetric());
