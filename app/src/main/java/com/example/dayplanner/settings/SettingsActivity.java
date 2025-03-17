@@ -17,6 +17,8 @@ import androidx.appcompat.widget.SwitchCompat;
 
 import com.example.dayplanner.R;
 import com.example.dayplanner.auth.AuthenticationActivity;
+import com.example.dayplanner.main.MainActivity;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
@@ -30,10 +32,20 @@ public class SettingsActivity extends AppCompatActivity {
     Button logOutButton, changePasswordButton;
     FirebaseAuth auth;
     FirebaseUser user;
+    MaterialToolbar settingsToolbar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+
+        settingsToolbar = findViewById(R.id.topAppBar);
+        settingsToolbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
 
         /** Firebase **/
         auth = FirebaseAuth.getInstance();
