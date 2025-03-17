@@ -23,9 +23,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.OnDaySelectedListener {
@@ -176,11 +180,22 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
 
     private int getGoalValueForDate(Map<String, Integer> goalHistory, String dateId) {
         int goalValue = 0;
-        for (Map.Entry<String, Integer> entry : goalHistory.entrySet()) {
-            if (entry.getKey().compareTo(dateId) <= 0) {
-                goalValue = entry.getValue();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("ddMMyyyy", Locale.getDefault());
+
+        try {
+            Date targetDate = dateFormat.parse(dateId); // Convert dateId to Date
+
+            for (Map.Entry<String, Integer> entry : goalHistory.entrySet()) {
+                Date entryDate = dateFormat.parse(entry.getKey()); // Convert entry key to Date
+
+                if (entryDate != null && entryDate.compareTo(targetDate) <= 0) {
+                    goalValue = entry.getValue(); // Update to the most recent past goal
+                }
             }
+        } catch (ParseException e) {
+            e.printStackTrace(); // Handle incorrect date format
         }
+
         return goalValue;
     }
 }

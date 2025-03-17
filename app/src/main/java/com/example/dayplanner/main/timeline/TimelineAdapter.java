@@ -223,7 +223,15 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
 
             fetchHabitProgress(item.getHabit(), currentDate, holder.seekBar);
 
-            holder.seekBar.setMax(item.getHabit().getGoalValue()); //sets seekbar limit - max value
+            int goalValue = item.getHabit().getGoalValue(); // Default goal value
+            HabitEntry entry = item.getHabit().getEntryForDate(currentDate);
+
+            if (entry != null) {
+                goalValue = entry.getEntryGoalValue(); // Use entry goal value if it exists
+            }
+
+            holder.seekBar.setMax(goalValue);
+
 
             // Set the progress increment step
             int progressIncrement = item.getHabit().getGoalValue() / 10;
