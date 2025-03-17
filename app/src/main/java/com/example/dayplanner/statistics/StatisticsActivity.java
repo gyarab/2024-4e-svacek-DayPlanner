@@ -49,14 +49,19 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class StatisticsActivity extends AppCompatActivity {
 
     FirebaseHelper firebaseHelper = new FirebaseHelper();
     private DatabaseReference habitsRef = firebaseHelper.getHabitsRef();
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
+    private Map<String, Date> dateCache = new HashMap<>();
 
     private Calendar currentCalendar;
     private SimpleDateFormat monthFormat = new SimpleDateFormat("MMyyyy", Locale.getDefault());
+    private SimpleDateFormat dayMonthYearFormat = new SimpleDateFormat("ddMMyyyy", Locale.getDefault());
 
     /** UI **/
     private TextView perfectDaysTextView, longestStreakTextView, tvMonthYear, totalMetricTextView;
@@ -68,6 +73,19 @@ public class StatisticsActivity extends AppCompatActivity {
     private List<Habit> habitList = new ArrayList<>();
     private LineChart lineChart;
     private LinearLayout totalMetricLayout;
+
+    // Cache for month data
+    private Map<String, StatisticsData> monthDataCache = new HashMap<>();
+
+    private class StatisticsData {
+        int overallProgress;
+        int perfectDays;
+        int longestStreak;
+        int totalMetric;
+        String metricType;
+        LinkedHashMap<String, Float> dailyProgress = new LinkedHashMap<>();
+        List<HabitProgressEntry> habitProgressData = new ArrayList<>();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +104,6 @@ public class StatisticsActivity extends AppCompatActivity {
         totalMetricTextView = findViewById(R.id.totalMetric);
         totalMetricLayout = findViewById(R.id.totalMetricLayout);
 
-
         lineChart = findViewById(R.id.testLineChart);
 
         MonthlyProgressRecyclerView = findViewById(R.id.rvMonthlyProgress);
@@ -99,7 +116,6 @@ public class StatisticsActivity extends AppCompatActivity {
         currentCalendar = Calendar.getInstance();
 
         updateMonthDisplay();
-        fetchAndStoreHabitsForMonth(getCurrentMonthId());
 
         btnPreviousMonth.setOnClickListener(v -> changeMonth(-1));
         btnNextMonth.setOnClickListener(v -> changeMonth(1));
@@ -112,14 +128,23 @@ public class StatisticsActivity extends AppCompatActivity {
         habitsRecyclerView.setAdapter(habitListAdapter);
 
         loadUserHabits();
-
-        String monthId = "032025";
-
-        fetchAndStoreHabitsForMonth(monthId);
-
-        countOverallPerfectDays(monthId);
+        fetchAllHabitData(getCurrentMonthId());
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        executor.shutdown();
+    }
+
     private void setupLineChart(LineChart lineChart, List<HabitProgressEntry> habitProgressData) {
+        if (habitProgressData.size() <= 1) {
+            lineChart.setVisibility(View.GONE);
+            return;
+        }
+
+        lineChart.setVisibility(View.VISIBLE);
+
         Context context = lineChart.getContext();
 
         int[] attrs = new int[]{android.R.attr.colorPrimary, android.R.attr.colorSecondary, android.R.attr.textColorPrimary, android.R.attr.colorSecondary};
@@ -185,34 +210,47 @@ public class StatisticsActivity extends AppCompatActivity {
     private void changeMonth(int direction) {
         currentCalendar.add(Calendar.MONTH, direction);
         updateMonthDisplay();
-        fetchAndStoreHabitsForMonth(getCurrentMonthId());
-        countOverallPerfectDays(getCurrentMonthId());
+        fetchAllHabitData(getCurrentMonthId());
     }
+
     private void updateMonthDisplay() {
         SimpleDateFormat displayFormat = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
         tvMonthYear.setText(displayFormat.format(currentCalendar.getTime()));
     }
+
     private String getCurrentMonthId() {
         return monthFormat.format(currentCalendar.getTime());
     }
-    private String getActualCurrentMonthId() {
-        SimpleDateFormat sdf = new SimpleDateFormat("MMyyyy", Locale.getDefault());
-        return sdf.format(new Date());
-    }
-    public int calculateMonthOverallProgress(HashMap<String, Float> dailyCompletionPercentages) {
-        Float sumOfAllPercentages = 0.0f;
-        int numberOfRecords = 0;
-        for (Map.Entry<String, Float> record : dailyCompletionPercentages.entrySet()) {
-            Log.d("calculateMonthOverallProgress", "Date: " + record.getKey() + ", Completion: " + record.getValue() + "%");
 
-            sumOfAllPercentages += record.getValue();
-            numberOfRecords ++;
+    private String getActualCurrentMonthId() {
+        return monthFormat.format(new Date());
+    }
+
+    private Date getDateFromCache(String dateStr) {
+        if (!dateCache.containsKey(dateStr)) {
+            try {
+                dateCache.put(dateStr, dayMonthYearFormat.parse(dateStr));
+            } catch (ParseException e) {
+                Log.e("DateCache", "Error parsing date: " + dateStr);
+                return null;
+            }
+        }
+        return dateCache.get(dateStr);
+    }
+
+    public int calculateMonthOverallProgress(HashMap<String, Float> dailyCompletionPercentages) {
+        if (dailyCompletionPercentages.isEmpty()) {
+            return 0;
         }
 
-        int result = Math.round(sumOfAllPercentages / numberOfRecords);
-        Log.d("calculateMonthOverallProgress", "Overall Progress: " + result + "%");
+        float sumOfAllPercentages = 0.0f;
+        int numberOfRecords = 0;
+        for (Map.Entry<String, Float> record : dailyCompletionPercentages.entrySet()) {
+            sumOfAllPercentages += record.getValue();
+            numberOfRecords++;
+        }
 
-        return result;
+        return numberOfRecords > 0 ? Math.round(sumOfAllPercentages / numberOfRecords) : 0;
     }
 
     private void loadUserHabits() {
@@ -227,7 +265,6 @@ public class StatisticsActivity extends AppCompatActivity {
                         habitList.add(habit);
                     }
                 }
-                Log.d("loadUserHabits", "Loaded habits: " + habitList.toString());
                 habitListAdapter.notifyDataSetChanged();
             }
 
@@ -238,217 +275,281 @@ public class StatisticsActivity extends AppCompatActivity {
         });
     }
 
-    public void fetchAndStoreHabitsForMonth(String monthId) {
-        Log.d("fetchAndStoreHabits", "Fetching habits for month: " + monthId);
+    private void fetchAllHabitData(String monthId) {
+        // Check if we already have cached data
+        if (monthDataCache.containsKey(monthId)) {
+            updateUIWithCachedData(monthDataCache.get(monthId));
+            return;
+        }
 
+        Log.d("fetchAllHabitData", "Fetching habits for month: " + monthId);
         lineChart.setVisibility(View.GONE);
+        totalMetricLayout.setVisibility(View.GONE);
 
-        habitsRef.addValueEventListener(new ValueEventListener() {
+        habitsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                LinkedHashMap<String, Float> dailyTotalPercentage = new LinkedHashMap<>();
-                LinkedHashMap<String, Integer> dailyEntryCount = new LinkedHashMap<>();
-
-                long currentDateMillis = System.currentTimeMillis();
-                SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy", Locale.getDefault());
-                String currentDateStr = sdf.format(new Date(currentDateMillis));
-
-                for (DataSnapshot habitSnapshot : dataSnapshot.getChildren()) {
-                    Habit habit = habitSnapshot.getValue(Habit.class);
-
-                    if (habit != null) {
-                        Log.d("fetchAndStoreHabits", "Processing habit: " + habit.getName());
-                        String startDate = habit.getStartDate();
-
-                        Calendar calendar = Calendar.getInstance();
-                        try {
-                            calendar.setTime(sdf.parse(startDate));
-                        } catch (ParseException e) {
-                            Log.e("fetchAndStoreHabits", "Invalid start date format: " + startDate);
-                            continue;
-                        }
-
-                        while (true) {
-                            String dateKey = sdf.format(calendar.getTime());
-
-                            if (dateKey.substring(2, 8).equals(monthId)) {
-                                Log.d("fetchAnd", dateKey + " compare to " + currentDateStr + " = " + dateKey.compareTo(currentDateStr));
-                                Log.d("fetchAnd", "same month");
-                                // Ensure the habit is visible on this date
-                                if (habit.isHabitVisibleOnDate(dateKey)) {
-                                    Log.d("fetchAndStoreHabits", "Habit is visible on date: "+habit.toString());
-                                    if (!dailyTotalPercentage.containsKey(dateKey)) {
-                                        dailyTotalPercentage.put(dateKey, 0.0f);
-                                        dailyEntryCount.put(dateKey, 0);
-                                    }
-
-                                    HabitEntry habitEntry = habit.getEntryForDate(dateKey);
-                                    if (habitEntry != null) {
-                                        float percentage = (float) habitEntry.getProgress() / habitEntry.getEntryGoalValue() * 100;
-                                        dailyTotalPercentage.put(dateKey, dailyTotalPercentage.get(dateKey) + percentage);
-                                        dailyEntryCount.put(dateKey, dailyEntryCount.get(dateKey) + 1);
-                                    } else {
-                                        dailyEntryCount.put(dateKey, dailyEntryCount.get(dateKey) + 1);
-                                    }
-                                }
-                            }
-
-                            calendar.add(Calendar.DAY_OF_MONTH, 1);
-                            if (dateKey.equals(currentDateStr)) break;
-                        }
-                    }
-                }
-
-                LinkedHashMap<String, Float> dailyAveragePercentage = new LinkedHashMap<>();
-                for (String date : dailyTotalPercentage.keySet()) {
-                    int count = dailyEntryCount.get(date);
-                    dailyAveragePercentage.put(date, count > 0 ? dailyTotalPercentage.get(date) / count : 0.0f);
-                }
-
-                Log.d("fetchAndStoreHabits", "dailyTotalPercentage: " + dailyTotalPercentage);
-                Log.d("fetchAndStoreHabits", "dailyEntryCount: " + dailyEntryCount);
-                Log.d("fetchAndStoreHabits", "dailyAveragePercentage: " + dailyAveragePercentage);
-
-                updateUIWithMonthlyProgress(dailyAveragePercentage);
-                updateUIWithMonthOverallProgress(calculateMonthOverallProgress(dailyAveragePercentage));
-
-                totalMetricLayout.setVisibility(View.GONE);
+                executor.execute(() -> {
+                    processHabitData(dataSnapshot, monthId);
+                });
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Log.e("fetchAndStoreHabits", "Error fetching habits: " + databaseError.getMessage());
+                Log.e("fetchAllHabitData", "Error fetching habits: " + databaseError.getMessage());
             }
         });
     }
 
-    private void fetchDataForOneHabit(String habitId) {
-        //TODO: check the correct month
-        Log.d("fetchAndStoreHabits", "Fetching data for habit: " + habitId);
+    private void processHabitData(DataSnapshot dataSnapshot, String monthId) {
+        LinkedHashMap<String, Float> dailyTotalPercentage = new LinkedHashMap<>();
+        LinkedHashMap<String, Integer> dailyEntryCount = new LinkedHashMap<>();
+        LinkedHashMap<String, Boolean> perfectDays = new LinkedHashMap<>();
 
-        String currentMonthId = getCurrentMonthId();
-        DatabaseReference oneHabitRef = FirebaseHelper.getHabitsRef().child(habitId);
+        String currentDateStr = dayMonthYearFormat.format(new Date());
+        String firstDayOfMonth = "01" + monthId;
+        String lastDayOfMonth = getLastDayOfMonth(monthId);
 
-        oneHabitRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                String currentMonthId = getCurrentMonthId();
-                Habit habit = dataSnapshot.getValue(Habit.class);
+        for (DataSnapshot habitSnapshot : dataSnapshot.getChildren()) {
+            Habit habit = habitSnapshot.getValue(Habit.class);
+            if (habit == null) continue;
 
-                if (habit != null) {
-                    Log.d("fetchAndStoreHabits", "Fetched Habit for: " + currentMonthId + " -> " + habit.toString());
+            try {
+                processHabitForMonth(habit, monthId, currentDateStr, dailyTotalPercentage, dailyEntryCount, perfectDays);
+            } catch (Exception e) {
+                Log.e("processHabitData", "Error processing habit: " + e.getMessage());
+            }
+        }
 
-                    Map<String, HabitEntry> entries = habit.getEntries();
-                    LinkedHashMap<String, Float> dailyCompletionPercentages = new LinkedHashMap<>();
+        // Calculate statistics from processed data
+        LinkedHashMap<String, Float> dailyAveragePercentage = calculateDailyAverages(dailyTotalPercentage, dailyEntryCount);
+        int overallProgress = calculateMonthOverallProgress(dailyAveragePercentage);
+        int perfectDaysCount = countPerfectDays(perfectDays, monthId);
+        int longestStreak = countLongestStreak(perfectDays);
 
-                    List<HabitProgressEntry> habitProgressData = new ArrayList<>();//for chart
+        // Create and cache StatisticsData
+        StatisticsData monthData = new StatisticsData();
+        monthData.overallProgress = overallProgress;
+        monthData.perfectDays = perfectDaysCount;
+        monthData.longestStreak = longestStreak;
+        monthData.dailyProgress = dailyAveragePercentage;
 
-                    int totalMetric = 0;
+        monthDataCache.put(monthId, monthData);
 
-                    String todayDate = new SimpleDateFormat("ddMMyyyy", Locale.getDefault()).format(new Date());
+        // Update UI on main thread
+        runOnUiThread(() -> updateUIWithCachedData(monthData));
+    }
 
-                    String firstDayOfMonth = "01" + currentMonthId;
+    private void processHabitForMonth(Habit habit, String monthId, String currentDateStr,
+                                      LinkedHashMap<String, Float> dailyTotalPercentage,
+                                      LinkedHashMap<String, Integer> dailyEntryCount,
+                                      LinkedHashMap<String, Boolean> perfectDays) throws ParseException {
 
-                    String lastDayOfMonth = getLastDayOfMonth(currentMonthId);
-                    Log.d("LastDay", "Last day of March 2025: " + lastDayOfMonth);
+        String startDate = habit.getStartDate();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(getDateFromCache(startDate));
 
-                    Calendar calendar = Calendar.getInstance();
-                    try {
-                        SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy", Locale.getDefault());
-                        Date startDate = sdf.parse(firstDayOfMonth);
+        while (true) {
+            String dateKey = dayMonthYearFormat.format(calendar.getTime());
 
-                        // Determine the correct end date
-                        String lastAvailableDate;
-                        if (currentMonthId.equals(getActualCurrentMonthId())) {
-                            Log.d("LastDay", "Same month " +  "-> " + todayDate + " " + getActualCurrentMonthId() + " = "  + currentMonthId);
-                            lastAvailableDate = todayDate; // Limit to today if it's the current month
-                        } else {
-                            Log.d("LastDay", "Different month " +  "-> " + lastDayOfMonth + " " + getActualCurrentMonthId() + " = "  + currentMonthId);
-                            lastAvailableDate = lastDayOfMonth;
-                        }
+            // Stop if we've gone past today
+            if (dateKey.compareTo(currentDateStr) > 0) break;
 
-                        Date endDate = sdf.parse(lastAvailableDate);
-
-
-                        calendar.setTime(startDate);
-
-                        while (!calendar.getTime().after(endDate)) {
-                            String entryDate = sdf.format(calendar.getTime());
-
-                            // Check if entry exists, otherwise set progress to 0
-                            if (entries.containsKey(entryDate)) {
-                                HabitEntry habitEntry = entries.get(entryDate);
-                                float percentage = (float) habitEntry.getProgress() / habitEntry.getEntryGoalValue() * 100;
-                                dailyCompletionPercentages.put(entryDate, percentage);
-                                totalMetric += habitEntry.getProgress();
-
-                                habitProgressData.add(new HabitProgressEntry(entryDate, habitEntry.getProgress(), habitEntry.getEntryGoalValue()));
-
-                                Log.d("fetchAndStoreHabits", "Progress for " + entryDate + " = " + habitEntry.getProgress() +
-                                        "/" + habitEntry.getEntryGoalValue() + " -> " + percentage + "%");
-                            } else if(habit.isHabitVisibleOnDate(entryDate)) {
-                                dailyCompletionPercentages.put(entryDate, 0f);
-                                Log.d("fetchAndStoreHabits", "No entry for " + entryDate + ", setting progress to 0%");
-                            }
-
-                            calendar.add(Calendar.DAY_OF_MONTH, 1);
-                        }
-
-                    } catch (ParseException e) {
-                        Log.e("fetchAndStoreHabits", "Date parsing error: " + e.getMessage());
+            // Process only dates in the requested month
+            if (dateKey.substring(2, 8).equals(monthId)) {
+                // Process habit data for this date
+                if (habit.isHabitVisibleOnDate(dateKey)) {
+                    // Initialize data structures if needed
+                    if (!dailyTotalPercentage.containsKey(dateKey)) {
+                        dailyTotalPercentage.put(dateKey, 0.0f);
+                        dailyEntryCount.put(dateKey, 0);
+                        perfectDays.put(dateKey, true); // Assume perfect until proven otherwise
                     }
 
-                    int overallMonthProgress = calculateMonthOverallProgress(dailyCompletionPercentages);
-                    Log.d("fetchAndStoreHabits", "Overall month progress for " + currentMonthId + " = " + overallMonthProgress + "%");
+                    // Process entry data
+                    HabitEntry habitEntry = habit.getEntryForDate(dateKey);
+                    if (habitEntry != null) {
+                        float percentage = (float) habitEntry.getProgress() / habitEntry.getEntryGoalValue() * 100;
+                        dailyTotalPercentage.put(dateKey, dailyTotalPercentage.get(dateKey) + percentage);
+                        dailyEntryCount.put(dateKey, dailyEntryCount.get(dateKey) + 1);
 
-                    int perfectDaysCount = countPerfectDaysForHabit(dailyCompletionPercentages);
-
-                    LinkedHashMap<String, Boolean> dailyCompletionBooleans = new LinkedHashMap<>();
-
-                    for (Map.Entry<String, Float> entry : dailyCompletionPercentages.entrySet()) {
-                        if(entry.getValue() == 100) {
-                            dailyCompletionBooleans.put(entry.getKey(), true);
-                        } else {
-                            dailyCompletionBooleans.put(entry.getKey(), false);
+                        // Update perfect day status
+                        if (percentage < 100) {
+                            perfectDays.put(dateKey, false);
                         }
+                    } else {
+                        // No entry means incomplete
+                        dailyEntryCount.put(dateKey, dailyEntryCount.get(dateKey) + 1);
+                        perfectDays.put(dateKey, false);
                     }
-
-                    int longestStreak = countLongestStreak(dailyCompletionBooleans);
-
-                    Log.d("fetchAndStoreHabits", "Longest streak for " + currentMonthId + " = " + longestStreak);
-                    Log.d("fetchAndStoreHabits", "Perfect days for " + currentMonthId + " = " + perfectDaysCount);
-
-                    updateUIWithMonthOverallProgress(overallMonthProgress);
-                    updateUIWithMonthlyProgress(dailyCompletionPercentages);
-                    updateUIWithLongestStreak(longestStreak);
-                    updateUIWithPerfectDays(perfectDaysCount);
-
-                    updateUIWithTotalMetric(totalMetric, habit.getMetric());
-
-                    updateChartWithData(habitProgressData);
-
                 }
             }
 
-            private int countPerfectDaysForHabit(LinkedHashMap<String, Float> dailyCompletionPercentages) {
-                Log.d("fetchAndStoreHabits", "Counting perfect days for habit: " + dailyCompletionPercentages);
+            // Move to next day
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
+            if (dateKey.equals(currentDateStr)) break;
+        }
+    }
 
-                int perfectDays = 0;
+    private LinkedHashMap<String, Float> calculateDailyAverages(LinkedHashMap<String, Float> totals, LinkedHashMap<String, Integer> counts) {
+        LinkedHashMap<String, Float> averages = new LinkedHashMap<>();
+        for (String date : totals.keySet()) {
+            int count = counts.get(date);
+            averages.put(date, count > 0 ? totals.get(date) / count : 0.0f);
+        }
+        return averages;
+    }
 
-                for (Map.Entry<String, Float> entry : dailyCompletionPercentages.entrySet()) {
-                    if(entry.getValue() == 100) {
-                        perfectDays ++;
-                    }
-                }
+    private int countPerfectDays(LinkedHashMap<String, Boolean> perfectDays, String monthId) {
+        int count = 0;
+        for (Map.Entry<String, Boolean> entry : perfectDays.entrySet()) {
+            if (entry.getKey().substring(2, 8).equals(monthId) && entry.getValue()) {
+                count++;
+            }
+        }
+        return count;
+    }
 
-                return perfectDays;
+    private void updateUIWithCachedData(StatisticsData data) {
+        overallProgressPBar.setProgress(data.overallProgress);
+        overallProgressPBar.setTextStyle(Typeface.NORMAL);
+        overallProgressPBar.setTextSize(80f);
+
+        perfectDaysTextView.setText("Perfect Days: " + data.perfectDays);
+        longestStreakTextView.setText("Longest Streak: " + data.longestStreak);
+
+        updateMonthlyProgressRecyclerView(data.dailyProgress);
+
+        if (data.metricType != null) {
+            totalMetricLayout.setVisibility(View.VISIBLE);
+            totalMetricTextView.setText("In total: " + data.totalMetric + " " + data.metricType);
+        } else {
+            totalMetricLayout.setVisibility(View.GONE);
+        }
+
+        if (data.habitProgressData != null && !data.habitProgressData.isEmpty()) {
+            setupLineChart(lineChart, data.habitProgressData);
+        } else {
+            lineChart.setVisibility(View.GONE);
+        }
+    }
+
+    private void updateMonthlyProgressRecyclerView(HashMap<String, Float> dailyProgress) {
+        List<DailyProgress> dayProgressList = new ArrayList<>();
+        for (Map.Entry<String, Float> entry : dailyProgress.entrySet()) {
+            int day = Integer.parseInt(entry.getKey().substring(0, 2));
+            float completion = entry.getValue();
+            dayProgressList.add(new DailyProgress(day, completion));
+        }
+
+        MonthlyProgressAdapter adapter = new MonthlyProgressAdapter(this, dayProgressList);
+        MonthlyProgressRecyclerView.setAdapter(adapter);
+    }
+
+    private void fetchDataForOneHabit(String habitId) {
+        String currentMonthId = getCurrentMonthId();
+        DatabaseReference oneHabitRef = FirebaseHelper.getHabitsRef().child(habitId);
+
+        oneHabitRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                executor.execute(() -> {
+                    Habit habit = dataSnapshot.getValue(Habit.class);
+                    if (habit == null) return;
+
+                    processHabitDetails(habit, currentMonthId);
+                });
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("fetchAndStoreHabits", "Error fetching habit: " + error.getMessage());
+                Log.e("fetchDataForOneHabit", "Error: " + error.getMessage());
             }
         });
+    }
+
+    private void processHabitDetails(Habit habit, String currentMonthId) {
+        try {
+            Map<String, HabitEntry> entries = habit.getEntries();
+            LinkedHashMap<String, Float> dailyCompletionPercentages = new LinkedHashMap<>();
+            List<HabitProgressEntry> habitProgressData = new ArrayList<>();
+            int totalMetric = 0;
+
+            String todayDate = dayMonthYearFormat.format(new Date());
+            String firstDayOfMonth = "01" + currentMonthId;
+            String lastDayOfMonth = getLastDayOfMonth(currentMonthId);
+
+            // Determine the correct end date
+            String lastAvailableDate;
+            if (currentMonthId.equals(getActualCurrentMonthId())) {
+                lastAvailableDate = todayDate; // Limit to today if it's the current month
+            } else {
+                lastAvailableDate = lastDayOfMonth;
+            }
+
+            Date startDate = getDateFromCache(firstDayOfMonth);
+            Date endDate = getDateFromCache(lastAvailableDate);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(startDate);
+
+            while (!calendar.getTime().after(endDate)) {
+                String entryDate = dayMonthYearFormat.format(calendar.getTime());
+
+                if (habit.isHabitVisibleOnDate(entryDate)) {
+                    // Check if entry exists, otherwise set progress to 0
+                    if (entries.containsKey(entryDate)) {
+                        HabitEntry habitEntry = entries.get(entryDate);
+                        float percentage = (float) habitEntry.getProgress() / habitEntry.getEntryGoalValue() * 100;
+                        dailyCompletionPercentages.put(entryDate, percentage);
+                        totalMetric += habitEntry.getProgress();
+
+                        habitProgressData.add(new HabitProgressEntry(entryDate, habitEntry.getProgress(), habitEntry.getEntryGoalValue()));
+                    } else {
+                        dailyCompletionPercentages.put(entryDate, 0f);
+                    }
+                }
+
+                calendar.add(Calendar.DAY_OF_MONTH, 1);
+            }
+
+            int overallMonthProgress = calculateMonthOverallProgress(dailyCompletionPercentages);
+            LinkedHashMap<String, Boolean> dailyCompletionBooleans = convertToBoolean(dailyCompletionPercentages);
+            int perfectDaysCount = countPerfectDaysForHabit(dailyCompletionBooleans);
+            int longestStreak = countLongestStreak(dailyCompletionBooleans);
+
+            List<HabitProgressEntry> formattedData = formatHabitProgressDataForChart(habitProgressData);
+
+            // Create StatisticsData for this habit
+            StatisticsData habitData = new StatisticsData();
+            habitData.overallProgress = overallMonthProgress;
+            habitData.perfectDays = perfectDaysCount;
+            habitData.longestStreak = longestStreak;
+            habitData.totalMetric = totalMetric;
+            habitData.metricType = habit.getMetric();
+            habitData.dailyProgress = dailyCompletionPercentages;
+            habitData.habitProgressData = formattedData;
+
+            // Update UI on main thread
+            runOnUiThread(() -> updateUIWithCachedData(habitData));
+        } catch (Exception e) {
+            Log.e("processHabitDetails", "Error: " + e.getMessage());
+        }
+    }
+
+    private LinkedHashMap<String, Boolean> convertToBoolean(LinkedHashMap<String, Float> percentages) {
+        LinkedHashMap<String, Boolean> result = new LinkedHashMap<>();
+        for (Map.Entry<String, Float> entry : percentages.entrySet()) {
+            result.put(entry.getKey(), entry.getValue() == 100);
+        }
+        return result;
+    }
+
+    private int countPerfectDaysForHabit(LinkedHashMap<String, Boolean> dailyCompletions) {
+        int perfectDays = 0;
+        for (Boolean isComplete : dailyCompletions.values()) {
+            if (isComplete) perfectDays++;
+        }
+        return perfectDays;
     }
 
     public String getLastDayOfMonth(String monthId) {
@@ -462,93 +563,19 @@ public class StatisticsActivity extends AppCompatActivity {
             calendar.set(Calendar.MONTH, month);
             calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
 
-            SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy", Locale.getDefault());
-            return sdf.format(calendar.getTime());
-
+            return dayMonthYearFormat.format(calendar.getTime());
         } catch (Exception e) {
             Log.e("getLastDayOfMonth", "Invalid monthId format: " + monthId, e);
             return null;
         }
     }
 
-    private void countOverallPerfectDays(String monthId) {
-        /** perfect day = all visible habits of the day are completed **/
-
-        habitsRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                LinkedHashMap<String, Boolean> perfectDays = new LinkedHashMap<>();
-                long currentDateMillis = System.currentTimeMillis();
-                SimpleDateFormat sdf = new SimpleDateFormat("ddMMyyyy", Locale.getDefault());
-                String currentDateStr = sdf.format(new Date(currentDateMillis));
-
-                for (DataSnapshot habitSnapshot : dataSnapshot.getChildren()) {
-                    Habit habit = habitSnapshot.getValue(Habit.class);
-                    if (habit == null) continue;
-
-                    String startDate = habit.getStartDate();
-                    Calendar calendar = Calendar.getInstance();
-
-                    try {
-                        calendar.setTime(sdf.parse(startDate)); // Start from habit's start date
-                    } catch (ParseException e) {
-                        Log.e("countPerfectDays", "Invalid start date format: " + startDate);
-                        continue;
-                    }
-
-                    while (true) {
-                        String dateKey = sdf.format(calendar.getTime());
-
-                        if (dateKey.compareTo(currentDateStr) > 0) {
-                            break; // Stop at today’s date
-                        }
-
-                        if (dateKey.substring(2, 8).equals(monthId) && habit.isHabitVisibleOnDate(dateKey)) {
-                            if (!perfectDays.containsKey(dateKey)) {
-                                perfectDays.put(dateKey, true);
-                            }
-
-                            HabitEntry habitEntry = habit.getEntryForDate(dateKey);
-                            if (habitEntry == null || habitEntry.getProgress() < habitEntry.getEntryGoalValue()) {
-                                // Entry missing or not 100% -> so not a perfect day
-                                perfectDays.put(dateKey, false);
-                            }
-                        }
-
-                        calendar.add(Calendar.DAY_OF_MONTH, 1);
-                        if (dateKey.equals(currentDateStr)) break;
-                    }
-                }
-
-                int perfectDaysCount = 0;
-                for (String date : perfectDays.keySet()) {
-                    if (date.substring(2, 8).equals(monthId) && perfectDays.get(date)) {
-                        perfectDaysCount++;
-                    }
-                }
-
-                int longestStreak = countLongestStreak(perfectDays);
-
-                Log.d("countPerfectDays", "Perfect days in " + monthId + ": " + perfectDaysCount);
-                Log.d("countPerfectDays", "Longest streak in " + monthId + ": " + longestStreak);
-
-                updateUIWithLongestStreak(longestStreak);
-                updateUIWithPerfectDays(perfectDaysCount);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("countPerfectDays", "Error fetching habits: " + error.getMessage());
-            }
-        });
-    }
-
     private int countLongestStreak(LinkedHashMap<String, Boolean> perfectDays) {
         int longestStreak = 0;
         int currentStreak = 0;
 
-        for (String date : perfectDays.keySet()) {
-            if (perfectDays.get(date)) {
+        for (Boolean isPerfect : perfectDays.values()) {
+            if (isPerfect) {
                 currentStreak++;
                 longestStreak = Math.max(longestStreak, currentStreak);
             } else {
@@ -559,64 +586,6 @@ public class StatisticsActivity extends AppCompatActivity {
         return longestStreak;
     }
 
-    private void updateUIWithLongestStreak(int longestStreak) {
-        runOnUiThread(() -> longestStreakTextView.setText("Longest Streak: " + longestStreak));
-    }
-
-
-
-    private void updateUIWithMonthlyProgress(HashMap<String, Float> dailyCompletionPercentages) {
-        Log.d("Monthly Progress", "Updating UI with monthly progress: " + dailyCompletionPercentages.toString());
-
-        List<DailyProgress> dayProgressList = new ArrayList<>();
-        for (Map.Entry<String, Float> entry : dailyCompletionPercentages.entrySet()) {
-            int day = Integer.parseInt(entry.getKey().substring(0, 2)); // Extract day from date format "ddMMyyyy"
-            float completion = entry.getValue();
-            dayProgressList.add(new DailyProgress(day, completion));
-        }
-
-        runOnUiThread(() -> {
-            MonthlyProgressAdapter adapter = new MonthlyProgressAdapter(this, dayProgressList);
-            MonthlyProgressRecyclerView.setAdapter(adapter);
-        });
-    }
-
-
-    private void updateUIWithMonthOverallProgress(int overallMonthProgress) {
-        runOnUiThread(() -> {
-            overallProgressPBar.setProgress(overallMonthProgress);
-            Log.d("PPP", String.valueOf(overallMonthProgress));
-            overallProgressPBar.setTextStyle(Typeface.NORMAL);
-            overallProgressPBar.setTextSize(80f);
-        });
-    }
-
-
-    private void updateUIWithPerfectDays(int perfectDaysCount) {
-        runOnUiThread(() -> perfectDaysTextView.setText("Perfect Days: " + perfectDaysCount));
-    }
-
-    private void updateUIWithTotalMetric(int totalMetric, String metric) {
-        runOnUiThread(() -> {
-            totalMetricLayout.setVisibility(View.VISIBLE);
-            totalMetricTextView.setText("In total: " + totalMetric + " " + metric);
-        });
-    }
-    private void updateChartWithData(List<HabitProgressEntry> habitProgressData) {
-        runOnUiThread(() -> {
-            List<HabitProgressEntry> formatedHabitProgressData = formatHabitProgressDataForChart(habitProgressData);
-            Log.d("Chart D", habitProgressData.toString());
-            Log.d("Chart D", formatedHabitProgressData.toString());
-            if(formatedHabitProgressData.size() <= 1) {
-                lineChart.setVisibility(View.GONE);
-            } else {
-                lineChart.setVisibility(View.VISIBLE);
-                setupLineChart(lineChart, formatedHabitProgressData);
-            }
-            Log.d("Chart Data", "Updating chart with data: " + formatedHabitProgressData.toString());
-        });
-    }
-
     private List<HabitProgressEntry> formatHabitProgressDataForChart(List<HabitProgressEntry> habitProgressData) {
         List<HabitProgressEntry> formattedData = new ArrayList<>();
 
@@ -624,10 +593,10 @@ public class StatisticsActivity extends AppCompatActivity {
 
         int lastGoalValue = -1;
 
-        for (HabitProgressEntry habitProgressEntry:habitProgressData) {
-            if(lastGoalValue != habitProgressEntry.getGoalValue()) {
-                formattedData.add(habitProgressEntry);
-                lastGoalValue = habitProgressEntry.getGoalValue();
+        for (HabitProgressEntry entry : habitProgressData) {
+            if (lastGoalValue != entry.getGoalValue()) {
+                formattedData.add(entry);
+                lastGoalValue = entry.getGoalValue();
             }
         }
 
