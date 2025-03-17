@@ -6,7 +6,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.TypedValue;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -25,7 +25,6 @@ import com.example.dayplanner.main.habits.FirebaseHelper;
 import com.example.dayplanner.main.habits.Habit;
 import com.example.dayplanner.main.habits.HabitEntry;
 import com.github.mikephil.charting.charts.LineChart;
-import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -87,6 +86,8 @@ public class StatisticsActivity extends AppCompatActivity {
         overallProgressPBar = findViewById(R.id.overallProgressBar);
         //MonthlyProgressRecyclerView = findViewById(R.id.rvMonthlyProgress);
 
+        lineChart = findViewById(R.id.testLineChart);
+
         MonthlyProgressRecyclerView = findViewById(R.id.rvMonthlyProgress);
         MonthlyProgressRecyclerView.setLayoutManager(new GridLayoutManager(this, 7)); // 7 days per row
 
@@ -108,9 +109,6 @@ public class StatisticsActivity extends AppCompatActivity {
 
         habitListAdapter = new HabitListAdapter(habitList, this::fetchDataForOneHabit);
         habitsRecyclerView.setAdapter(habitListAdapter);
-
-        // Find the LineChart from XML
-        lineChart = findViewById(R.id.testLineChart);
 
         /*RecyclerView recyclerView = findViewById(R.id.rvHabitsList);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
@@ -256,6 +254,8 @@ public class StatisticsActivity extends AppCompatActivity {
 
     public void fetchAndStoreHabitsForMonth(String monthId) {
         Log.d("fetchAndStoreHabits", "Fetching habits for month: " + monthId);
+
+        lineChart.setVisibility(View.GONE);
 
         habitsRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -444,7 +444,14 @@ public class StatisticsActivity extends AppCompatActivity {
 
                     updateUIWithTotalMetric(totalMetric, habit.getMetric());
 
-                    updateChartWithData(habitProgressData);
+                    if (habitProgressData.size() <=  1*3) {
+                        Log.d("fetchAndStoreHabits", "No data to show + " + habitProgressData.size());
+                        lineChart.setVisibility(View.GONE);
+                    } else {
+                        Log.d("fetchAndStoreHabits", "Data to show + " + habitProgressData.size());
+                        lineChart.setVisibility(View.VISIBLE);
+                        updateChartWithData(habitProgressData);
+                    }
                 }
             }
 

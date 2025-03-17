@@ -18,8 +18,8 @@
     - display total metric
     6 Progress chart over time ✅
 7 days for 100 years ✅
-- fix current week not showing
-- fix ondayclicked animation
+- fix current week not showing ✅
+- fix ondayclicked animation ✅
 8 specific day picker using calendar for weeklyHeaderFragment
 9 design for logging and signing in ✅
 10 resend verification link
