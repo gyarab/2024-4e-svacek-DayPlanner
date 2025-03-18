@@ -130,9 +130,6 @@ public class WeeklyHeaderFragment extends Fragment {
         });
     }
 
-
-
-
     private void setupNavigationButtons() {
         prevWeekButton.setOnClickListener(new View.OnClickListener() {
             @Override

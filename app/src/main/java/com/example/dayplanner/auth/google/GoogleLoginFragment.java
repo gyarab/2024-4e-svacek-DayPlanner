@@ -32,11 +32,10 @@ public class GoogleLoginFragment extends Fragment {
     private final ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
-                // Show ProgressDialog
                 ProgressDialog progressDialog = new ProgressDialog(getActivity());
                 progressDialog.setTitle("Signing in using Google");
                 progressDialog.setMessage("Please wait...");
-                progressDialog.setCancelable(false);  // Make dialog non-cancelable
+                progressDialog.setCancelable(false);
                 progressDialog.show();
 
                 if (result.getResultCode() == getActivity().RESULT_OK) {
@@ -44,14 +43,14 @@ public class GoogleLoginFragment extends Fragment {
                     try {
                         GoogleSignInAccount googleSignInAccount = accountTask.getResult(Exception.class);
                         if (googleSignInAccount != null) {
-                            firebaseAuthWithGoogle(googleSignInAccount, progressDialog);  // Pass the dialog here
+                            firebaseAuthWithGoogle(googleSignInAccount, progressDialog);
                         }
                     } catch (Exception e) {
                         Toast.makeText(getActivity(), "Sign-in failed", Toast.LENGTH_SHORT).show();
-                        progressDialog.dismiss();  // Dismiss the progress dialog if sign-in fails
+                        progressDialog.dismiss();
                     }
                 } else {
-                    progressDialog.dismiss();  // Dismiss if result is not OK
+                    progressDialog.dismiss();
                 }
             }
     );
@@ -85,7 +84,7 @@ public class GoogleLoginFragment extends Fragment {
     private void firebaseAuthWithGoogle(GoogleSignInAccount account, ProgressDialog progressDialog) {
         AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
         firebaseAuth.signInWithCredential(credential).addOnCompleteListener(task -> {
-            progressDialog.dismiss();  // Dismiss the dialog after the authentication is complete
+            progressDialog.dismiss();
 
             if (task.isSuccessful()) {
                 Toast.makeText(getActivity(), "Signed in successfully", Toast.LENGTH_SHORT).show();

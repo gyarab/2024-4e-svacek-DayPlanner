@@ -19,9 +19,6 @@
         android:theme="@style/Theme.DayPlanner"
         tools:targetApi="31">
         <activity
-            android:name=".auth.facebook.FacebookAuthActivity"
-            android:exported="false" />
-        <activity
             android:name=".auth.google.GoogleLoginActivity"
             android:exported="false" />
         <activity
@@ -39,9 +36,6 @@
             android:label="@string/title_activity_settings" />
         <activity
             android:name=".statistics.StatisticsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".main.tasks.AddTaskActivity"
             android:exported="false" />
         <activity
             android:name=".main.MainActivity"

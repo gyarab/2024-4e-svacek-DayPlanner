@@ -31,7 +31,6 @@ public class EmailLoginActivity extends AppCompatActivity {
     EditText emailEditText, passwordEditText;
     Button loginButton, sendVerificationLink;
     FirebaseAuth mAuth;
-    EmailSignInActivity emailSignInActivity;
 
     private void sendVerificationEmail(FirebaseUser user) {
         if (user != null) {
@@ -76,11 +75,9 @@ public class EmailLoginActivity extends AppCompatActivity {
         sendVerificationLink.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // First, check if there is a current user
                 if (mAuth.getCurrentUser() != null) {
                     sendVerificationEmail(mAuth.getCurrentUser());
                 } else {
-                    // If no user is signed in, try to sign in using the email and password fields
                     String email = emailEditText.getText().toString().trim();
                     String password = passwordEditText.getText().toString().trim();
 
@@ -94,7 +91,6 @@ public class EmailLoginActivity extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> signInTask) {
                                     if (signInTask.isSuccessful()) {
-                                        // Now that the user is signed in, send the verification email
                                         sendVerificationEmail(mAuth.getCurrentUser());
                                     } else {
                                         Toast.makeText(EmailLoginActivity.this,

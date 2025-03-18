@@ -38,7 +38,7 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
     private TimelineAdapter timelineAdapter;
     private DatabaseReference habitsRef;
     private int pendingFetches = 0; // Tracks unfinished fetch operations
-    private String selectedDate = "25022025"; // TODO: Dynamic
+    private String selectedDate = "";
 
     FirebaseHelper firebaseHelper = new FirebaseHelper();
 
@@ -55,10 +55,7 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
         tasksDBHelper = new TasksDBHelper(getContext());
         timelineAdapter = new TimelineAdapter(getContext(), timelineItems);
 
-        timelineAdapter.setCurrentDate(selectedDate);
         timeLine.setAdapter(timelineAdapter);
-
-        fetchTasksAndHabits(selectedDate);
 
         return view;
     }
@@ -145,7 +142,8 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
                                             Log.d("FirebaseHelper", "entryy New entry uploaded: " + newEntry);
                                             habit.setEntries(entries);
                                             Log.d("FirebaseHelper", "entryy habit " + habit.toString());
-                                            timelineItems.add(new TimelineItem(habit));
+                                            // Remove this line to avoid duplicate
+                                            // timelineItems.add(new TimelineItem(habit));
                                             fetchComplete();
                                         })
                                         .addOnFailureListener(e -> Log.e("FirebaseHelper", "Failed to upload entry: " + e.getMessage()));
@@ -164,13 +162,15 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
                                         Log.d("entryy", "New entry uploaded: " + newEntry);
                                         habit.setEntries(entries); // Ensure entries are set after upload
                                         Log.d("FirebaseHelper", "entryy habit " + habit.toString());
-                                        timelineItems.add(new TimelineItem(habit));
+                                        // Remove this line to avoid duplicate
+                                        // timelineItems.add(new TimelineItem(habit));
                                         fetchComplete();
                                     })
                                     .addOnFailureListener(e -> Log.e("FirebaseHelper", "Failed to upload entry: " + e.getMessage()));
                         }
 
                         Log.d("FirebaseHelper", "entryy habit " + habit.toString());
+                        // Keep this one as the single place to add the habit
                         timelineItems.add(new TimelineItem(habit));
                         fetchComplete();
                     }
@@ -180,6 +180,8 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.e("FirebaseHelper", "Failed to fetch habits: " + databaseError.getMessage());
+                // Don't forget to call fetchComplete even on error
+                fetchComplete();
             }
         });
     }
