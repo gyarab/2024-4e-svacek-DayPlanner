@@ -6,6 +6,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class GoalManager {
     private final DatabaseReference habitsRef;
@@ -48,29 +51,30 @@ public class GoalManager {
         Log.d("entry", "clickeddate " + clickedDate);
 
         goalHistoryRef.get().addOnSuccessListener(snapshot -> {
+            List<String> dates = new ArrayList<>();
             boolean dateExists = false;
 
             if (snapshot.exists()) {
-                Log.d("entry", "clickeddate " + clickedDate);
                 for (DataSnapshot entrySnapshot : snapshot.getChildren()) {
                     String entryDate = entrySnapshot.getKey();
+                    dates.add(entryDate);
 
-                    Log.d("entry", "entrydate " + entryDate);
                     if (entryDate.equals(clickedDate)) {
-                        Log.d("entry", "date exists");
                         entrySnapshot.getRef().setValue(newGoalValue);
                         dateExists = true;
-                    }
-
-                    if (clickedDate.compareTo(entryDate) < 0) {
-                        entrySnapshot.getRef().removeValue();
                     }
                 }
             }
 
             if (!dateExists) {
-                Log.d("entry", "date does not exist");
                 goalHistoryRef.child(clickedDate).setValue(newGoalValue);
+            }
+
+            Collections.sort(dates);
+            for (String date : dates) {
+                if (clickedDate.compareTo(date) < 0) {
+                    goalHistoryRef.child(date).removeValue();
+                }
             }
 
             Log.d("GoalManager", "Goal history updated successfully.");

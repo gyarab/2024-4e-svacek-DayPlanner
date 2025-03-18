@@ -200,19 +200,36 @@ public class TimelineFragment extends Fragment implements WeeklyHeaderFragment.O
         SimpleDateFormat dateFormat = new SimpleDateFormat("ddMMyyyy", Locale.getDefault());
 
         try {
-            Date targetDate = dateFormat.parse(dateId); // Convert dateId to Date
+            Date targetDate = dateFormat.parse(dateId);
+            if (targetDate == null) return goalValue;
 
-            for (Map.Entry<String, Integer> entry : goalHistory.entrySet()) {
-                Date entryDate = dateFormat.parse(entry.getKey()); // Convert entry key to Date
+            List<Map.Entry<String, Integer>> sortedEntries = new ArrayList<>(goalHistory.entrySet());
 
-                if (entryDate != null && entryDate.compareTo(targetDate) <= 0) {
-                    goalValue = entry.getValue(); // Update to the most recent past goal
+            sortedEntries.sort((entry1, entry2) -> {
+                try {
+                    Date date1 = dateFormat.parse(entry1.getKey());
+                    Date date2 = dateFormat.parse(entry2.getKey());
+                    return date1.compareTo(date2);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    return 0;
+                }
+            });
+
+            for (Map.Entry<String, Integer> entry : sortedEntries) {
+                Date entryDate = dateFormat.parse(entry.getKey());
+                if (entryDate != null && !entryDate.after(targetDate)) {
+                    goalValue = entry.getValue();
+                    Log.d("GoalHistory", "Found valid goal: " + goalValue + " on " + entry.getKey());
                 }
             }
+
         } catch (ParseException e) {
-            e.printStackTrace();
+            Log.e("GoalHistory", "Error parsing date: " + e.getMessage());
         }
 
+        Log.d("GoalHistory", "Final goal value for " + dateId + " is " + goalValue);
         return goalValue;
     }
+
 }
