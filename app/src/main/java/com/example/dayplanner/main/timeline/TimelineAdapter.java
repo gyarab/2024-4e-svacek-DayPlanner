@@ -1,7 +1,5 @@
 package com.example.dayplanner.main.timeline;
 
-import static java.security.AccessController.getContext;
-
 import android.content.Context;
 import android.graphics.RenderEffect;
 import android.graphics.Shader;
@@ -32,8 +30,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -340,9 +336,6 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
                     Log.e("TimelineAdapter", "Failed to update progress in Firebase", e);
                 });
     }
-
-
-
     public class ViewHolder extends RecyclerView.ViewHolder {
         TextView taskTitleTextView, taskStartTimeTextView, taskDescriptionTextView, progressTextView, startTimeline, endTimeline;
         ImageView iconView, statusIcon, addProgress;
