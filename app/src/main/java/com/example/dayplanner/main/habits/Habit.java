@@ -187,7 +187,7 @@ public class Habit {
                 ", currentStreak=" + currentStreak +
                 ", longestStreak=" + longestStreak +
                 ", entries=" + entriesString.toString() +
-                ", goalHistory=" + goalHistory.toString() +  // Include goalHistory in the toString
+                ", goalHistory="  +  // Include goalHistory in the toString
                 '}';
     }
 }

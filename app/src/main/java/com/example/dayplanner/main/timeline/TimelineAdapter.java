@@ -175,7 +175,8 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
 
             Log.d("TimelineAdapter", "Binding habit item: " + item.getHabit().toString());
 
-            holder.startTimeline.setVisibility(View.GONE);
+            holder.startTimeline.setVisibility(View.VISIBLE);
+            holder.startTimeline.setText(habit.getStartTime());
             holder.endTimeline.setVisibility(View.GONE);
             holder.taskStartTimeTextView.setText(getTimeRangeForHabit(item));
             holder.taskDescriptionTextView.setVisibility(View.GONE);

@@ -33,6 +33,10 @@ LAST:
 12 If I update a habit dont loose progress ✅
 13 I should be able to update the entry goal for targeted and all upcoming entries - in progress ✅
 14 Allow overflow progress ✅
+
+Fix reminders, add reminders also hour ago the task, add reminders for habit.
+Handle custom habit frequency, custom metric
+notify user if tasks overlap
 /* Extra */
 - Count statistics from task and implement karma points system
 - Share habits with friends
