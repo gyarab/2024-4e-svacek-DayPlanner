@@ -106,11 +106,18 @@ public class TaskDialogFragment extends DialogFragment {
         pickTimeButton.setOnClickListener(v -> showTimePicker(editTaskTime));
 
         saveButton.setOnClickListener(v -> {
-            String taskTitle = editTaskTitle.getText().toString();
-            String taskDescription = editTaskDescription.getText().toString();
-            String taskLength = editTaskLength.getText().toString();
+            String taskTitle = editTaskTitle.getText().toString().trim();
+            String taskDescription = editTaskDescription.getText().toString().trim();
+            String taskLength = editTaskLength.getText().toString().trim();
             String taskDate = formatTaskDateForDB(editTaskDate.getText().toString());
             String taskStartTime = editTaskTime.getText().toString();
+
+            Log.d("NEW task", taskDate + " " + taskStartTime);
+            if (taskTitle.isEmpty() || taskDate.isEmpty() || taskLength.isEmpty() || taskStartTime.equals("Select Time")) {
+                Log.e("saveNewHabitToFirebase", "Missing required fields");
+                return;
+            }
+
 
             Task newTask = new Task(
                     isEditMode ? task.getTaskId() : null,
@@ -147,11 +154,11 @@ public class TaskDialogFragment extends DialogFragment {
 
                     long taskTimeMillis = taskCalendar.getTimeInMillis();
                     TaskNotificationHelper.scheduleNotification(getContext(), savedTask.getTaskId(), savedTask.getTaskTitle(), taskTimeMillis);
-                }
-            }
 
-            if (getActivity() instanceof TaskDialogListener) {
-                ((TaskDialogListener) getActivity()).onTaskDataChanged(taskDate);
+                    if (getActivity() instanceof TaskDialogListener) {
+                        ((TaskDialogListener) getActivity()).onTaskDataChanged(taskDate);
+                    }
+                }
             }
 
             dismiss();

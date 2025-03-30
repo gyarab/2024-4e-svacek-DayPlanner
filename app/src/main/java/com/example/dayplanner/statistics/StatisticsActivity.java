@@ -85,6 +85,19 @@ public class StatisticsActivity extends AppCompatActivity {
         String metricType;
         LinkedHashMap<String, Float> dailyProgress = new LinkedHashMap<>();
         List<HabitProgressEntry> habitProgressData = new ArrayList<>();
+
+        @Override
+        public String toString() {
+            return "StatisticsData{" +
+                    "overallProgress=" + overallProgress +
+                    ", perfectDays=" + perfectDays +
+                    ", longestStreak=" + longestStreak +
+                    ", totalMetric=" + totalMetric +
+                    ", metricType='" + metricType + '\'' +
+                    ", dailyProgress=" + dailyProgress +
+                    ", habitProgressData=" + habitProgressData +
+                    '}';
+        }
     }
 
     @Override
@@ -276,12 +289,14 @@ public class StatisticsActivity extends AppCompatActivity {
     }
 
     private void fetchAllHabitData(String monthId) {
-        // Check if we already have cached data
         if (monthDataCache.containsKey(monthId)) {
             updateUIWithCachedData(monthDataCache.get(monthId));
+            Log.d("DATA", (monthDataCache.get(monthId)).toString());
+            Log.d("fetchAllHabitData", "CACHED");
             return;
         }
 
+        Log.d("fetchAllHabitData", "NOT CACHED");
         Log.d("fetchAllHabitData", "Fetching habits for month: " + monthId);
         lineChart.setVisibility(View.GONE);
         totalMetricLayout.setVisibility(View.GONE);
@@ -414,6 +429,8 @@ public class StatisticsActivity extends AppCompatActivity {
         overallProgressPBar.setProgress(data.overallProgress);
         overallProgressPBar.setTextStyle(Typeface.NORMAL);
         overallProgressPBar.setTextSize(80f);
+
+        Log.d("STATS", data.toString());
 
         perfectDaysTextView.setText("Perfect Days: " + data.perfectDays);
         longestStreakTextView.setText("Longest Streak: " + data.longestStreak);

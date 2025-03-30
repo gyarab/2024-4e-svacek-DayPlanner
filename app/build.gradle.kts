@@ -50,7 +50,6 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.8.0"))
 
     /** Dependencies for Firebase products */
-    /** When using bom I do not need to specify versions*/
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-database")
 

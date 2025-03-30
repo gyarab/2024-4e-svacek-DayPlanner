@@ -25,6 +25,7 @@ import androidx.fragment.app.DialogFragment;
 
 import com.example.dayplanner.R;
 import com.example.dayplanner.main.dayslist.WeeklyHeaderFragment;
+import com.example.dayplanner.main.tasks.TaskDialogFragment;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
@@ -56,6 +57,10 @@ public class HabitDialogFragment extends DialogFragment {
     public HabitDialogFragment(boolean isEditMode, Habit habit) {
         this.isEditMode = isEditMode;
         this.habit = habit;
+    }
+
+    public interface HabitDialogListener {
+        void onHabitDataChanged(String dateId);
     }
 
     @Override
@@ -121,27 +126,11 @@ public class HabitDialogFragment extends DialogFragment {
         }
 
         saveHabitButton.setOnClickListener(v -> {
-            int year = selectedDate.get(Calendar.YEAR);
-            int month = selectedDate.get(Calendar.MONTH) + 1;
-            int day = selectedDate.get(Calendar.DAY_OF_MONTH);
-
-            Log.d("NAVIAGTE", year + " " + month + " " + day);
-
             if (isEditMode) {
                 updateHabitInFirebase();
             } else {
                 saveNewHabitToFirebase();
             }
-
-            WeeklyHeaderFragment weeklyHeaderFragment = (WeeklyHeaderFragment) getParentFragmentManager()
-                    .findFragmentByTag("WEEKLY_HEADER_FRAGMENT_TAG");
-
-            if (weeklyHeaderFragment != null) {
-                weeklyHeaderFragment.navigateToDate(year, month, day);
-            } else {
-                Log.e("NAVIGATE", "WeeklyHeaderFragment not found!");
-            }
-
         });
 
 
@@ -191,11 +180,11 @@ public class HabitDialogFragment extends DialogFragment {
         String startDate = editStartDate.getText().toString().trim();
         String startTime = editStartTime.getText().toString().trim();
         String metric = metricSpinner.getSelectedItem().toString();
-
+        String goalValueString = editGoalValue.getText().toString().trim();
         int goalValue = editGoalValue.getText().toString().trim().isEmpty() ? 0 :
                 Integer.parseInt(editGoalValue.getText().toString().trim());
 
-        if (name.isEmpty() || startDate.isEmpty() || startTime.isEmpty()) {
+        if (name.isEmpty() || startDate.equals("Select Start Date") || startTime.equals("Select Start Time") || goalValueString.isEmpty()) {
             Log.e("saveNewHabitToFirebase", "Missing required fields");
             return;
         }
@@ -212,6 +201,11 @@ public class HabitDialogFragment extends DialogFragment {
         newHabit.setGoalHistory(new HashMap<>());
         newHabit.addGoalHistory(formattedDate, goalValue);
 
+        if (getActivity() instanceof HabitDialogFragment.HabitDialogListener) {
+            ((HabitDialogFragment.HabitDialogListener) getActivity()).onHabitDataChanged(startDate);
+        }
+
+        Log.d("NAVIGATE s", startDate);
         habitsRef.child(habitId).setValue(newHabit)
                 .addOnSuccessListener(aVoid -> dismiss())
                 .addOnFailureListener(e -> Log.e("saveNewHabitToFirebase", "Error saving habit", e));

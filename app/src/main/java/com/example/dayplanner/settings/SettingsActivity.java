@@ -25,7 +25,7 @@ import com.google.firebase.auth.UserInfo;
 
 public class SettingsActivity extends AppCompatActivity {
     SwitchCompat switchMode, switchNotifications;
-    ThemePreferencesHelper dbHelper;
+    ThemePreferencesHelper themePreferencesHelper;
     boolean nightMode;
     SharedPreferences preferences;
     SharedPreferences.Editor editor;
@@ -53,10 +53,10 @@ public class SettingsActivity extends AppCompatActivity {
 
         /** THEMES **/
         switchMode = findViewById(R.id.switchMode);
-        dbHelper = new ThemePreferencesHelper(this);
+        themePreferencesHelper = new ThemePreferencesHelper(this);
 
         // Load saved theme
-        nightMode = dbHelper.getThemePreference().equals("dark");
+        nightMode = themePreferencesHelper.getThemePreference().equals("dark");
 
         if (nightMode) {
             switchMode.setChecked(true);
@@ -68,10 +68,10 @@ public class SettingsActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (nightMode) {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                    dbHelper.setThemePreference("light");
+                    themePreferencesHelper.setThemePreference("light");
                 } else {
                     AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                    dbHelper.setThemePreference("dark");
+                    themePreferencesHelper.setThemePreference("dark");
                 }
                 nightMode = !nightMode;
             }

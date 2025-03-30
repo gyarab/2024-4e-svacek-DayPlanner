@@ -249,27 +249,12 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
         WeeklyHeaderFragment weeklyFragment = (WeeklyHeaderFragment) getSupportFragmentManager().findFragmentByTag("WEEKLY_HEADER_FRAGMENT_TAG");
         if (weeklyFragment != null) {
             weeklyFragment.navigateToDate(year, month, day);
-        }
-
-        // Update the TimelineFragment
-        TimelineFragment timelineFragment = (TimelineFragment) getSupportFragmentManager().findFragmentByTag("TIMELINE_FRAGMENT_TAG");
-        if (timelineFragment != null) {
-            timelineFragment.onDaySelected(dateId);
+            weeklyFragment.dayAdapter.setActiveDotByDateId(dateId);
         }
     }
 
     // Update onTaskDataChanged and onHabitDataChanged methods to use the fragment reference
     public void onTaskDataChanged(String dateId) {
-        TimelineFragment timelineFragment = (TimelineFragment) getSupportFragmentManager().findFragmentByTag("TIMELINE_FRAGMENT_TAG");
-        if (timelineFragment != null) {
-            timelineFragment.fetchTasksAndHabits(dateId);
-        }
-
-        WeeklyHeaderFragment weeklyFragment = (WeeklyHeaderFragment) getSupportFragmentManager().findFragmentByTag("WEEKLY_HEADER_FRAGMENT_TAG");
-        if (weeklyFragment != null) {
-            weeklyFragment.dayAdapter.setActiveDotByDateId(dateId);
-        }
-
         if (dateId != null && dateId.length() == 8) {
             int day = Integer.parseInt(dateId.substring(0, 2));
             int month = Integer.parseInt(dateId.substring(2, 4));
@@ -282,14 +267,13 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
 
     // Similarly update onHabitDataChanged
     public void onHabitDataChanged(String dateId) {
-        TimelineFragment timelineFragment = (TimelineFragment) getSupportFragmentManager().findFragmentByTag("TIMELINE_FRAGMENT_TAG");
-        if (timelineFragment != null) {
-            timelineFragment.fetchTasksAndHabits(dateId);
-        }
+        if (dateId != null && dateId.length() == 8) {
+            int day = Integer.parseInt(dateId.substring(0, 2));
+            int month = Integer.parseInt(dateId.substring(2, 4));
+            int year = Integer.parseInt(dateId.substring(4));
 
-        WeeklyHeaderFragment weeklyFragment = (WeeklyHeaderFragment) getSupportFragmentManager().findFragmentByTag("WEEKLY_HEADER_FRAGMENT_TAG");
-        if (weeklyFragment != null) {
-            weeklyFragment.dayAdapter.setActiveDotByDateId(dateId);
+            // Navigate to the extracted date
+            navigateToDate(year, month, day);
         }
     }
 
