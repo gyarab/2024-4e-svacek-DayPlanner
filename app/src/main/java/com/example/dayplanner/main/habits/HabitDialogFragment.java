@@ -13,11 +13,15 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,13 +29,13 @@ import androidx.fragment.app.DialogFragment;
 
 import com.example.dayplanner.R;
 import com.example.dayplanner.main.dayslist.WeeklyHeaderFragment;
-import com.example.dayplanner.main.tasks.TaskDialogFragment;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -52,6 +56,14 @@ public class HabitDialogFragment extends DialogFragment {
     private String currentDate;
     private String formattedDate;
     private WeeklyHeaderFragment weeklyHeaderFragment;
+    private TextInputEditText editCustomMetric;
+    private TextInputLayout customMetricLayout;
+
+    private LinearLayout customFrequencyLayout;
+    private CheckBox mondayCheckbox, tuesdayCheckbox, wednesdayCheckbox, thursdayCheckbox,
+            fridayCheckbox, saturdayCheckbox, sundayCheckbox;
+    private static final String CUSTOM_FREQUENCY = "Custom";
+    private static final String CUSTOM_METRIC = "Custom";
 
 
     public HabitDialogFragment(boolean isEditMode, Habit habit) {
@@ -116,6 +128,54 @@ public class HabitDialogFragment extends DialogFragment {
         goalManager = new GoalManager();
         weeklyHeaderFragment = new WeeklyHeaderFragment();
 
+        editCustomMetric = view.findViewById(R.id.edit_custom_metric);
+        customMetricLayout = (TextInputLayout) editCustomMetric.getParent().getParent();
+
+        // Initialize custom frequency components
+        customFrequencyLayout = view.findViewById(R.id.custom_frequency_layout);
+        mondayCheckbox = view.findViewById(R.id.checkbox_monday);
+        tuesdayCheckbox = view.findViewById(R.id.checkbox_tuesday);
+        wednesdayCheckbox = view.findViewById(R.id.checkbox_wednesday);
+        thursdayCheckbox = view.findViewById(R.id.checkbox_thursday);
+        fridayCheckbox = view.findViewById(R.id.checkbox_friday);
+        saturdayCheckbox = view.findViewById(R.id.checkbox_saturday);
+        sundayCheckbox = view.findViewById(R.id.checkbox_sunday);
+
+        // Set up frequency spinner listener
+        frequencySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedFrequency = parent.getItemAtPosition(position).toString();
+                if (selectedFrequency.equals(CUSTOM_FREQUENCY)) {
+                    customFrequencyLayout.setVisibility(View.VISIBLE);
+                } else {
+                    customFrequencyLayout.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                customFrequencyLayout.setVisibility(View.GONE);
+            }
+        });
+
+        metricSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selectedMetric = parent.getItemAtPosition(position).toString();
+                if (selectedMetric.equals("Custom")) {
+                    customMetricLayout.setVisibility(View.VISIBLE);
+                } else {
+                    customMetricLayout.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                customMetricLayout.setVisibility(View.GONE);
+            }
+        });
+
         auth = FirebaseAuth.getInstance();
         habitsRef = FirebaseDatabase.getInstance().getReference("users").child(auth.getCurrentUser().getUid()).child("habits");
 
@@ -170,7 +230,87 @@ public class HabitDialogFragment extends DialogFragment {
             editGoalValue.setText(String.valueOf(habit.getGoalValue()));
             setSpinnerSelection(frequencySpinner, habit.getFrequency());
             setSpinnerSelection(metricSpinner, habit.getMetric());
+
+            String frequency = habit.getFrequency();
+            if (frequency != null && frequency.startsWith("Custom:")) {
+                setSpinnerSelection(frequencySpinner, CUSTOM_FREQUENCY);
+                customFrequencyLayout.setVisibility(View.VISIBLE);
+
+                // Parse and set checkbox states for custom frequency
+                setCustomFrequencyCheckboxes(frequency);
+            } else {
+                setSpinnerSelection(frequencySpinner, frequency);
+                customFrequencyLayout.setVisibility(View.GONE);
+            }
+
+            // Check if the habit has a custom metric
+            String metric = habit.getMetric();
+            boolean isCustom = true;
+
+            for (int i = 0; i < metricSpinner.getCount(); i++) {
+                if (metricSpinner.getItemAtPosition(i).toString().equalsIgnoreCase(metric)) {
+                    isCustom = false;
+                    break;
+                }
+            }
+
+            if (isCustom) {
+                // Set spinner to "Custom" and show the custom metric field
+                setSpinnerSelection(metricSpinner, "Custom");
+                editCustomMetric.setText(metric);
+                customMetricLayout.setVisibility(View.VISIBLE);
+            } else {
+                setSpinnerSelection(metricSpinner, metric);
+                customMetricLayout.setVisibility(View.GONE);
+            }
+
+            if (isCustom) {
+                // Set spinner to "Custom" and show the custom metric field
+                setSpinnerSelection(metricSpinner, CUSTOM_METRIC);
+                editCustomMetric.setText(metric);
+                customMetricLayout.setVisibility(View.VISIBLE);
+            } else {
+                setSpinnerSelection(metricSpinner, metric);
+                customMetricLayout.setVisibility(View.GONE);
+            }
         }
+    }
+
+    private void setCustomFrequencyCheckboxes(String customFrequency) {
+        // Format is "Custom:MTWTFSS" where each letter position represents a day and is either the letter (selected) or '-' (not selected)
+        if (customFrequency != null && customFrequency.startsWith("Custom:") && customFrequency.length() >= 8) {
+            String daysPattern = customFrequency.substring(7); // Skip "Custom:"
+
+            mondayCheckbox.setChecked(daysPattern.charAt(0) == 'M');
+            tuesdayCheckbox.setChecked(daysPattern.charAt(1) == 'T');
+            wednesdayCheckbox.setChecked(daysPattern.charAt(2) == 'W');
+            thursdayCheckbox.setChecked(daysPattern.charAt(3) == 'T');
+            fridayCheckbox.setChecked(daysPattern.charAt(4) == 'F');
+            saturdayCheckbox.setChecked(daysPattern.charAt(5) == 'S');
+            sundayCheckbox.setChecked(daysPattern.charAt(6) == 'S');
+        }
+    }
+
+    private String getCustomFrequencyString() {
+        StringBuilder customFrequency = new StringBuilder("Custom:");
+
+        // Append day codes based on checkbox selection
+        customFrequency.append(mondayCheckbox.isChecked() ? "M" : "-");
+        customFrequency.append(tuesdayCheckbox.isChecked() ? "T" : "-");
+        customFrequency.append(wednesdayCheckbox.isChecked() ? "W" : "-");
+        customFrequency.append(thursdayCheckbox.isChecked() ? "T" : "-");
+        customFrequency.append(fridayCheckbox.isChecked() ? "F" : "-");
+        customFrequency.append(saturdayCheckbox.isChecked() ? "S" : "-");
+        customFrequency.append(sundayCheckbox.isChecked() ? "S" : "-");
+
+        return customFrequency.toString();
+    }
+
+    private boolean isAnyDaySelected() {
+        return mondayCheckbox.isChecked() || tuesdayCheckbox.isChecked() ||
+                wednesdayCheckbox.isChecked() || thursdayCheckbox.isChecked() ||
+                fridayCheckbox.isChecked() || saturdayCheckbox.isChecked() ||
+                sundayCheckbox.isChecked();
     }
 
     private void saveNewHabitToFirebase() {
@@ -184,8 +324,29 @@ public class HabitDialogFragment extends DialogFragment {
         int goalValue = editGoalValue.getText().toString().trim().isEmpty() ? 0 :
                 Integer.parseInt(editGoalValue.getText().toString().trim());
 
+        // Handle custom frequency
+        if (frequency.equals(CUSTOM_FREQUENCY)) {
+            if (!isAnyDaySelected()) {
+                Toast.makeText(getContext(), "Please select at least one day of the week", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            frequency = getCustomFrequencyString();
+        }
+
+        // Handle custom metric
+        if (metric.equals(CUSTOM_METRIC)) {
+            String customMetric = editCustomMetric.getText().toString().trim();
+            if (!customMetric.isEmpty()) {
+                metric = customMetric;
+            } else {
+                Toast.makeText(getContext(), "Please enter a custom metric", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+
         if (name.isEmpty() || startDate.equals("Select Start Date") || startTime.equals("Select Start Time") || goalValueString.isEmpty()) {
             Log.e("saveNewHabitToFirebase", "Missing required fields");
+            Toast.makeText(getContext(), "Please fill in all required fields", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -227,6 +388,26 @@ public class HabitDialogFragment extends DialogFragment {
         int newGoalValue = editGoalValue.getText().toString().trim().isEmpty() ? 0 :
                 Integer.parseInt(editGoalValue.getText().toString().trim());
 
+        // Handle custom frequency
+        if (frequency.equals(CUSTOM_FREQUENCY)) {
+            if (!isAnyDaySelected()) {
+                Toast.makeText(getContext(), "Please select at least one day of the week", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            frequency = getCustomFrequencyString();
+        }
+
+        // Handle custom metric
+        if (metric.equals(CUSTOM_METRIC)) {
+            String customMetric = editCustomMetric.getText().toString().trim();
+            if (!customMetric.isEmpty()) {
+                metric = customMetric;
+            } else {
+                Toast.makeText(getContext(), "Please enter a custom metric", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+
         Map<String, Object> updateMap = new HashMap<>();
         updateMap.put("name", name);
         updateMap.put("description", description);
@@ -245,6 +426,10 @@ public class HabitDialogFragment extends DialogFragment {
                     dismiss();
                 })
                 .addOnFailureListener(e -> Log.e("updateHabitInFirebase", "Failed to update habit", e));
+
+        if ((currentDate != null) && (getActivity() instanceof HabitDialogFragment.HabitDialogListener)) {
+            ((HabitDialogFragment.HabitDialogListener) getActivity()).onHabitDataChanged(currentDate);
+        }
     }
 
 

@@ -9,13 +9,29 @@
     android:padding="16dp"
     tools:context=".statistics.StatisticsActivity">
 
-    <!-- ScrollView to enable scrolling -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/topAppBar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:title="Statistics"
+            app:titleCentered="false"
+            app:navigationIcon="@drawable/ic_arrow_back"/>
+    </com.google.android.material.appbar.AppBarLayout>
+
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:fillViewport="true"
         android:background="?attr/colorSurface"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/appBar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
@@ -26,7 +42,6 @@
             android:orientation="vertical"
             android:paddingBottom="16dp">
 
-            <!-- Month Picker -->
             <LinearLayout
                 android:id="@+id/monthPicker"
                 android:layout_width="match_parent"
@@ -65,7 +80,6 @@
                     android:contentDescription="Next Month"/>
             </LinearLayout>
 
-            <!-- Habit List RecyclerView -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvHabitsList"
                 android:layout_width="match_parent"
@@ -74,7 +88,6 @@
                 android:background="?attr/colorSurface"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
 
-            <!-- Circular Progress Bar -->
             <FrameLayout
                 android:id="@+id/overallProgressContainer"
                 android:layout_width="wrap_content"
@@ -88,7 +101,6 @@
                     android:layout_height="150dp"/>
             </FrameLayout>
 
-            <!-- RecyclerView (Daily Progress) -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvMonthlyProgress"
                 android:layout_width="match_parent"
@@ -96,7 +108,6 @@
                 android:layout_marginTop="16dp"
                 android:background="?attr/colorSurface"/>
 
-            <!-- Statistics Grid -->
             <GridLayout
                 android:id="@+id/statsGrid"
                 android:layout_width="match_parent"
@@ -106,7 +117,6 @@
                 android:padding="8dp"
                 android:background="?attr/colorSurface">
 
-                <!-- Perfect Days -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -130,7 +140,6 @@
                         android:textColor="?attr/colorOnSurface"/>
                 </LinearLayout>
 
-                <!-- Longest Streak -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -154,7 +163,6 @@
                         android:textColor="?attr/colorOnSurface"/>
                 </LinearLayout>
 
-                <!--Total Metric-->
                 <LinearLayout
                     android:id="@+id/totalMetricLayout"
                     android:layout_width="wrap_content"
@@ -180,7 +188,6 @@
                 </LinearLayout>
             </GridLayout>
 
-            <!-- Line Chart (Moved outside GridLayout for better visibility) -->
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/testLineChart"
                 android:layout_width="match_parent"

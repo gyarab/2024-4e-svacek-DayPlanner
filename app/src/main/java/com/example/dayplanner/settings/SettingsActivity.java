@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,6 +27,7 @@ import com.google.firebase.auth.UserInfo;
 public class SettingsActivity extends AppCompatActivity {
     SwitchCompat switchMode, switchNotifications;
     ThemePreferencesHelper themePreferencesHelper;
+    TextView accountText;
     boolean nightMode;
     SharedPreferences preferences;
     SharedPreferences.Editor editor;
@@ -33,6 +35,7 @@ public class SettingsActivity extends AppCompatActivity {
     FirebaseAuth auth;
     FirebaseUser user;
     MaterialToolbar settingsToolbar;
+    com.google.android.material.card.MaterialCardView cardView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,9 +103,13 @@ public class SettingsActivity extends AppCompatActivity {
         });
 
         changePasswordButton = findViewById(R.id.btnChangePassword);
+        accountText = findViewById(R.id.accountText);
+        cardView = findViewById(R.id.accountOutline);
 
         if(isUserAuthByGoogle()) {
             changePasswordButton.setVisibility(View.GONE);
+            accountText.setVisibility(View.GONE);
+            cardView.setVisibility(View.GONE);
         } else {
             changePasswordButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -134,12 +141,10 @@ public class SettingsActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Change Password");
 
-        // Create a layout
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setPadding(50, 20, 50, 20);
 
-        // Input fields
         EditText newPasswordInput = new EditText(this);
         newPasswordInput.setHint("Enter new password");
         newPasswordInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
@@ -153,7 +158,6 @@ public class SettingsActivity extends AppCompatActivity {
 
         builder.setView(layout);
 
-        // Buttons
         builder.setPositiveButton("Change", null);
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
 

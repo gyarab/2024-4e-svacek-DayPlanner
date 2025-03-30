@@ -4,14 +4,12 @@ import android.util.Log;
 
 import com.google.firebase.database.IgnoreExtraProperties;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 @IgnoreExtraProperties
 public class Habit {
@@ -121,7 +119,7 @@ public class Habit {
             Calendar checkDate = Calendar.getInstance();
             checkDate.setTime(dateFormat.parse(dateToCheck));
 
-            Log.d("Habit", "Start Date: " + start.getTime() + " Check Date: " + checkDate.getTime());
+            Log.d("HabitSTART", "Start Date: " + start.getTime() + " Check Date: " + checkDate.getTime() + " Frequency: " + frequency);
 
             // If check date is before the habit start date, return false
             if (checkDate.compareTo(start) < 0) {
@@ -137,20 +135,29 @@ public class Habit {
                 case "weekly":
                     // Show habit on the same weekday as startDate
                     boolean isVisibleWeekly = start.get(Calendar.DAY_OF_WEEK) == checkDate.get(Calendar.DAY_OF_WEEK);
-                    Log.d("TimelineAdapter", "Weekly habit, is visible on " + dateToCheck + ": " + isVisibleWeekly);
+                    Log.d("Habit", "Weekly habit, is visible on " + dateToCheck + ": " + isVisibleWeekly);
                     return isVisibleWeekly;
 
-                case "custom":
-                    // Example: User-defined custom days (modify this logic to fit actual user input)
-                    List<String> customDays = Arrays.asList("SUNDAY", "TUESDAY", "THURSDAY");
-
-                    // Convert Calendar day to a string (e.g., "MONDAY")
-                    String dayOfWeek = checkDate.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()).toUpperCase();
-                    boolean isVisibleCustom = customDays.contains(dayOfWeek);
-                    Log.d("TimelineAdapter", "Custom habit, is visible on " + dateToCheck + ": " + isVisibleCustom);
-                    return isVisibleCustom;
-
                 default:
+                    Log.d("default", frequency);
+                    if (frequency.startsWith("CUSTOM:")) {
+                        Log.d("default", "Custom habit, checking custom frequency");
+                    } else {
+                        Log.d("default", "Unknown frequency, habit not visible");
+                    }
+                    if (frequency.startsWith("Custom:")) {
+                        Log.d("Habit custom", "Custom habit, checking custom frequency");
+                        // Extract custom frequency pattern (e.g., "M-----S")
+                        String customPattern = frequency.substring(7);
+
+                        // Map Calendar.DAY_OF_WEEK to index in custom pattern (SUN=0, MON=1, ..., SAT=6)
+                        int dayOfWeekIndex = (checkDate.get(Calendar.DAY_OF_WEEK) + 5) % 7;
+
+                        boolean isVisibleCustom = customPattern.charAt(dayOfWeekIndex) != '-';
+                        Log.d("Habit", "Custom habit, is visible on " + dateToCheck + ": " + isVisibleCustom);
+                        return isVisibleCustom;
+                    }
+
                     Log.d("Habit", "Unknown frequency, habit not visible");
                     return false;
             }
@@ -160,6 +167,7 @@ public class Habit {
             return false; // Handle parsing errors gracefully
         }
     }
+
 
     @Override
     public String toString() {

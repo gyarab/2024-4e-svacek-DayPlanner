@@ -1,5 +1,7 @@
 package com.example.dayplanner.main.tasks;
 
+import static com.example.dayplanner.notifications.TaskNotificationHelper.cancelNotification;
+
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -16,6 +18,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -43,7 +46,6 @@ public class TaskDialogFragment extends DialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Set the dialog style to enable custom animations and full width
         setStyle(DialogFragment.STYLE_NO_TITLE, R.style.BottomSheetDialogTheme);
     }
 
@@ -63,7 +65,6 @@ public class TaskDialogFragment extends DialogFragment {
             // Apply animation to the dialog
             window.setWindowAnimations(R.style.BottomDialogAnimation);
 
-            // Apply animation to the view
             View view = getDialog().findViewById(R.id.task_dialog_root);
             if (view != null) {
                 Animation slideUp = AnimationUtils.loadAnimation(getContext(), R.anim.slide_up);
@@ -85,8 +86,6 @@ public class TaskDialogFragment extends DialogFragment {
         Button pickDateButton = view.findViewById(R.id.pick_date_button);
         Button pickTimeButton = view.findViewById(R.id.pick_time_button);
         Button saveButton = view.findViewById(R.id.save_task_button);
-
-        //TODO: length of habit isnt updated in UI
 
         /** Fill in field when the user is editing the habit = edit mode is true **/
         if (isEditMode && task != null) {
@@ -114,6 +113,7 @@ public class TaskDialogFragment extends DialogFragment {
 
             Log.d("NEW task", taskDate + " " + taskStartTime);
             if (taskTitle.isEmpty() || taskDate.isEmpty() || taskLength.isEmpty() || taskStartTime.equals("Select Time")) {
+                Toast.makeText(getContext(), "Please fill in all required fields", Toast.LENGTH_SHORT).show();
                 Log.e("saveNewHabitToFirebase", "Missing required fields");
                 return;
             }
@@ -154,6 +154,8 @@ public class TaskDialogFragment extends DialogFragment {
 
                     long taskTimeMillis = taskCalendar.getTimeInMillis();
                     TaskNotificationHelper.scheduleNotification(getContext(), savedTask.getTaskId(), savedTask.getTaskTitle(), taskTimeMillis);
+
+
 
                     if (getActivity() instanceof TaskDialogListener) {
                         ((TaskDialogListener) getActivity()).onTaskDataChanged(taskDate);
@@ -197,6 +199,8 @@ public class TaskDialogFragment extends DialogFragment {
                         ((TaskDialogListener) getActivity()).onTaskDataChanged(taskDate);
                     }
 
+                    cancelNotification(getContext(), taskId);
+
                     dismiss();
                 })
                 .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
@@ -207,7 +211,7 @@ public class TaskDialogFragment extends DialogFragment {
         String formattedDate = "";
         Log.d("formattedDateB", taskDate);
 
-        if (taskDate != null && taskDate.length() == 8) { // Ensure the date is in the correct format (DDMMYYYY)
+        if (taskDate != null && taskDate.length() == 8) { //FORMAT
             String day = taskDate.substring(0, 2);
             String month = taskDate.substring(2, 4);
             String year = taskDate.substring(4);
@@ -231,9 +235,9 @@ public class TaskDialogFragment extends DialogFragment {
         if (taskDate != null && !taskDate.isEmpty()) {
             // Split the input date by dots
             String[] parts = taskDate.split("\\.");
-            if (parts.length == 3) { // Ensure the date is in the format DD.MM.YYYY
-                String day = parts[0].length() == 1 ? "0" + parts[0] : parts[0];   // Ensure 2-digit day
-                String month = parts[1].length() == 1 ? "0" + parts[1] : parts[1]; // Ensure 2-digit month
+            if (parts.length == 3) {
+                String day = parts[0].length() == 1 ? "0" + parts[0] : parts[0];
+                String month = parts[1].length() == 1 ? "0" + parts[1] : parts[1];
                 String year = parts[2];
                 formattedDate = day + month + year;
             }

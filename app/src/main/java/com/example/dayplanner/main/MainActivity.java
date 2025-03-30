@@ -1,9 +1,13 @@
 package com.example.dayplanner.main;
 
+import android.Manifest;
+import android.app.AlarmManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -21,28 +25,22 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.LinearLayoutCompat;
-import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.AlarmManager;
-import android.Manifest;
 import com.example.dayplanner.R;
 import com.example.dayplanner.auth.AuthenticationActivity;
 import com.example.dayplanner.auth.signin.EmailSignInActivity;
-import com.example.dayplanner.main.dayslist.DayAdapter;
 import com.example.dayplanner.main.dayslist.WeeklyHeaderFragment;
 import com.example.dayplanner.main.habits.Habit;
+import com.example.dayplanner.main.habits.HabitDialogFragment;
 import com.example.dayplanner.main.tasks.Task;
 import com.example.dayplanner.main.tasks.TaskDialogFragment;
 import com.example.dayplanner.main.timeline.TimelineFragment;
 import com.example.dayplanner.settings.SettingsActivity;
-import com.example.dayplanner.settings.ThemeManager;
 import com.example.dayplanner.settings.ThemePreferencesHelper;
 import com.example.dayplanner.statistics.StatisticsActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -50,21 +48,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.example.dayplanner.main.habits.HabitDialogFragment;
-//import com.google.firebase.database.DatabaseReference;
-//import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.DateFormatSymbols;
 import java.util.Calendar;
 import java.util.Locale;
 
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.Network;
-import android.net.NetworkCapabilities;
-import android.os.Build;
-
-public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragment.OnDaySelectedListener, TaskDialogFragment.TaskDialogListener {
+public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragment.OnDaySelectedListener, TaskDialogFragment.TaskDialogListener, HabitDialogFragment.HabitDialogListener {
 
 
     FloatingActionButton addButton, profileButton;
@@ -76,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
     private FirebaseAuth mAuth;
     private TaskDialogFragment.TaskDialogListener listener;
     private static final int NOTIFICATION_PERMISSION_CODE = 1;
-    private static final int REQUEST_CODE_PERMISSION = 1001; // or any unique integer value
+    private static final int REQUEST_CODE_PERMISSION = 1001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,9 +93,6 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
                 Intent intent = new Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM);
                 startActivityForResult(intent, REQUEST_CODE_PERMISSION);
             }
-        } else {
-            // For lower API levels, permission is not required
-            //TODO: set the alarm manager
         }
 
         /** For databases outside of USA I need an url as an argument for getInstance*/
@@ -116,10 +102,9 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser == null) {
             Log.d("USR", "Not signed in");
-            /** He should be transfered to a UI where he can pick from multiple logins or click register using email or phone nuber**/
             Intent intent = new Intent(MainActivity.this, AuthenticationActivity.class);
             startActivity(intent);
-            finish(); // Prevent the user from returning to MainActivity
+            finish();
             return;
         }
         Log.d("USR", currentUser.toString());
@@ -151,7 +136,6 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
             return insets;
          });
 
-        //TODO: do a seperate fragment from it
         popupMenu(); // function that sets the popup menu to work
 
         // Get current date and set month/year in the UI
@@ -242,14 +226,12 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
     }
 
     public void navigateToDate(int year, int month, int day) {
-        // Format the dateId
         String dateId = String.format(Locale.US, "%02d%02d%d", day, month, year);
 
         // Update the WeeklyHeaderFragment
         WeeklyHeaderFragment weeklyFragment = (WeeklyHeaderFragment) getSupportFragmentManager().findFragmentByTag("WEEKLY_HEADER_FRAGMENT_TAG");
         if (weeklyFragment != null) {
             weeklyFragment.navigateToDate(year, month, day);
-            weeklyFragment.dayAdapter.setActiveDotByDateId(dateId);
         }
     }
 
@@ -260,19 +242,16 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
             int month = Integer.parseInt(dateId.substring(2, 4));
             int year = Integer.parseInt(dateId.substring(4));
 
-            // Navigate to the extracted date
             navigateToDate(year, month, day);
         }
     }
 
-    // Similarly update onHabitDataChanged
     public void onHabitDataChanged(String dateId) {
         if (dateId != null && dateId.length() == 8) {
             int day = Integer.parseInt(dateId.substring(0, 2));
             int month = Integer.parseInt(dateId.substring(2, 4));
             int year = Integer.parseInt(dateId.substring(4));
 
-            // Navigate to the extracted date
             navigateToDate(year, month, day);
         }
     }
@@ -294,9 +273,6 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.POST_NOTIFICATIONS},
                     NOTIFICATION_PERMISSION_CODE);
-        } else {
-            // If already granted, you can proceed with any logic you need
-            Log.d("MainActivity", "Notification permission already granted");
         }
     }
 
@@ -308,11 +284,9 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted
                 Log.d("MainActivity", "Notification permission granted");
-                // You can proceed with notifications now
             } else {
                 // Permission denied
                 Log.d("MainActivity", "Notification permission denied");
-                // Optionally show a message explaining why the permission is needed
                 Toast.makeText(this, "Notification permission is required for task reminders", Toast.LENGTH_SHORT).show();
             }
         }
@@ -333,11 +307,11 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
             // For below API 23
             android.net.NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
             if (activeNetworkInfo != null && activeNetworkInfo.getType() == ConnectivityManager.TYPE_WIFI) {
-                return true; // Connected to Wi-Fi
+                return true;
             }
         }
 
-        return false; // Not connected to Wi-Fi
+        return false;
     }
 
     /** Function for showing a popup menu when the profile button is clicked **/
@@ -374,10 +348,7 @@ public class MainActivity extends AppCompatActivity implements WeeklyHeaderFragm
                                 return false;
                             }
                             return true;
-                        } else if (id == R.id.archive) {
-                            Toast.makeText(MainActivity.this, "Archive clicked", Toast.LENGTH_SHORT).show();
-                            return true;
-                        }
+                        } 
                         return false;
                     }
                 });

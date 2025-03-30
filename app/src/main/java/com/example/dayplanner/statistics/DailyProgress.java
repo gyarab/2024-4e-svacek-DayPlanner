@@ -1,6 +1,5 @@
 package com.example.dayplanner.statistics;
 
-// Model class for daily progress
 public class DailyProgress {
     private int day;
     private float completionPercentage;

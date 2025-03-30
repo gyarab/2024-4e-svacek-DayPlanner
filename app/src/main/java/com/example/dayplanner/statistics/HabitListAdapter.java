@@ -45,7 +45,6 @@ public class HabitListAdapter extends RecyclerView.Adapter<HabitListAdapter.View
         Habit habit = habitList.get(position);
         holder.habitNameTextView.setText(habit.getName());
 
-        // Check if this item is selected
         boolean isSelected = habit.getId().equals(selectedHabitId);
         updateItemView(holder.itemView, isSelected);
 
@@ -75,18 +74,14 @@ public class HabitListAdapter extends RecyclerView.Adapter<HabitListAdapter.View
     private void setTextColorBasedOnTheme(View view, Context context) {
         // Get the current theme's text color (light or dark)
         TypedArray a = context.getTheme().obtainStyledAttributes(new int[]{android.R.attr.colorPrimary});
-        int textColor = a.getColor(0, Color.BLACK); // Default to black if not found
-        a.recycle();  // Don't forget to recycle the TypedArray to avoid memory leaks
+        int textColor = a.getColor(0, Color.BLACK);
+        a.recycle();
 
-        // Set the text color dynamically based on the theme
         view.setBackgroundColor(textColor);
     }
-
-    // Update item UI
     private void updateItemView(View view, boolean isSelected) {
         Context context = view.getContext();
 
-        // Set text color based on theme
         setTextColorBasedOnTheme(view, context);
 
         // Animate selection change

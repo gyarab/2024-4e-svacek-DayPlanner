@@ -7,43 +7,40 @@
     <color name="primaryLightColor">#9E66F4</color>
     <color name="primaryDarkColor">#2F0385</color>
     <color name="gray">#BDBDBD</color>
-    <color name="green">#4CAF50</color> <!-- For the checkmark -->
+    <color name="green">#4CAF50</color>
 
     <color name="selected_habit">#B3E5FC</color>
     <color name="default_habit">#E0F7FA</color>
 
-    <color name="progress_high">#00FF00</color> <!-- More intense green -->
-    <color name="progress_medium">#ff9a00</color> <!-- Stronger amber -->
-    <color name="progress_low">#ff7400</color> <!-- Brighter orange -->
-    <color name="progress_none">#ff1837</color> <!-- Deeper red -->
+    <color name="progress_high">#00FF00</color>
+    <color name="progress_medium">#ff9a00</color>
+    <color name="progress_low">#ff7400</color>
+    <color name="progress_none">#ff1837</color>
     <color name="progress_upcoming">#BDBDBD</color>
 
+        <color name="colorPrimaryLight">#CE9932</color>
+        <color name="colorOnPrimaryLight">#000000</color>
+        <color name="colorPrimaryVariantLight">#9E66F4</color>
+        <color name="colorSecondaryLight">#00BCD4</color>
+        <color name="colorOnSecondaryLight">#FFFFFF</color>
+        <color name="colorSecondaryVariantLight">#FFEB3B</color>
+        <color name="colorSurfaceLight">#FFFFFF</color>
+        <color name="colorOnSurfaceLight">#000000</color>
+        <color name="colorBackgroundLight">#F5F5F5</color>
+        <color name="colorOnBackgroundLight">#000000</color>
+        <color name="colorErrorLight">#D32F2F</color>
 
-        <!-- Light Theme Colors -->
-        <color name="colorPrimaryLight">#CE9932</color> <!-- Elegant Gold -->
-        <color name="colorOnPrimaryLight">#000000</color> <!-- Black for contrast -->
-        <color name="colorPrimaryVariantLight">#9E66F4</color> <!-- Rich Purple -->
-        <color name="colorSecondaryLight">#00BCD4</color> <!-- Vibrant Cyan -->
-        <color name="colorOnSecondaryLight">#FFFFFF</color> <!-- White for readability -->
-        <color name="colorSecondaryVariantLight">#FFEB3B</color> <!-- Bright Yellow -->
-        <color name="colorSurfaceLight">#FFFFFF</color> <!-- Clean White Background -->
-        <color name="colorOnSurfaceLight">#000000</color> <!-- Black for text -->
-        <color name="colorBackgroundLight">#F5F5F5</color> <!-- Soft Light Gray -->
-        <color name="colorOnBackgroundLight">#000000</color> <!-- Black for text -->
-        <color name="colorErrorLight">#D32F2F</color> <!-- Deep Red for errors -->
-
-        <!-- Dark Theme Colors -->
-        <color name="colorPrimaryDark">#2F0385</color> <!-- Deep Purple -->
-        <color name="colorOnPrimaryDark">#FFFFFF</color> <!-- White for contrast -->
-        <color name="colorPrimaryVariantDark">#4B0082</color> <!-- Softer Purple -->
-        <color name="colorSecondaryDark">#00838F</color> <!-- Teal Accent -->
-        <color name="colorOnSecondaryDark">#FFFFFF</color> <!-- White for readability -->
-        <color name="colorSecondaryVariantDark">#FF7043</color> <!-- Warm Deep Orange -->
-        <color name="colorSurfaceDark">#121212</color> <!-- Standard Dark Background -->
-        <color name="colorOnSurfaceDark">#FFFFFF</color> <!-- White for text -->
-        <color name="colorBackgroundDark">#000000</color> <!-- True Black for AMOLED Screens -->
-        <color name="colorOnBackgroundDark">#E0E0E0</color> <!-- Light Gray for softer contrast -->
-        <color name="colorErrorDark">#E53935</color> <!-- Bright Red for errors -->
+        <color name="colorPrimaryDark">#2F0385</color>
+        <color name="colorOnPrimaryDark">#FFFFFF</color>
+        <color name="colorPrimaryVariantDark">#4B0082</color>
+        <color name="colorSecondaryDark">#00838F</color>
+        <color name="colorOnSecondaryDark">#FFFFFF</color>
+        <color name="colorSecondaryVariantDark">#FF7043</color>
+        <color name="colorSurfaceDark">#121212</color>
+        <color name="colorOnSurfaceDark">#FFFFFF</color>
+        <color name="colorBackgroundDark">#000000</color>
+        <color name="colorOnBackgroundDark">#E0E0E0</color>
+        <color name="colorErrorDark">#E53935</color>
 
     <color name="light_gray">#D3D3D3</color>
     <color name="lavender">#8692f7</color>

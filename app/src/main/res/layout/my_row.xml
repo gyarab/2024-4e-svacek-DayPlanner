@@ -7,7 +7,6 @@
     android:layout_height="wrap_content"
     android:padding="8dp">
 
-    <!-- CardView for the Task Item -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -20,14 +19,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Inner ConstraintLayout for organizing content -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/task"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="16dp">
 
-            <!-- Task ID TextView -->
             <TextView
                 android:id="@+id/task_start_time_txt"
                 android:layout_width="40dp"
@@ -41,7 +38,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <!-- Task Title TextView -->
             <TextView
                 android:id="@+id/task_title_txt"
                 android:layout_width="0dp"
@@ -56,7 +52,6 @@
                 app:layout_constraintStart_toEndOf="@+id/task_start_time_txt"
                 app:layout_constraintTop_toTopOf="@+id/task_start_time_txt" />
 
-            <!-- Task Description TextView -->
             <TextView
                 android:id="@+id/task_description_txt"
                 android:layout_width="0dp"
@@ -69,7 +64,6 @@
                 app:layout_constraintStart_toEndOf="@+id/task_start_time_txt"
                 app:layout_constraintTop_toBottomOf="@+id/task_title_txt" />
 
-            <!-- Task Length TextView -->
             <TextView
                 android:id="@+id/task_length_txt"
                 android:layout_width="wrap_content"
@@ -80,19 +74,6 @@
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/task_title_txt" />
-
-            <!--<com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/AddTaskButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="60dp"
-                android:clickable="true"
-                android:contentDescription="@string/add_button_description"
-                android:focusable="true"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/delete_icon" />
-              -->
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.cardview.widget.CardView>

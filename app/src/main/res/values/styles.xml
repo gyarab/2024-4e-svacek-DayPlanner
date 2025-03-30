@@ -5,12 +5,8 @@
         <item name="cornerSize">50%</item>
     </style>
 
-        <!-- Define a custom button style with small border radius -->
         <style name="CustomButtonStyle">
-            <!-- Background with rounded corners -->
             <item name="android:background">@drawable/rounded_button</item>
-
-            <!-- Text color and other properties -->
             <item name="android:textColor">@android:color/white</item>
             <item name="android:textSize">16sp</item>
             <item name="android:paddingStart">16dp</item>

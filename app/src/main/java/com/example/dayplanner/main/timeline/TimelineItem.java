@@ -8,13 +8,11 @@ public class TimelineItem {
     private Task task;
     private Habit habit;
 
-    //for task
     public TimelineItem(Task task) {
         this.isTask = true;
         this.task = task;
     }
 
-    //for habit
     public TimelineItem(Habit habit) {
         this.isTask = false;
         this.habit = habit;
@@ -71,7 +69,6 @@ public class TimelineItem {
 
     public String getHabitDate() {
         if (habit != null && habit.getEntries() != null && !habit.getEntries().isEmpty()) {
-            // Return the first entry's date. //TODO:
             return habit.getEntries().values().iterator().next().getDate();
         }
         return "";
@@ -79,9 +76,9 @@ public class TimelineItem {
 
     public void setStartTime(String newStartTime) {
         if (isTask && task != null) {
-            task.setTaskStartTime(newStartTime); // Update the Task's start time
+            task.setTaskStartTime(newStartTime);
         } else if (habit != null) {
-            habit.setStartTime(newStartTime); // Update the Habit’s start time
+            habit.setStartTime(newStartTime);
         }
     }
 
@@ -111,7 +108,6 @@ public class TimelineItem {
         }
     }
 
-    // Returns duration in minutes
     public int getDurationInMinutes() {
         return getTaskDuration();
     }

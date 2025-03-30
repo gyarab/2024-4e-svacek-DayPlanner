@@ -18,9 +18,6 @@ DayPlanner is a smart and intuitive Android app designed to help users plan thei
 
 🧑‍💻 User Authentication – Sign in using Google or a verified email.
 
-👥 Shared Habits – Collaborate with friends to track and complete habits together.
-
-
 ---
 
 ## **🛠 Tech Stack**
@@ -66,7 +63,7 @@ Click ▶ **Run** in **Android Studio** or use:
 ---
 
 ## **📌 Future Enhancements**
-🚀 **Archive Completed Habits** – Keep track of past habits without clutter.  
+🚀 **Archive Completed Habits** – Keep track of past habits.
 🚀 **Yearly Goal Chart** – Visualize progress over time.  
 🚀 **Social Features** – Habit sharing with friends.
 

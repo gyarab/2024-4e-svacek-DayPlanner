@@ -1,15 +1,10 @@
 package com.example.dayplanner.statistics;
 
 import android.content.Context;
-import android.content.res.TypedArray;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.Typeface;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -31,12 +26,10 @@ public class MonthlyProgressAdapter extends RecyclerView.Adapter<MonthlyProgress
     public MonthlyProgressAdapter(Context context, List<DailyProgress> dailyProgressList) {
         this.context = context;
 
-        // Store progress in a map for quick lookup
         for (DailyProgress progress : dailyProgressList) {
             progressMap.put(progress.getDay(), progress);
         }
 
-        // Get month details
         Calendar calendar = Calendar.getInstance();
         totalDaysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
         currentDay = calendar.get(Calendar.DAY_OF_MONTH);
@@ -55,10 +48,8 @@ public class MonthlyProgressAdapter extends RecyclerView.Adapter<MonthlyProgress
         DailyProgress progress = progressMap.get(day);
 
         if (progress != null) {
-            // Existing data
             holder.bind(progress, context, false);
         } else {
-            // No data = upcoming day (gray)
             holder.bind(new DailyProgress(day, 0), context, day > currentDay);
         }
     }
@@ -73,22 +64,19 @@ public class MonthlyProgressAdapter extends RecyclerView.Adapter<MonthlyProgress
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            circularProgressBar = itemView.findViewById(R.id.circularProgressBar);  // Updated to use CustomCircularProgressBar
+            circularProgressBar = itemView.findViewById(R.id.circularProgressBar);
         }
 
         public void bind(DailyProgress progress, Context context, boolean isUpcoming) {
-            // Set the progress based on the completion percentage
             circularProgressBar.setProgress(progress.getCompletionPercentage(), String.valueOf(progress.getDay()));
             circularProgressBar.setTextStyle(Typeface.BOLD);
-            // Set a thinner width for the progress bar
-            circularProgressBar.setProgressWidth(10); // Change this value to make it thinner
-            circularProgressBar.setBackgroundWidth(10); // Similarly adjust background width if necessary
+            circularProgressBar.setProgressWidth(10);
+            circularProgressBar.setBackgroundWidth(10);
 
             if (isUpcoming) {
-                // Gray for upcoming days
+                //future days will be gray
                 circularProgressBar.setProgressColor(ContextCompat.getColor(context, R.color.progress_upcoming));
             } else {
-                // Use updated color mapping based on completion percentage
                 int color = getColorForPercentage(progress.getCompletionPercentage(), context);
                 circularProgressBar.setProgressColor(color);
             }

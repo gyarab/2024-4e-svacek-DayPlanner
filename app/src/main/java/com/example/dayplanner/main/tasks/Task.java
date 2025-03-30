@@ -88,8 +88,4 @@ public class Task {
                 ", isCompleted=" + isCompleted +
                 '}';
     }
-
-    public boolean isValid() {
-        return taskTitle != null && !taskTitle.isEmpty() && taskDate != null && !taskDate.isEmpty() && taskStartTime != null;
-    }
 }

@@ -1,6 +1,7 @@
 package com.example.dayplanner.statistics;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -22,6 +23,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dayplanner.R;
+import com.example.dayplanner.main.MainActivity;
 import com.example.dayplanner.main.habits.FirebaseHelper;
 import com.example.dayplanner.main.habits.Habit;
 import com.example.dayplanner.main.habits.HabitEntry;
@@ -32,6 +34,7 @@ import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -73,8 +76,7 @@ public class StatisticsActivity extends AppCompatActivity {
     private List<Habit> habitList = new ArrayList<>();
     private LineChart lineChart;
     private LinearLayout totalMetricLayout;
-
-    // Cache for month data
+    MaterialToolbar settingsToolbar;
     private Map<String, StatisticsData> monthDataCache = new HashMap<>();
 
     private class StatisticsData {
@@ -132,6 +134,15 @@ public class StatisticsActivity extends AppCompatActivity {
 
         btnPreviousMonth.setOnClickListener(v -> changeMonth(-1));
         btnNextMonth.setOnClickListener(v -> changeMonth(1));
+
+        settingsToolbar = findViewById(R.id.topAppBar);
+        settingsToolbar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(StatisticsActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
 
         /** recycler view for habits **/
         habitsRecyclerView = findViewById(R.id.rvHabitsList);
@@ -252,7 +263,9 @@ public class StatisticsActivity extends AppCompatActivity {
     }
 
     public int calculateMonthOverallProgress(HashMap<String, Float> dailyCompletionPercentages) {
+        Log.d("calculateMonthOverallProgress", "START");
         if (dailyCompletionPercentages.isEmpty()) {
+            Log.d("calculateMonthOverallProgress", "EMPTY");
             return 0;
         }
 
@@ -262,6 +275,7 @@ public class StatisticsActivity extends AppCompatActivity {
             sumOfAllPercentages += record.getValue();
             numberOfRecords++;
         }
+        Log.d("calculateMonthOverallProgress", "END " + sumOfAllPercentages + " " + numberOfRecords);
 
         return numberOfRecords > 0 ? Math.round(sumOfAllPercentages / numberOfRecords) : 0;
     }
@@ -274,7 +288,7 @@ public class StatisticsActivity extends AppCompatActivity {
                 for (DataSnapshot habitSnapshot : snapshot.getChildren()) {
                     Habit habit = habitSnapshot.getValue(Habit.class);
                     if (habit != null) {
-                        habit.setId(habitSnapshot.getKey()); // Set habit ID
+                        habit.setId(habitSnapshot.getKey());
                         habitList.add(habit);
                     }
                 }
@@ -345,13 +359,15 @@ public class StatisticsActivity extends AppCompatActivity {
         // Create and cache StatisticsData
         StatisticsData monthData = new StatisticsData();
         monthData.overallProgress = overallProgress;
+
+        Log.d("MONTHLX", ""+ monthData.overallProgress);
+
         monthData.perfectDays = perfectDaysCount;
         monthData.longestStreak = longestStreak;
         monthData.dailyProgress = dailyAveragePercentage;
 
         monthDataCache.put(monthId, monthData);
 
-        // Update UI on main thread
         runOnUiThread(() -> updateUIWithCachedData(monthData));
     }
 
@@ -372,23 +388,19 @@ public class StatisticsActivity extends AppCompatActivity {
 
             // Process only dates in the requested month
             if (dateKey.substring(2, 8).equals(monthId)) {
-                // Process habit data for this date
                 if (habit.isHabitVisibleOnDate(dateKey)) {
-                    // Initialize data structures if needed
                     if (!dailyTotalPercentage.containsKey(dateKey)) {
                         dailyTotalPercentage.put(dateKey, 0.0f);
                         dailyEntryCount.put(dateKey, 0);
-                        perfectDays.put(dateKey, true); // Assume perfect until proven otherwise
+                        perfectDays.put(dateKey, true); //assume true from beginning
                     }
 
-                    // Process entry data
                     HabitEntry habitEntry = habit.getEntryForDate(dateKey);
                     if (habitEntry != null) {
                         float percentage = (float) habitEntry.getProgress() / habitEntry.getEntryGoalValue() * 100;
                         dailyTotalPercentage.put(dateKey, dailyTotalPercentage.get(dateKey) + percentage);
                         dailyEntryCount.put(dateKey, dailyEntryCount.get(dateKey) + 1);
 
-                        // Update perfect day status
                         if (percentage < 100) {
                             perfectDays.put(dateKey, false);
                         }
@@ -536,7 +548,6 @@ public class StatisticsActivity extends AppCompatActivity {
 
             List<HabitProgressEntry> formattedData = formatHabitProgressDataForChart(habitProgressData);
 
-            // Create StatisticsData for this habit
             StatisticsData habitData = new StatisticsData();
             habitData.overallProgress = overallMonthProgress;
             habitData.perfectDays = perfectDaysCount;
@@ -546,7 +557,6 @@ public class StatisticsActivity extends AppCompatActivity {
             habitData.dailyProgress = dailyCompletionPercentages;
             habitData.habitProgressData = formattedData;
 
-            // Update UI on main thread
             runOnUiThread(() -> updateUIWithCachedData(habitData));
         } catch (Exception e) {
             Log.e("processHabitDetails", "Error: " + e.getMessage());
@@ -571,7 +581,6 @@ public class StatisticsActivity extends AppCompatActivity {
 
     public String getLastDayOfMonth(String monthId) {
         try {
-            // Parse monthId to get year and month
             int month = Integer.parseInt(monthId.substring(0, 2)) - 1;
             int year = Integer.parseInt(monthId.substring(2, 6));
 

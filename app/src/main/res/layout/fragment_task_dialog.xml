@@ -7,14 +7,12 @@
     android:padding="16dp"
     android:background="?attr/colorSurface">
 
-    <!-- Rest of your layout remains the same -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="8dp">
 
-        <!-- Task Title -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -27,7 +25,6 @@
                 android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Task Description -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -40,7 +37,6 @@
                 android:inputType="text" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Task Length -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -53,7 +49,6 @@
                 android:inputType="number" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Select Date -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -79,7 +74,6 @@
                 android:layout_marginEnd="8dp"/>
         </LinearLayout>
 
-        <!-- Select Time -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -105,14 +99,12 @@
                 android:layout_marginEnd="8dp"/>
         </LinearLayout>
 
-        <!-- Buttons (Save and Delete) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginTop="16dp">
 
-            <!-- Save Task Button -->
             <Button
                 android:id="@+id/save_task_button"
                 android:layout_width="0dp"
@@ -121,7 +113,6 @@
                 android:text="Save Task"
                 style="@style/Widget.MaterialComponents.Button" />
 
-            <!-- Delete Task Button (Hidden by Default) -->
             <Button
                 android:id="@+id/delete_task_button"
                 android:layout_width="wrap_content"

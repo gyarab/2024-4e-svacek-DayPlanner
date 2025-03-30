@@ -184,15 +184,12 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
                 public void onClick(View v) {
                     Log.d("Habit edit", item.toString());
 
-                    // Create a new instance of the HabitDialogFragment
                     HabitDialogFragment dialogFragment = new HabitDialogFragment(true, item.getHabit());
 
-                    // Pass the current date to the dialog fragment
                     Bundle args = new Bundle();
                     args.putString("currentDate", currentDate);  // Pass the current date
                     dialogFragment.setArguments(args);
 
-                    // Show the dialog fragment
                     dialogFragment.show(((AppCompatActivity) context).getSupportFragmentManager(), "EditHabitDialog");
                 }
             });
@@ -220,11 +217,11 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
 
             fetchHabitProgress(item.getHabit(), currentDate, holder.seekBar);
 
-            int goalValue = item.getHabit().getGoalValue(); // Default goal value
+            int goalValue = item.getHabit().getGoalValue();
             HabitEntry entry = item.getHabit().getEntryForDate(currentDate);
 
             if (entry != null) {
-                goalValue = entry.getEntryGoalValue(); // Use entry goal value if it exists
+                goalValue = entry.getEntryGoalValue();
             }
 
             holder.seekBar.setMax(goalValue);
@@ -233,8 +230,6 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
             // Set the progress increment step
             int progressIncrement = item.getHabit().getGoalValue() / 10;
             holder.seekBar.setKeyProgressIncrement(progressIncrement);
-
-            //TODO: Change progress only if current date is >= habit change date
 
             holder.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
@@ -257,9 +252,6 @@ public class TimelineAdapter extends RecyclerView.Adapter<TimelineAdapter.ViewHo
 
                     currentEntry.setProgress(progress);
                     Log.d("Habit - after", habit.toString());
-
-                    /** Update the progress in onChanged aswell as on stop tracking touch**/
-                    Log.d("TimelineAdapter - onStopTrackingTouch", "Updating habit entry: " + item.getHabitName() + ", Progress: " + progress);
 
                     updateHabitEntryInFirebase(item.getHabit(), currentDate, progress, goal);
                 }

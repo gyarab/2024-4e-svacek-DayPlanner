@@ -13,7 +13,6 @@ import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
@@ -221,13 +220,18 @@ public class WeeklyHeaderFragment extends Fragment {
         }
 
         Calendar targetCalendar = Calendar.getInstance();
-        targetCalendar.set(year, month - 1, day);
+        targetCalendar.set(year, month - 1, day, 0, 0, 0); // Reset time to midnight
+        targetCalendar.set(Calendar.MILLISECOND, 0);
 
         Calendar startCalendar = Calendar.getInstance();
-        startCalendar.set(2024, 0, 1);
+        startCalendar.set(2024, 0, 1, 0, 0, 0);
+        startCalendar.set(Calendar.MILLISECOND, 0);
 
+        // Calculate days difference first
         long diffInMillis = targetCalendar.getTimeInMillis() - startCalendar.getTimeInMillis();
-        int diffInWeeks = (int)(diffInMillis / (7 * 24 * 60 * 60 * 1000));
+        int diffInDays = (int)(diffInMillis / (24 * 60 * 60 * 1000));
+
+        int diffInWeeks = Math.round(diffInDays / 7.0f);
 
         currentWeekIndex = diffInWeeks;
         currentWeekIndex = Math.max(0, Math.min(currentWeekIndex, totalWeeks - 1));
@@ -238,6 +242,8 @@ public class WeeklyHeaderFragment extends Fragment {
 
         String dateId = String.format(Locale.US, "%02d%02d%d", day, month, year);
         dayAdapter.setActiveDotByDateId(dateId);
+
+        dayAdapter.notifyDataSetChanged();
 
         if (getActivity() instanceof OnDaySelectedListener) {
             ((OnDaySelectedListener) getActivity()).onDaySelected(dateId);

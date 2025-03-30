@@ -22,7 +22,9 @@ public class CustomCircularProgressBar extends View {
     private int progressWidth = 20; // The width of the progress bar
     private int backgroundWidth = 20; // The width of the background circle
     private String progressText = "0%"; // Text inside the circle
-    private boolean isDayText = false; // Flag to check if we need to show day number or percentage
+    private boolean isDayText = false; // boolean to check if I need to show day number or percentage
+
+    /** This compomnent was made thanks to this video: https://www.youtube.com/watch?v=7BVg8_WR7h4 and AI **/
 
     public CustomCircularProgressBar(Context context) {
         super(context);
@@ -40,7 +42,6 @@ public class CustomCircularProgressBar extends View {
     }
 
     private void init() {
-        // Initialize the paint objects for progress, background, and text
         progressPaint = new Paint();
         progressPaint.setColor(progressColor);
         progressPaint.setStyle(Paint.Style.STROKE);
@@ -66,105 +67,87 @@ public class CustomCircularProgressBar extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        // Calculate center and radius for the progress circle
         float centerX = getWidth() / 2f;
         float centerY = getHeight() / 2f;
         float radius = Math.min(centerX, centerY) - Math.max(progressWidth, backgroundWidth);
 
-        // Draw the background circle
         canvas.drawCircle(centerX, centerY, radius, backgroundPaint);
 
-        // Draw the progress arc
         RectF progressRect = new RectF(centerX - radius, centerY - radius, centerX + radius, centerY + radius);
         canvas.drawArc(progressRect, -90, (360 * progress) / maxProgress, false, progressPaint);
 
-        // Draw the text (either percentage or day number)
         canvas.drawText(progressText, centerX, centerY + textPaint.getTextSize() / 3, textPaint);
     }
 
-    // Set the progress value (0-100)
     public void setProgress(float progress) {
         this.progress = progress;
-        this.progressText = Math.round(progress) + "%"; // Update the text to show the percentage
-        isDayText = false; // Set flag to show percentage
-        invalidate(); // Redraw the view with the updated progress
+        this.progressText = Math.round(progress) + "%";
+        isDayText = false;
+        invalidate();
     }
 
     public void setProgress(float progress, String customText) {
         this.progress = progress;
-        this.progressText = customText; // Update the text to show the percentage
-        isDayText = false; // Set flag to show percentage
-        invalidate(); // Redraw the view with the updated progress
+        this.progressText = customText;
+        isDayText = false;
+        invalidate();
     }
 
-    // Set the maximum progress value
     public void setMaxProgress(float maxProgress) {
         this.maxProgress = maxProgress;
     }
 
-    // Set the progress color dynamically
     public void setProgressColor(int color) {
         this.progressColor = color;
-        progressPaint.setColor(color); // Update the paint color for the progress
-        invalidate(); // Redraw the view with the new color
+        progressPaint.setColor(color);
+        invalidate();
     }
 
-    // Set the background color dynamically
     public void setBackgroundColor(int color) {
         this.backgroundColor = color;
-        backgroundPaint.setColor(color); // Update the background circle color
-        invalidate(); // Redraw the view with the new background color
+        backgroundPaint.setColor(color);
+        invalidate();
     }
 
-    // Set the width of the progress circle
     public void setProgressWidth(int width) {
         this.progressWidth = width;
-        progressPaint.setStrokeWidth(width); // Update the stroke width for the progress
-        invalidate(); // Redraw the view with the new stroke width
+        progressPaint.setStrokeWidth(width);
+        invalidate();
     }
 
-    // Set the width of the background circle
     public void setBackgroundWidth(int width) {
         this.backgroundWidth = width;
-        backgroundPaint.setStrokeWidth(width); // Update the stroke width for the background circle
-        invalidate(); // Redraw the view with the new stroke width
+        backgroundPaint.setStrokeWidth(width);
+        invalidate();
     }
 
-    // Set custom text (for displaying the day number)
     public void setText(String text) {
-        this.progressText = text; // Update the text to the given string
-        isDayText = true; // Set flag to show day number
-        invalidate(); // Redraw the view with the new text
+        this.progressText = text;
+        isDayText = true;
+        invalidate();
     }
 
-    // Method to set the text color dynamically
     public void setTextColor(int color) {
-        textPaint.setColor(color);  // Update the text color
-        invalidate();  // Redraw the view with the new text color
+        textPaint.setColor(color);
+        invalidate();
     }
 
-    // Set the text size in the center of the progress bar
     public void setTextSize(float textSize) {
-        textPaint.setTextSize(textSize); // Set the text size for the progress text
-        invalidate(); // Redraw the view with the new text size
+        textPaint.setTextSize(textSize);
+        invalidate();
     }
 
-    // Set the text style (e.g., bold, normal)
     public void setTextStyle(int style) {
-        // Directly set the text style using the predefined constants
-        textPaint.setTypeface(Typeface.defaultFromStyle(style)); // Use default style (bold, italic, etc.)
-        invalidate(); // Redraw the view with the updated text style
+        textPaint.setTypeface(Typeface.defaultFromStyle(style));
+        invalidate();
     }
     public void setTextColorBasedOnTheme(CustomCircularProgressBar progressBar, Context context) {
-        // Get the current theme's text color (light or dark)
         TypedArray a = context.obtainStyledAttributes(new int[]{android.R.attr.textColorPrimary});
-        int textColor = a.getColor(0, Color.BLACK); // Default to black if not found
-        a.recycle();  // Avoid memory leaks
+        int textColor = a.getColor(0, Color.BLACK);
+        a.recycle();
 
-        // Set the text color dynamically
         progressBar.setTextColor(textColor);
     }
-    // Check if the text is in day number format
     public boolean isDayText() {
         return isDayText;
     }

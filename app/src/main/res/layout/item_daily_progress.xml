@@ -4,7 +4,6 @@
     android:layout_height="wrap_content"
     android:padding="8dp">
 
-    <!-- Custom Circular Progress Bar -->
     <com.example.dayplanner.statistics.CustomCircularProgressBar
         android:id="@+id/circularProgressBar"
         android:layout_width="60dp"
