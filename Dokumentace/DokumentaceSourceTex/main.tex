@@ -1,0 +1,174 @@
+\documentclass[12pt, a4paper]{report} %formát stránky
+\usepackage{graphicx} % Required for inserting images
+\renewcommand{\figurename}{Obrázek} %změnění názvu na obrázek
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+%formátování
+\usepackage[left=3.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm]{geometry} \linespread{1.5}
+\graphicspath{ {images/} }
+\usepackage{times}
+\usepackage{xcolor}
+\usepackage{sectsty}
+\usepackage{floatrow}
+\usepackage{titlesec}
+% Packages and setup
+\usepackage{footmisc}
+\usepackage{dirtree}
+\usepackage[edges]{forest}
+\usepackage[style=numeric,backend=biber,sorting=none]{biblatex}
+
+\usepackage{sectsty}
+\let\underbar\relax
+\let\underline\relax
+
+% Custom citation format for footnotes - just number and title
+\DeclareCiteCommand{\footcite}[\mkbibfootnote]
+  {\usebibmacro{prenote}}
+  {\hyperlink{cite.\thefield{entrykey}}{\thefield{entrykey}}}
+  {\multicitedelim}
+  {\usebibmacro{postnote}}
+
+% Specify your .bib file
+\addbibresource{sources.bib}
+%Hyperlink
+\usepackage[colorlinks=true, citecolor=black]{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,      
+    urlcolor=black,
+    pdftitle={Overleaf Example},
+    pdfpagemode=FullScreen,
+}
+
+%FOR inserting code
+\usepackage{xcolor}
+\usepackage{inconsolata}
+\usepackage{listingsutf8}
+
+% Define colors with improved visual distinction and appeal
+\definecolor{backcolour}{rgb}{0.97,0.97,0.98}  % Lighter, slightly blueish background
+\definecolor{codegray}{rgb}{0.4,0.4,0.45}      % Slightly blueish dark gray for comments
+
+% Core language colors
+\definecolor{javakeyword}{rgb}{0.0,0.45,0.65}  % Teal blue for keywords
+\definecolor{javatype}{rgb}{0.7,0.15,0.15}     % Dark red for types
+\definecolor{javastring}{rgb}{0.15,0.55,0.25}  % Forest green for strings
+\definecolor{javanumber}{rgb}{0.8,0.45,0.0}    % Orange for numbers
+\definecolor{javacomment}{rgb}{0.45,0.45,0.45} % Medium gray for comments
+\definecolor{javadoc}{rgb}{0.35,0.2,0.6}       % Purple for annotations/javadoc
+\definecolor{dkblue}{rgb}{0.0, 0.0, 0.5}
+
+% XML specific colors
+\definecolor{xmltag}{rgb}{0.15,0.45,0.7}       % Royal blue for XML tags
+\definecolor{xmlattr}{rgb}{0.6,0.15,0.4}       % Raspberry for XML attributes
+\definecolor{xmlstring}{rgb}{0.15,0.6,0.4}     % Turquoise for XML strings
+\definecolor{xmlcomment}{rgb}{0.5,0.5,0.48}    % Olive-gray for XML comments
+
+% Highlight and emphasis colors
+\definecolor{highlightcolor}{rgb}{1.0,0.95,0.7}  % Light yellow for highlights
+\definecolor{emphasiscolor}{rgb}{0.65,0.12,0.18} % Deep red for emphasis
+
+% Java style definition
+\lstdefinestyle{javastyle}{
+    language=Java,
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{javacomment},
+    keywordstyle=\color{javakeyword}\bfseries,
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{javastring},
+    emphstyle=\color{blue},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=4,
+    classoffset=1, 
+    morekeywords={@Override, @Deprecated, @SuppressWarnings, @FunctionalInterface, @IgnoreExtraProperties},
+    keywordstyle=\color{javadoc},
+    classoffset=2,
+    morekeywords={String, Integer, Boolean, Double, Float, List, Map, HashMap, ArrayList, Calendar, SimpleDateFormat},
+    keywordstyle=\color{dkblue},
+    classoffset=0,
+    literate={é}{{\'e}}1 {č}{{\v{c}}}1 {ľ}{{\v{l}}}1 {ť}{{\v{t}}}1 {ý}{{\'y}}1,
+    morecomment=[s]{/*}{*/},
+    morecomment=[l]{//},
+    morestring=[b]",
+    morestring=[b]',
+    otherkeywords={>,<,.,;,-,!,=,~,\$},
+}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+% XML style definition
+\lstdefinestyle{xmlstyle}{
+    language=XML,
+    backgroundcolor=\color{gray!10}, % Light gray background
+    basicstyle=\ttfamily\small, % Monospace font, small size
+    commentstyle=\color{gray}, % Comment color
+    keywordstyle=\color{blue}, % Tag names color
+    stringstyle=\color{teal}, % String values color
+    numberstyle=\tiny\color{gray}, % Line number color
+    breaklines=true, % Line breaking enabled
+    captionpos=b, % Caption position at bottom
+    keepspaces=true,
+    numbers=left, % Show line numbers
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2,
+    moredelim=[s][\color{teal}]{<}{>}, % Color full XML tags properly
+}
+
+\def\figureautorefname{viz obr.}
+
+% Usage examples:
+% \begin{lstlisting}[style=javastyle]
+% // Your Java code here
+% \end{lstlisting}
+%
+% \begin{lstlisting}[style=xmlstyle]
+% <!-- Your XML code here -->
+% \end{lstlisting}
+
+\renewcommand\lstlistingname{Zdrojový kód}
+\renewcommand\lstlistlistingname{Zdrojový kód}
+
+\begin{document}
+\titleformat{\chapter}{\normalfont\LARGE\bfseries}{\thechapter}{1em}{}
+\titlespacing*{\chapter}{0pt}{3.5ex plus 1ex minus .2ex}{2.3ex plus .2ex}
+
+\input{chapters/general_chapters/titlepage} %titlepage
+\include{chapters/general_chapters/cestneprohlaseni}
+\include{chapters/general_chapters/anotace}
+\include{chapters/general_chapters/uvod}
+\include{chapters/general_chapters/zadani}
+
+\renewcommand{\contentsname}{Obsah}
+\tableofcontents 
+\setcounter{page}{1}
+
+\include{chapters/program_chapters/problematika}
+\include{chapters/program_chapters/pouzite_technologie}
+\include{chapters/program_chapters/architektura_aplikace}
+\include{chapters/program_chapters/hlavni_funkce_aplikace}
+\include{chapters/program_chapters/postup_instalace}
+\include{chapters/general_chapters/Zaver}
+\include{chapters/general_chapters/seznampouzitychobrazku}
+
+\lstlistoflistings 
+\addcontentsline{toc}{chapter}{Zdrojový kód}
+
+\nocite{*}
+
+\renewcommand{\bibname}{Seznam použitých zdrojů} 
+\printbibliography
+
+\end{document}
