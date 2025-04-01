@@ -145,16 +145,23 @@
 \titleformat{\chapter}{\normalfont\LARGE\bfseries}{\thechapter}{1em}{}
 \titlespacing*{\chapter}{0pt}{3.5ex plus 1ex minus .2ex}{2.3ex plus .2ex}
 
+% Front matter without page numbers
+\pagestyle{empty}
 \input{chapters/general_chapters/titlepage} %titlepage
 \include{chapters/general_chapters/cestneprohlaseni}
 \include{chapters/general_chapters/anotace}
 \include{chapters/general_chapters/uvod}
 \include{chapters/general_chapters/zadani}
 
+% Start numbering with page 1 for table of contents
+\cleardoublepage
+\setcounter{page}{1}
+\pagestyle{plain}  % Enable page numbering
+
 \renewcommand{\contentsname}{Obsah}
 \tableofcontents 
-\setcounter{page}{1}
 
+% Continue with content (no need to reset page counter)
 \include{chapters/program_chapters/problematika}
 \include{chapters/program_chapters/pouzite_technologie}
 \include{chapters/program_chapters/architektura_aplikace}

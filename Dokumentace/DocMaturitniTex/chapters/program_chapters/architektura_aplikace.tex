@@ -5,7 +5,7 @@
 
 \newpage
 
-Zde jsou uvedeny důležité závislosti mého projektu. \textbf{Firebase BoM} používá se k automatickému správnému verzování závislostí souvisejících s Firebase. Díky tomu není nutné u každého Firebase produktu uvádět konkrétní verzi. \textbf{Firebase Analytics} poskytuje analytická data o používání aplikace, jako je chování uživatelů a interakce s aplikací.\textbf{ Firebase Realtime Database} je cloudová databáze umožňující synchronizaci dat v reálném čase mezi zařízeními. \textbf{Firebase Authentication} slouží k autentizaci uživatelů v aplikaci, například pomocí e-mailu, hesla nebo přihlášení přes Google. \textbf{Google Play Services Auth} poskytuje funkce pro autentizaci uživatele přes Google účet. MPAndroidChart je knihovna pro vykreslování grafů a vizualizaci dat v aplikaci.
+Zde jsou uvedeny důležité závislosti mého projektu. \textbf{Firebase BoM} používá se k automatickému správnému verzování závislostí souvisejících s Firebase. Díky tomu není nutné u každého Firebase produktu uvádět konkrétní verzi. \textbf{Firebase Analytics} poskytuje analytická data o používání aplikace, jako je chování uživatelů a interakce s aplikací.\textbf{ Firebase Realtime Database} je cloudová databáze umožňující synchronizaci dat v reálném čase mezi zařízeními. \textbf{Firebase Authentication} slouží k autentizaci uživatelů v aplikaci, například pomocí e-mailu, hesla nebo přihlášení přes Google. \textbf{Google Play Services Auth} poskytuje funkce pro autentizaci uživatele přes Google účet. \textbf{MPAndroidChart} je knihovna pro vykreslování grafů a vizualizaci dat v aplikaci.
 \begin{lstlisting}[style=javastyle,caption = {build.gradle},label = {lst:build.gradle}]
 dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.8.0"))
@@ -45,7 +45,7 @@ V adresáři DayPlanner/app je soubor google-services.json, který obsahuje vše
 
 Package auth se stará o autentikaci uživatele. Uživatel se může přihlásit přes Google nebo přes vlastní email. V případě, že si uživatel zakládá účet přes email, přijde mu na email odkaz na ověření. Jedině pokud uživatel email ověří, tak může pokračovat dále do aplikace a založit si účet. Package main se člení dál. Nachází se v něm funkcionalita pro časovou osu, vybírání dne z kalendáře, modely pro jednorázové a opakované akce a třída main. Package notifications se stará o vytváření a posílání notifikací. V package settings se nachází logika pro ukládání nastavení uživatele a package statistics se stará o počítání statistik a vytváření přehledného UI.
 
-Jak již bylo řečeno adresář res/ se stará o design aplikace. V podadresáři drawable se nachází xml soubory, které se pak používají v layout. Jedná se například o různé ikony, obrázky, pozadí nebo tvary. V podadresáři layout se nachází xml design pro aktivity a fragmenty. Aktivita se zpravidla skládá z více menších oddělitelných částí neboli z fragmentů. To slouží k znovupoužitelnosti a přehlednosti kódu. Pro lepší ilustraci aktivity a fragmentů je dáno k dispozici schéma níže. 
+Jak již bylo řečeno adresář res/ se stará o design aplikace. V podadresáři drawable se nachází xml soubory, které se pak používají v layout. Jedná se například o různé ikony, obrázky, pozadí nebo tvary. V podadresáři layout se nachází xml design pro aktivity a fragmenty. Aktivita se zpravidla skládá z více menších oddělitelných částí neboli z fragmentů. To slouží k znovupoužitelnosti a přehlednosti kódu. Pro lepší ilustraci aktivity a fragmentů je dáno k dispozici schéma níže(\autoref{fig:sunset}). 
 
 \newpage
 \begin{figure}[h]
@@ -94,7 +94,7 @@ Nejdůležitější součástí statistik je ukazatel celkové úspěšnosti v d
 
 Pod tímto ukazatelem se nachází kalendářová mapa, která rozděluje měsíc na jednotlivé dny. Každý den je zobrazen samostatně a jeho úspěšnost je vyjádřena pomocí kruhového indikátoru. Díky tomu má uživatel detailní přehled o tom, jak se mu v průběhu měsíce dařilo.  
 
-Kromě vizualizace jednotlivých dní aplikace zobrazuje i dvě další klíčové statistiky. První z nich je počet perfektních dní, tedy takových dní, kdy uživatel splnil všechny své návyky na sto procent. Druhou důležitou statistikou je nejdelší nepřerušená sekvence perfektních dní, označovaná jako "streak". Tato hodnota ukazuje, jak dlouhou dobu se uživateli dařilo udržet si pravidelný návykový režim bez přerušení.  
+Kromě vizualizace jednotlivých dní aplikace zobrazuje i dvě další zásadní statistiky. První z nich je počet perfektních dní, tedy takových dní, kdy uživatel splnil všechny své návyky na sto procent. Druhou důležitou statistikou je nejdelší nepřerušená sekvence perfektních dní, označovaná jako "streak". Tato hodnota ukazuje, jak dlouhou dobu se uživateli dařilo udržet si pravidelný návykový režim bez přerušení.  
 
 Pokud si uživatel zobrazí statistiky pro konkrétní návyk, získá ještě jednu doplňkovou informaci. V takovém případě se mu zobrazí také celkový počet splnění návyku za daný měsíc. Tato hodnota může být vyjádřena v různých jednotkách, například v minutách strávených cvičením, v celkové vzdálenosti v kilometrech nebo ve spálených kaloriích.  
 \newpage
@@ -346,7 +346,7 @@ sendVerificationLink.setOnClickListener(new View.OnClickListener() {
 \newpage
 
 \subsection{Habit}
-\hspace{14pt} Model návyku (Habit) je třída implementovaná v Javě, která spravuje všechny podstatné informace o individuálním návyku v aplikaci. Je navržena pro ukládání dat do Firebase Realtime Database, která umožňuje flexibilní ukládání dat.
+\hspace{14pt} Model návyku (Habit) je třída, která spravuje všechny podstatné informace o individuálním návyku v aplikaci. Je navržena pro ukládání dat do Firebase Realtime Database. Má například konstruktor bez argumentů, který je vyžadován pro práci s Firebase.
 
 \begin{figure}[H]
     \centering
@@ -355,11 +355,11 @@ sendVerificationLink.setOnClickListener(new View.OnClickListener() {
     \label{fig:habit-model}
 \end{figure}
 
-Každý návyk obsahuje řadu klíčových atributů, které definují jeho charakteristiku a průběh. Patří mezi ně jedinečné identifikační číslo, název, popis, frekvence provádění, datum zahájení, čas zahájení, měřítko a cílová hodnota. Systém také uchovává dynamické informace jako aktuální sérii úspěchů (current streak) a nejdelší sérii úspěchů (longest streak).
+Každý návyk obsahuje řadu atributů, které definují jeho charakteristiku a průběh. Patří mezi ně jedinečné identifikační číslo, název, popis, frekvence provádění, datum zahájení, čas zahájení, měřítko a cílová hodnota.
 
-Další součástí modelu jsou dvě mapy: `entries` a `goalHistory`. Mapa `entries` uchovává záznamy o jednotlivých dnech (`HabitEntry`), kde každý záznam reprezentuje postup a stav návyku v konkrétní den. Mapa `goalHistory` pak uchovává historii změn cílových hodnot pro různé datumy.
+Další součástí modelu jsou dvě mapy: entries a goalHistory. Mapa entries uchovává záznamy o jednotlivých dnech (HabitEntry), kde každý záznam reprezentuje postup a stav návyku v konkrétní den. Mapa goalHistory pak uchovává historii změn cílových hodnot pro různé datumy.
 
-Klíčovou metodou je `isHabitVisibleOnDate()`, která určuje, zda má být návyk zobrazen v určitém dni. Metoda pracuje s různými frekvencemi:
+Důležitou metodou je isHabitVisibleOnDate(), která určuje, zda má být návyk zobrazen v určitém dni. Metoda pracuje s různými frekvencemi:
 
 \newpage
 \begin{lstlisting}[style=javastyle,caption = {isHabitVisibleOnDate},label = {lst:isHabitVisibleOnDate}]
@@ -385,22 +385,21 @@ public boolean isHabitVisibleOnDate(String dateToCheck) {
 }
 \end{lstlisting}
 
-Metoda `getGoalValueForDate()` umožňuje dynamicky zjistit cílovou hodnotu pro konkrétní datum, přičemž preferuje specifické hodnoty z `goalHistory` před výchozí hodnotou návyku.
+Jak lze vidět uživatel si může vytvořit návyk i z libovolnou frekvencí. Funguje to tak, že si uživatel zaklikne dny v týdnu (pondělí - neděle), ve kterých chce návyk plnit. Když například chce návyk dělat každé pondělí a čtvrtek, aplikace uloží tuto informaci následovně: "M--T---", kde písmenka znamenají dny, kdy se návyk má objevovat a pomlčky indikují jeho absenci.
 
-Každý návyk má také své vlastní položky (HabitEntry), které reprezentují denní progress. Třída `HabitEntry` obsahuje datum, cílovou hodnotu pro daný den, aktuální postup a příznak dokončení. Metoda `updateProgress()` v této třídě automaticky spravuje postup a stanovuje, zda je úkol splněn.
+Metoda getGoalValueForDate() umožňuje dynamicky zjistit cílovou hodnotu pro konkrétní datum, přičemž preferuje specifické hodnoty z goalHistory před výchozí hodnotou návyku. Funguje to tak, že když vytvářím nové záznamy, program se podívá do jakého časového intervalu patří a podle toho nastaví cílovou hodnotu. 
 
-V kontextu ukládání a správy dat spolupracuje `GoalManager` s modelem návyku. Poskytuje metody pro aktualizaci cílových hodnot, ukládání historie cílů a správu budoucích záznamů.
+Každý návyk má také své vlastní položky (HabitEntry), které reprezentují denní progress. Třída HabitEntry obsahuje datum, cílovou hodnotu pro daný den, aktuální postup a příznak dokončení. Metoda updateProgress() v této třídě automaticky spravuje postup a stanovuje, zda je úkol splněn.
+
+V kontextu ukládání a správy dat spolupracuje GoalManager s modelem návyku. Poskytuje metody pro aktualizaci cílových hodnot, ukládání historie cílů a správu budoucích záznamů.
+Například, když uživatel změní cílovou hodnotu, musím tuto hodnotu změnit i pro všechny budoucí existující záznamy.
 
 Celý model je navržen s ohledem na flexibilitu a dynamické sledování postupu uživatele při plnění jeho návyků.
 
-
 \subsection{Task}
-\hspace{14pt} Třída `Task`, umístěná v balíčku `com.example.dayplanner.main.tasks`, představuje model jednorázového úkolu v aplikaci DayPlanner. Tento model slouží k uchování a správě informací o jednotlivých úkolech, které uživatel zadává do aplikace. Každý úkol obsahuje specifické atributy, které umožňují jeho efektivní načítání, zpracování a vizualizaci v rámci časové osy.  
+\hspace{14pt} Třída Task, umístěná v balíčku com.example.dayplanner.main.tasks, představuje model jednorázového úkolu. Tento model slouží k uchování a správě informací o jednotlivých úkolech, které uživatel zadává do aplikace. Každý úkol obsahuje specifické atributy, které umožňují jeho efektivní načítání, zpracování a vizualizaci v rámci časové osy.  
 
-Struktura třídy zahrnuje identifikátor úkolu (`taskId`), název (`taskTitle`), volitelný popis (`taskDescription`), datum přiřazení (`taskDate`), čas začátku (`taskStartTime`), délku trvání (`taskLength`) a stav dokončení (`isCompleted`). Datum je uloženo ve formátu `ddMMyyyy`, což umožňuje snadné vyhledávání a třídění úkolů v databázi. Čas začátku a délka trvání jsou klíčové parametry pro správné umístění a vizuální reprezentaci úkolu na časové ose.  
-
-Kromě základních getterů a setterů obsahuje třída také metodu `isValid()`, která ověřuje, zda jsou všechny klíčové atributy úkolu správně vyplněny. To zabraňuje ukládání nekompletních nebo chybných záznamů do databáze.  
-
+Struktura třídy zahrnuje identifikátor úkolu (taskId), název (taskTitle), volitelný popis (taskDescription), datum přiřazení (taskDate), čas začátku (taskStartTime), délku trvání (taskLength) a stav dokončení (isCompleted). Datum je uloženo ve formátu `ddMMyyyy`, což umožňuje snadné vyhledávání a třídění úkolů v databázi. Čas začátku a délka trvání jsou nezbytné parametry pro správné umístění a vizuální reprezentaci úkolu na časové ose.  
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.4\linewidth]{images/TASK.png}
@@ -409,7 +408,7 @@ Kromě základních getterů a setterů obsahuje třída také metodu `isValid()
 \end{figure}
 \newpage
 \subsection{Časová osa}
-\hspace{14pt} Časová osa je klíčovým prvkem aplikace DayPlanner, který uživatelům umožňuje lépe si představit svůj den a efektivně plánovat pomocí blokového plánování.
+\hspace{14pt} Časová osa je důležitým prvkem aplikace DayPlanner, který uživatelům umožňuje lépe si představit svůj den a efektivně plánovat pomocí blokového plánování.
 
 Implementace časové osy zahrnuje načítání, zpracování a vizualizaci denních aktivit. Data pocházejí ze dvou zdrojů – jednorázové úkoly jsou uloženy v lokální SQLite databázi, zatímco pravidelné návyky se spravují v cloudovém úložišti Firebase Realtime Database. Proces začíná výběrem konkrétního data, kdy TimelineFragment spouští paralelní načítání úkolů a návyků. Metoda fetchTasks() získává jednorázové úkoly z lokální databáze, zatímco fetchHabits() zpracovává data o návycích z Firebase.
 
@@ -424,7 +423,7 @@ Celková architektura systému je navržena s důrazem na flexibilitu a snadnou 
 \newpage
 
 \subsection{Statistiky}
-\hspace{14pt} Klíčovou funkcí aplikace DayPlanner jsou již zmíněné statistiky. Zde jsou shrnuty algoritmy a výpočty použité k vytvoření smysluplných a pro uživatele zajímavých statistik.
+\hspace{14pt} Důležitou funkcí aplikace DayPlanner jsou již zmíněné statistiky. Zde jsou shrnuty algoritmy a výpočty použité k vytvoření smysluplných a pro uživatele zajímavých statistik.
 
 
 \dirtree{%
@@ -460,7 +459,7 @@ private void fetchAllHabitData(String monthId) {
 
 Pokud uživatel klikne na konkrétní návyk, nechci ukazovat data pro všechny návyky ale jen pro jeden specifický v daném měsíci. O to se stará metoda processHabitForMonth. Jelikož jsou výpočty pro získání statistik pro jeden návyk a celý měsíc podobné, využívají stejných menších funkcí. Tím nevzniká redundantní kód a vše je přehlednější a udržitelnější. Níže jsou popsány již zmíněné menší funkce.
 
-Algoritmus pro výpočet nejdelšího sledu (streaku) představuje klíčový prvek hodnocení konzistence uživatelova chování. Implementovaná metoda `countLongestStreak` provádí lineární průchod přes všechny denní záznamy a sleduje nepřerušenou sérii úspěšně splněných dnů. Algoritmu stačí lineárně projít pole. Vždy, když potká další hodnotu true, zvýší si počítadlo o jedna a porovná hodnotu s dosavadním maximem(dosud nejdelší nalezená posloupnost) a do proměnné dosavadního maxima uloží maximum z těchto hodnot. Perfektní dny se počítají jednoduše tak, že se nehledá nejdelší sekvence, nýbrž se jen navyšuje počítadlo o jedna vždy, když jsou všechny návyky během dne splněny na sto procent.
+Algoritmus pro výpočet nejdelšího sledu (streaku) představuje prvek hodnocení konzistence uživatelova chování. Implementovaná metoda `countLongestStreak` provádí lineární průchod přes všechny denní záznamy a sleduje nepřerušenou sérii úspěšně splněných dnů. Algoritmu stačí lineárně projít pole. Vždy, když potká další hodnotu true, zvýší si počítadlo o jedna a porovná hodnotu s dosavadním maximem(dosud nejdelší nalezená posloupnost) a do proměnné dosavadního maxima uloží maximum z těchto hodnot. Perfektní dny se počítají jednoduše tak, že se nehledá nejdelší sekvence, nýbrž se jen navyšuje počítadlo o jedna vždy, když jsou všechny návyky během dne splněny na sto procent.
 
 Graf pokroku, implementovaný pomocí knihovny MPAndroidChart, vizualizuje vývoj dat. Algoritmus `formatHabitProgressDataForChart` zajišťuje přípravu dat pro grafické zobrazení tím, že eliminuje redundantní body a zachovává pouze významné změny v hodnotách. Jednoduše řečeno hledá jen změny v cílové hodnotě návyku v průběhu měsíce a pokud takovou změnu najde, uloží si datum této změny. Pokud nejsou k dispozici dostatečná data (méně než dva body), je graf automaticky skryt, protože by byl nevypovídající.
 
