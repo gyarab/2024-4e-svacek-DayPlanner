@@ -3,6 +3,8 @@ package com.example.dayplanner.main.habits;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -92,20 +94,18 @@ public class HabitDialogFragment extends DialogFragment {
         if (getDialog() != null && getDialog().getWindow() != null) {
             Window window = getDialog().getWindow();
 
-            // Set the dialog to appear at the bottom
+            // Set window to be transparent
+            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+            // Full width, at the bottom
             WindowManager.LayoutParams params = window.getAttributes();
             params.gravity = Gravity.BOTTOM;
             params.width = ViewGroup.LayoutParams.MATCH_PARENT;
             params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
             window.setAttributes(params);
 
+            // Apply slide-up animation
             window.setWindowAnimations(R.style.BottomDialogAnimation);
-
-            View view = getDialog().findViewById(R.id.habit_dialog_root);
-            if (view != null) {
-                Animation slideUp = AnimationUtils.loadAnimation(getContext(), R.anim.slide_up);
-                view.startAnimation(slideUp);
-            }
         }
     }
 
