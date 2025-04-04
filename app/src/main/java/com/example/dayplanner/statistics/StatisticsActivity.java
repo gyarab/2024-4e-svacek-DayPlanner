@@ -339,14 +339,26 @@ public class StatisticsActivity extends AppCompatActivity {
         String firstDayOfMonth = "01" + monthId;
         String lastDayOfMonth = getLastDayOfMonth(monthId);
 
+        // Determine the correct end date
+        String lastAvailableDate;
+        if (monthId.equals(getActualCurrentMonthId())) {
+            Calendar yesterdayCal = Calendar.getInstance();
+            yesterdayCal.add(Calendar.DAY_OF_MONTH, -1);
+            lastAvailableDate = dayMonthYearFormat.format(yesterdayCal.getTime());
+        } else {
+            lastAvailableDate = lastDayOfMonth;
+        }
+
+        Log.d("processHabitData", "Processing from " + firstDayOfMonth + " to " + lastAvailableDate);
+
         for (DataSnapshot habitSnapshot : dataSnapshot.getChildren()) {
             Habit habit = habitSnapshot.getValue(Habit.class);
             if (habit == null) continue;
 
             try {
-                processHabitForMonth(habit, monthId, currentDateStr, dailyTotalPercentage, dailyEntryCount, perfectDays);
+                processHabitForMonth(habit, monthId, lastAvailableDate, dailyTotalPercentage, dailyEntryCount, perfectDays);
             } catch (Exception e) {
-                Log.e("processHabitData", "Error processing habit: " + e.getMessage());
+                Log.e("processHabitData", "Error processing habit: " + e.getMessage(), e);
             }
         }
 
@@ -359,9 +371,6 @@ public class StatisticsActivity extends AppCompatActivity {
         // Create and cache StatisticsData
         StatisticsData monthData = new StatisticsData();
         monthData.overallProgress = overallProgress;
-
-        Log.d("MONTHLX", ""+ monthData.overallProgress);
-
         monthData.perfectDays = perfectDaysCount;
         monthData.longestStreak = longestStreak;
         monthData.dailyProgress = dailyAveragePercentage;
@@ -371,7 +380,7 @@ public class StatisticsActivity extends AppCompatActivity {
         runOnUiThread(() -> updateUIWithCachedData(monthData));
     }
 
-    private void processHabitForMonth(Habit habit, String monthId, String currentDateStr,
+    private void processHabitForMonth(Habit habit, String monthId, String lastAvailableDate,
                                       LinkedHashMap<String, Float> dailyTotalPercentage,
                                       LinkedHashMap<String, Integer> dailyEntryCount,
                                       LinkedHashMap<String, Boolean> perfectDays) throws ParseException {
@@ -380,13 +389,12 @@ public class StatisticsActivity extends AppCompatActivity {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(getDateFromCache(startDate));
 
-        while (true) {
+        String firstDayOfMonth = "01" + monthId;
+        Date endDate = getDateFromCache(lastAvailableDate);
+
+        while (!calendar.getTime().after(endDate)) {
             String dateKey = dayMonthYearFormat.format(calendar.getTime());
 
-            // Stop if we've gone past today
-            if (dateKey.compareTo(currentDateStr) > 0) break;
-
-            // Process only dates in the requested month
             if (dateKey.substring(2, 8).equals(monthId)) {
                 if (habit.isHabitVisibleOnDate(dateKey)) {
                     if (!dailyTotalPercentage.containsKey(dateKey)) {
@@ -414,7 +422,9 @@ public class StatisticsActivity extends AppCompatActivity {
 
             // Move to next day
             calendar.add(Calendar.DAY_OF_MONTH, 1);
-            if (dateKey.equals(currentDateStr)) break;
+
+            // Stop if we reach the end date
+            if (dateKey.equals(lastAvailableDate)) break;
         }
     }
 
@@ -511,10 +521,14 @@ public class StatisticsActivity extends AppCompatActivity {
             // Determine the correct end date
             String lastAvailableDate;
             if (currentMonthId.equals(getActualCurrentMonthId())) {
-                lastAvailableDate = todayDate; // Limit to today if it's the current month
+                Calendar yesterdayCal = Calendar.getInstance();
+                yesterdayCal.add(Calendar.DAY_OF_MONTH, -1);
+                lastAvailableDate = dayMonthYearFormat.format(yesterdayCal.getTime());
             } else {
                 lastAvailableDate = lastDayOfMonth;
             }
+
+            Log.d("ProcessHabitDetails", "Processing from " + firstDayOfMonth + " to " + lastAvailableDate);
 
             Date startDate = getDateFromCache(firstDayOfMonth);
             Date endDate = getDateFromCache(lastAvailableDate);
@@ -535,6 +549,7 @@ public class StatisticsActivity extends AppCompatActivity {
                         habitProgressData.add(new HabitProgressEntry(entryDate, habitEntry.getProgress(), habitEntry.getEntryGoalValue()));
                     } else {
                         dailyCompletionPercentages.put(entryDate, 0f);
+                        habitProgressData.add(new HabitProgressEntry(entryDate, 0, habit.getGoalValue()));
                     }
                 }
 
@@ -559,7 +574,7 @@ public class StatisticsActivity extends AppCompatActivity {
 
             runOnUiThread(() -> updateUIWithCachedData(habitData));
         } catch (Exception e) {
-            Log.e("processHabitDetails", "Error: " + e.getMessage());
+            Log.e("processHabitDetails", "Error: " + e.getMessage(), e);
         }
     }
 
